@@ -1,7 +1,11 @@
 // VALIDIERTE VERSION: Mission Freiheit v1.0 (Synthesized & Hardened)
 // UPGRADE: ISONOMIE Canvas-Simulation integriert. TranscriptSynchronizer-Klasse integriert.
 
-// === Helper Class: TranscriptSynchronizer ===
+/**
+ * TranscriptSynchronizer
+ * Eine Helferklasse, die ein <audio>-Element mit einem Transkript-Container verbindet.
+ * Sie hebt die aktuell gesprochene Zeile hervor und ermöglicht das Springen per Klick.
+ */
 class TranscriptSynchronizer {
     constructor(box) {
         this.box = box;
@@ -17,6 +21,7 @@ class TranscriptSynchronizer {
         }
         this.audio.addEventListener('timeupdate', () => this.sync());
         
+        // Klick-Ereignis für Transkript-Zeilen
         this.cues.forEach(cue => {
             cue.addEventListener('click', () => {
                 this.audio.currentTime = parseFloat(cue.dataset.start);
@@ -31,6 +36,9 @@ class TranscriptSynchronizer {
         }
     }
 
+    /**
+     * Schaltet die Sichtbarkeit des Transkripts um.
+     */
     toggle() {
         if (!this.transcriptContainer || !this.toggleBtn) return;
         const isHidden = this.transcriptContainer.hidden;
@@ -39,11 +47,15 @@ class TranscriptSynchronizer {
         this.toggleBtn.textContent = isHidden ? 'Transkript ausblenden' : 'Transkript anzeigen';
     }
 
+    /**
+     * Synchronisiert das Transkript mit der aktuellen Audio-Zeit.
+     */
     sync() {
         if (!this.transcriptContainer || this.transcriptContainer.hidden || !this.audio || this.audio.paused) return;
         const time = this.audio.currentTime;
         let activeCue = null;
         
+        // Findet die aktive Zeile
         this.cues.forEach(cue => {
             const start = parseFloat(cue.dataset.start);
             const end = parseFloat(cue.dataset.end || Infinity);
@@ -54,6 +66,7 @@ class TranscriptSynchronizer {
             }
         });
 
+        // Scrollt die aktive Zeile in die Mitte, falls nötig
         if (activeCue) {
             const container = this.transcriptContainer;
             const containerScrollTop = container.scrollTop;
@@ -61,64 +74,82 @@ class TranscriptSynchronizer {
             const cueOffsetTop = activeCue.offsetTop;
             const cueHeight = activeCue.offsetHeight;
 
+            // Prüft, ob die Zeile außerhalb des sichtbaren Bereichs ist
             if (cueOffsetTop < containerScrollTop || cueOffsetTop + cueHeight > containerScrollTop + containerHeight) {
+                // Scrollt in die Mitte
                 container.scrollTop = cueOffsetTop - (container.clientHeight / 2) + (cueHeight / 2);
             }
         }
     }
 }
 
-// === NEU: Helper Class für Simulations-Partikel ===
+/**
+ * Particle
+ * Eine Helferklasse für die Canvas-Simulation. Repräsentiert ein einzelnes Partikel (Bürger).
+ */
 class Particle {
     constructor(width, height) {
         this.width = width;
         this.height = height;
         this.x = Math.random() * this.width;
         this.y = Math.random() * this.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vx = (Math.random() - 0.5) * 0.5; // Geschwindigkeit x
+        this.vy = (Math.random() - 0.5) * 0.5; // Geschwindigkeit y
         this.size = Math.random() * 1.5 + 0.5;
-        this.color = '#444444'; // C_PARTICLE
-        this.selected = false;
-        this.preference = Math.random(); 
+        this.color = '#444444'; // Basis-Partikelfarbe
+        this.selected = false; // Für Los-Modus
+        this.preference = Math.random(); // Für Wahl-Modus (0 -> Zentrum 1, 1 -> Zentrum 2)
     }
     
+    /**
+     * Aktualisiert die Position und Farbe des Partikels basierend auf dem Modus.
+     * @param {string} mode - 'election' (Wahl) oder 'sortition' (Los)
+     * @param {Array} centers - Die Gravitationszentren für den 'election'-Modus
+     */
     update(mode, centers) {
         if (mode === 'election') {
+            // WAHL-MODUS: Partikel bewegt sich zu seinem bevorzugten Zentrum
             let target = this.preference < 0.5 ? centers[0] : centers[1];
             let dx = target.x - this.x;
             let dy = target.y - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
             if(dist > 10) {
-                this.vx += (dx / dist) * 0.05;
+                this.vx += (dx / dist) * 0.05; // Gravitationskraft
                 this.vy += (dy / dist) * 0.05;
             }
-            this.vx *= 0.95;
+            this.vx *= 0.95; // Dämpfung
             this.vy *= 0.95;
             this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic (Angepasst)
             this.size = 1.5;
-        } else { // 'sortition'
+        } else { // 'sortition' (LOS-MODUS)
+            // LOS-MODUS: Partikel bewegt sich zufällig (Entropie)
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-            if(speed > 2) {
+            if(speed > 2) { // Geschwindigkeitsbegrenzung
                 this.vx = (this.vx/speed)*2;
                 this.vy = (this.vy/speed)*2;
             }
+            // Geloste Partikel werden hervorgehoben
             if (this.selected) {
-                this.color = '#00CC66'; // C_LOGIC
+                this.color = '#00CC66'; // Logic-Farbe
                 this.size = 3;
             } else {
                 this.color = '#333'; 
                 this.size = 1;
             }
         }
+        // Position aktualisieren und an Rändern abprallen lassen
         this.x += this.vx;
         this.y += this.vy;
         if (this.x < 0 || this.x > this.width) this.vx *= -1;
         if (this.y < 0 || this.y > this.height) this.vy *= -1;
     }
 
+    /**
+     * Zeichnet das Partikel auf den Canvas.
+     * @param {CanvasRenderingContext2D} ctx - Der 2D-Kontext des Canvas
+     */
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -128,9 +159,13 @@ class Particle {
 }
 
 
-// === Hauptklasse: PhoenixDossier ===
+/**
+ * PhoenixDossier
+ * Die Hauptklasse, die die gesamte Anwendungslogik steuert.
+ */
 class PhoenixDossier {
     constructor() {
+        // Sammelt alle wichtigen DOM-Elemente
         this.DOM = {
             body: document.body,
             focusPane: document.querySelector('.focus-pane'),
@@ -140,7 +175,7 @@ class PhoenixDossier {
             narrativePath: document.querySelector('.narrative-thread-path'),
             navItems: document.querySelectorAll('.bento-nav .nav-item'),
             sections: document.querySelectorAll('.chapter-section'),
-            // NEU: Simulations-DOM-Elemente
+            // Simulations-DOM-Elemente
             simCanvas: document.getElementById('sim-canvas'),
             simWrapper: document.getElementById('canvas-wrapper'),
             simBtnElect: document.getElementById('btn-elect'),
@@ -153,29 +188,33 @@ class PhoenixDossier {
             isLowPerfMode: false,
         };
 
-        // NEU: Simulations-Status
+        // Simulations-Status
         this.simState = {
             ctx: null,
             width: 0,
             height: 0,
             particles: [],
-            centers: [],
-            mode: 'election',
+            centers: [], // Gravitationszentren
+            mode: 'election', // Startmodus
             animationFrame: null
         };
 
         this.init();
     }
 
+    /**
+     * Initialisiert alle Module der Anwendung.
+     */
     init() {
         this.setupPerfToggle();
         this.setupAudioPlayers();
         
-        // NEU: Simulation initialisieren
+        // Simulation initialisieren, falls Elemente vorhanden
         if (this.DOM.simCanvas && this.DOM.simWrapper) {
             this.setupSimulation();
         }
         
+        // GSAP-Animationen einrichten (oder überspringen)
         try {
             if (!this.state.isLowPerfMode && window.gsap) {
                 this.setupGSAPAnimations();
@@ -196,18 +235,22 @@ class PhoenixDossier {
         console.log('Synthetisiertes Dossier vollständig initialisiert.');
     }
     
-    // ... (setupAudioPlayers, setupAudioControls, setupAudioVisualizer, formatTime, setupPerfToggle, manualSplitText, setupGSAPAnimations, setupScrollSpy, setupShareButtons, generateTakeaways bleiben identisch) ...
-    
+    /**
+     * Richtet alle Audio-Player auf der Seite ein (außer dem Sim-Control-Panel).
+     */
     setupAudioPlayers() {
         document.querySelectorAll('.audio-feature-box:not(.sim-controls)').forEach(box => {
-            new TranscriptSynchronizer(box);
-            this.setupAudioControls(box);
+            new TranscriptSynchronizer(box); // Transkript-Helfer initialisieren
+            this.setupAudioControls(box); // Player-Steuerung initialisieren
             if (!this.state.isLowPerfMode && window.innerWidth > 1024) {
-                this.setupAudioVisualizer(box);
+                this.setupAudioVisualizer(box); // Visualizer initialisieren
             }
         });
     }
 
+    /**
+     * Richtet die Steuerelemente für einen einzelnen Audio-Player ein.
+     */
     setupAudioControls(box) {
         const audio = box.querySelector('audio');
         const playPauseBtn = box.querySelector('.play-pause-btn');
@@ -226,6 +269,7 @@ class PhoenixDossier {
         const currentTimeEl = box.querySelector('.current-time');
         const skipBtns = box.querySelectorAll('.skip-btn');
         
+        // Aktualisiert das Play/Pause-Icon
         const updatePlayPauseIcon = () => {
             const isPaused = audio.paused;
             if(iconPlay) iconPlay.style.display = isPaused ? 'block' : 'none';
@@ -233,16 +277,19 @@ class PhoenixDossier {
             playPauseBtn.setAttribute('aria-label', isPaused ? 'Abspielen' : 'Pausieren');
         };
         
+        // Metadaten geladen: Gesamtzeit anzeigen
         audio.addEventListener('loadedmetadata', () => {
             totalTimeEl.textContent = this.formatTime(audio.duration);
         });
         
+        // Fehlerbehandlung
         audio.addEventListener('error', () => {
             console.error(`Audio-Datei konnte nicht geladen werden: ${audio.src}`);
             const audioBox = audio.closest('.audio-feature-box');
             if (audioBox) audioBox.innerHTML += '<p style="color:red;">Fehler: Die Audiodatei konnte nicht geladen werden.</p>';
         });
 
+        // Klick-Handler
         playPauseBtn.addEventListener('click', () => {
             audio.paused ? audio.play() : audio.pause();
         });
@@ -254,6 +301,7 @@ class PhoenixDossier {
             updatePlayPauseIcon();
         });
 
+        // Zeit-Aktualisierung
         audio.addEventListener('timeupdate', () => {
             if (progressBar) {
                 const progress = (audio.currentTime / audio.duration) * 100;
@@ -264,6 +312,7 @@ class PhoenixDossier {
             }
         });
 
+        // Klick auf Fortschrittsbalken
         progressContainer.addEventListener('click', (e) => {
             const rect = progressContainer.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -271,6 +320,7 @@ class PhoenixDossier {
             audio.currentTime = newTime;
         });
 
+        // Skip-Buttons
         skipBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const skipAmount = parseFloat(btn.dataset.skip);
@@ -278,6 +328,7 @@ class PhoenixDossier {
             });
         });
 
+        // Geschwindigkeits-Button
         if (speedBtn) {
             const speeds = [1, 1.25, 1.5, 1.75, 2, 0.75];
             let currentSpeedIndex = 0;
@@ -288,9 +339,12 @@ class PhoenixDossier {
                 speedBtn.textContent = `${newSpeed}x`;
             });
         }
-        updatePlayPauseIcon();
+        updatePlayPauseIcon(); // Initialzustand setzen
     }
     
+    /**
+     * Richtet den Web Audio API Visualizer ein (falls nicht im Low-Perf-Modus).
+     */
     setupAudioVisualizer(box) {
          if (!window.AudioContext && !window.webkitAudioContext) {
             console.warn("AudioContext nicht verfügbar. Visualizer deaktiviert.");
@@ -307,6 +361,7 @@ class PhoenixDossier {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const analyser = audioContext.createAnalyser();
         
+        // Verbindet die Audio-Quelle nur einmal
         if (!audio.dataset.audioSourceConnected) {
             try {
                 const source = audioContext.createMediaElementSource(audio);
@@ -323,6 +378,7 @@ class PhoenixDossier {
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
+        // Zeichenfunktion
         const draw = () => {
             if (audio.paused || audio.ended) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -337,13 +393,15 @@ class PhoenixDossier {
 
             for (let i = 0; i < bufferLength; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`; // Annahme: --primary-color ist cyan
+                // Verwendet die primäre CSS-Variable (angenommenes Cyan)
+                ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`;
                 ctx.fillRect(barX, canvas.height - barHeight, barWidth, barHeight);
                 barX += barWidth + 1;
             }
         };
 
         const startVisualizer = () => {
+            // AudioContext muss ggf. durch Nutzerinteraktion gestartet werden
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
@@ -352,10 +410,13 @@ class PhoenixDossier {
         
         audio.addEventListener('play', startVisualizer);
         audio.addEventListener('timeupdate', () => {
-            if (!audio.paused) draw();
+            if (!audio.paused) draw(); // Zeichnet nur, wenn Audio aktiv ist
         });
     }
     
+    /**
+     * Formatiert Sekunden in ein MM:SS-Format.
+     */
     formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '00:00';
         const min = Math.floor(seconds / 60);
@@ -363,6 +424,9 @@ class PhoenixDossier {
         return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
+    /**
+     * Richtet den Performance-Umschalter ein.
+     */
     setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
         
@@ -375,10 +439,13 @@ class PhoenixDossier {
         this.DOM.perfToggle.addEventListener('click', () => {
             this.state.isLowPerfMode = !this.state.isLowPerfMode;
             localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode));
-            window.location.reload(); 
+            window.location.reload(); // Lädt die Seite neu, um Animationen sauber zu (de-)aktivieren
         });
     }
 
+    /**
+     * Teilt Text für GSAP-Animationen in einzelne Zeichen auf.
+     */
     manualSplitText(element) {
         if (!element) return [];
         const originalText = element.textContent;
@@ -389,18 +456,22 @@ class PhoenixDossier {
             const charSpan = document.createElement('span');
             charSpan.className = 'char-anim';
             charSpan.style.display = 'inline-block';
-            charSpan.textContent = (char === ' ') ? '\u00A0' : char;
+            charSpan.textContent = (char === ' ') ? '\u00A0' : char; // Leerzeichen erhalten
             element.appendChild(charSpan);
             chars.push(charSpan);
         });
         return chars;
     }
 
+    /**
+     * Richtet alle GSAP-Animationen ein.
+     */
     setupGSAPAnimations() {
         if (!this.DOM.mainTitle || !this.DOM.subTitle) return;
 
         gsap.registerPlugin(ScrollTrigger);
 
+        // Header-Titel-Animation
         const mainChars = this.manualSplitText(this.DOM.mainTitle);
         const subChars = this.manualSplitText(this.DOM.subTitle);
 
@@ -418,6 +489,7 @@ class PhoenixDossier {
             ease: 'power1.out', stagger: 0.01, delay: 1.0
         });
         
+        // Kapitel-Titel Scroll-Animation
         document.querySelectorAll('.chapter-section').forEach(section => {
             const title = section.querySelector('.chapter-title');
             if (title) {
@@ -431,6 +503,7 @@ class PhoenixDossier {
             }
         });
 
+        // Narrative Thread (SVG-Pfad) Animation
         if (this.DOM.narrativePath && this.DOM.focusPane) {
             const pathLength = this.DOM.narrativePath.getTotalLength();
             if (pathLength > 0) {
@@ -446,6 +519,7 @@ class PhoenixDossier {
             }
         }
         
+        // "Final Actions" Sektions-Animation
         const finalSection = document.querySelector('.final-actions');
         if (finalSection) {
             const finalCta = finalSection.querySelector('#final-cta');
@@ -455,13 +529,16 @@ class PhoenixDossier {
         }
     }
     
+    /**
+     * Richtet den Scroll-Spy für die Bento-Navigation ein.
+     */
     setupScrollSpy() {
         if (!this.DOM.sections.length || !this.DOM.navItems.length) return;
 
         const observerOptions = {
-            root: null, 
+            root: null, // Beobachtet im Browser-Viewport
             rootMargin: '0px',
-            threshold: 0.3 
+            threshold: 0.3 // Auslösen, wenn 30% der Sektion sichtbar sind
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -483,6 +560,9 @@ class PhoenixDossier {
         });
     }
 
+    /**
+     * Richtet die Share-Buttons ein.
+     */
     setupShareButtons() {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
@@ -497,13 +577,16 @@ class PhoenixDossier {
         if (facebookBtn) facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
     }
     
+    /**
+     * Generiert die Takeaway-Liste in Sektion 7 dynamisch.
+     */
     generateTakeaways() {
         const container = document.querySelector('#knowledge-distillate ul');
         if (!container) return;
         
         const sections = document.querySelectorAll('section[data-takeaway]');
         sections.forEach((section) => {
-            // NEU: Überspringe part0 für die Takeaways
+            // Überspringt die Simulations-Sektion (part0)
             if (section.id === 'part0') return;
             
             const takeawayText = section.dataset.takeaway;
@@ -516,8 +599,11 @@ class PhoenixDossier {
     }
 
 
-    // --- NEUE INTEGRIERTE SIMULATIONS-LOGIK ---
+    // --- INTEGRIERTE SIMULATIONS-LOGIK ---
     
+    /**
+     * Initialisiert die Canvas-Simulation.
+     */
     setupSimulation() {
         this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         
@@ -525,11 +611,11 @@ class PhoenixDossier {
         window.addEventListener('resize', () => this.resizeSimulation());
 
         this.simState.particles = [];
-        for(let i=0; i<800; i++) {
+        for(let i=0; i<800; i++) { // Erzeugt 800 Partikel
             this.simState.particles.push(new Particle(this.simState.width, this.simState.height));
         }
         
-        // Wähle 50 Partikel für den 'sortition'-Modus aus
+        // Wählt 50 Partikel zufällig aus (für den Los-Modus)
         const indices = new Set();
         while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
         indices.forEach(i => this.simState.particles[i].selected = true);
@@ -538,9 +624,12 @@ class PhoenixDossier {
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
 
-        this.loopSimulation(); // Starte den Animations-Loop
+        this.loopSimulation(); // Startet den Animations-Loop
     }
 
+    /**
+     * Passt die Größe der Simulation an den Wrapper an.
+     */
     resizeSimulation() {
         if (!this.DOM.simWrapper) return;
         this.simState.width = this.DOM.simWrapper.offsetWidth;
@@ -548,12 +637,13 @@ class PhoenixDossier {
         this.DOM.simCanvas.width = this.simState.width;
         this.DOM.simCanvas.height = this.simState.height;
         
+        // Definiert die Gravitationszentren neu
         this.simState.centers = [
             {x: this.simState.width * 0.25, y: this.simState.height * 0.5},
             {x: this.simState.width * 0.75, y: this.simState.height * 0.5}
         ];
         
-        // Partikel-Positionen aktualisieren, um im neuen Frame zu bleiben
+        // Stellt sicher, dass Partikel im Frame bleiben
         this.simState.particles.forEach(p => {
             p.width = this.simState.width;
             p.height = this.simState.height;
@@ -562,20 +652,23 @@ class PhoenixDossier {
         });
     }
 
+    /**
+     * Der Haupt-Animations-Loop für die Simulation.
+     */
     loopSimulation() {
         if (!this.simState.ctx) return;
-
-        // Blending-Effekt für Spuren
+        
+        // Zeichnet einen halbtransparenten Hintergrund für Bewegungsschleier
         this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // --void mit alpha
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
-        // Partikel aktualisieren und zeichnen
+        // Aktualisiert und zeichnet jedes Partikel
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
-        // Gravitationszentren im Wahl-Modus zeichnen
+        // Zeichnet die Gravitationszentren (nur im Wahl-Modus)
         if(this.simState.mode === 'election') {
             this.simState.ctx.beginPath();
             this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
@@ -588,14 +681,18 @@ class PhoenixDossier {
             this.simState.ctx.fill();
         }
 
+        // Fordert den nächsten Frame an
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
     }
 
+    /**
+     * Wechselt den Modus der Simulation (Wahl vs. Los).
+     */
     setSimMode(newMode) {
         if (this.simState.mode === newMode) return;
         this.simState.mode = newMode;
 
-        // UI-Elemente aktualisieren
+        // Aktualisiert die UI-Texte und Button-Stile
         const alertSpan = `<span style="color: var(--alert);">Gravitationszentren</span>`;
         const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
 
@@ -616,6 +713,7 @@ class PhoenixDossier {
 }
 
 // === INITIALISIERUNG ===
+// Startet die Anwendung, sobald das DOM geladen ist.
 window.addEventListener('DOMContentLoaded', () => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
