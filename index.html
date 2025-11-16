@@ -16,15 +16,19 @@
     <meta property="og:description" content="Ein interaktives Dossier, das die Demokratiekrise analysiert, eine Simulation von Wahl vs. Los bietet und mit der Losdemokratie einen konkreten Lösungsweg aufzeigt.">
     <meta property="og:image" content="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80">
     
-    <!-- Sicherheitspolitik für Inhalte -->
+    <!-- 
+      GEHEILTES SICHERHEITSSIEGEL (CSP):
+      1. 'unsafe-inline' zu 'style-src' hinzugefügt: Erlaubt GSAP und main.js, Inline-Styles zu setzen (nötig für Animationen, Icons und Fortschrittsbalken).
+      2. 'https://cdn.jsdelivr.net' zu 'connect-src' hinzugefügt: Erlaubt dem Audio-Visualizer (Web Audio API), die Audio-Quelle vom CDN zu analysieren.
+    -->
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
         script-src 'self' https://cdnjs.cloudflare.com;
-        style-src 'self' https://fonts.googleapis.com;
+        style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
         font-src 'self' https://fonts.gstatic.com;
         img-src 'self' data: https://images.unsplash.com;
         media-src 'self' https://cdn.jsdelivr.net;
-        connect-src 'self';
+        connect-src 'self' https://cdn.jsdelivr.net;
         object-src 'none';
         base-uri 'self';
         form-action 'self';
@@ -42,7 +46,7 @@
     </noscript>
     
     <!-- Das CSS-Edikt -->
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Preloader-Ritual -->
@@ -220,6 +224,7 @@
                             <p data-start="234" data-end="251.9">Exakt, dieser Punkt wird gemacht. Der Rückzug ins Private untergräbt die Basis jeder funktionierenden politischen Gemeinschaft. Wenn die Bürger sich nicht mehr als Gestalter sehen, sondern nur noch als Zuschauer oder Konsumenten, dann fehlt dem System die Korrekturfähigkeit und auch die Legitimation.</p>
                             <p data-start="252" data-end="256.9">Das heißt, diese Idiotie, dieser Privatismus, ist keine Lösung.</p>
                             <p data-start="257" data-end="267.9">Nein, laut den Analysen ist das Teil des Problems. Es stabilisiert diese Abwärtsspirale, anstatt sie zu durchbrechen. Es mag für den Einzelnen verständlich erscheinen, aber es verschlimmert die Gesamtsituation.</p>
+
                             <p data-start="268" data-end="292.9">Fassen wir das kurz zusammen. Wir sehen also: Ein System, das sich im internen Kampf selbst blockiert, das ist die Stasis. Das provoziert dann den Ruf nach einer autoritären Abkürzung, der Tyrannis, und währenddessen ziehen sich die Bürger enttäuscht ins Private zurück – Idiotie oder Privatismus – und nehmen dem System damit die Kraft zur Erneuerung. Eine sich selbst verstärkende Spirale nach unten.</p>
                             <p data-start="293" data-end="315.9">Absolut. Die Analyse in den Unterlagen zeichnet das Bild einer tiefgreifenden systemischen Krankheit. Stasis, Tyrannis, Privatismus sind demnach keine isolierten Phänomene. Sie sind Symptome und gleichzeitig Verstärker desselben Grundproblems. Der Rückzug, so menschlich verständlich er sein mag, zementiert diesen Zustand nur.</p>
                             <p data-start="316" data-end="326.9">Das lässt einen nachdenklich zurück und es wirft eine ziemlich drängende Frage auf, die du vielleicht auch mitnehmen möchtest: Welchen Preis zahlen wir am Ende wirklich für diese schleichende Entpolitisierung, für diesen Rückzug aus der gemeinsamen Verantwortung?</p>
@@ -408,7 +413,7 @@
                             <p data-start="213" data-end="213.9">Krisenfester.</p>
                             <p data-start="214" data-end="214.9">Wie das?</p>
                             <p data-start="215" data-end="224.9">Weil die soziale Integration nicht mehr so stark von Wirtschaftswachstum und Einkommen abhinge. Der Zusammenhalt käme auch aus dieser politischen Sphäre.</p>
-                            <p data-start="225" data-end="246.9">Und was bedeutet das für uns ganz persönlich, also für jeden Einzelnen? Das finde ich besonders spannend. Könnte dieser immense Druck zur Selbstoptimierung nachlassen, wenn wir vielleicht merken, dass viele Belastungen, wie Stress, Konkurrenz, dieses Gefühl der Ohnmacht, gar nicht nur individuelle Probleme sind, sondern tief in den Strukturen verankert liegen?</p>
+                            <p data-start="225" data-end="246.9">Und was bedeutet das für uns ganz persönlich, also für jeden Einzelnen? Das finde ich besonders spannend. Könnte dieser immense Druck zur Selbstoptimierung nachlassen, wenn wir vielleicht merken, dass viele Belastungen, wie Stress, Konkurrenz, dieses Gefühl der Ohnmacht, gar nicht nur individuelle Probleme sind, sondern tief in den Strukturen verankert liegen?</p>Gefunden.
                             <p data-start="247" data-end="263.9">Die Texte sprechen tatsächlich von einer potenziellen psychologischen Entlastung. Der Fokus könnte sich verschieben, weg von dieser permanenten Arbeit am Selbst, die oft als ziemlich anstrengend und auch isolierend empfunden wird, hin zur gemeinsamen Arbeit an den Institutionen.</p>
                             <p data-start="264" data-end="279.9">Dieses Bewusstsein, dass viele Probleme systemisch bedingt sind, könnte individuellen Stress und auch Schuldgefühle reduzieren. Man wäre nicht mehr allein verantwortlich, mit vielleicht dysfunktionalen Bedingungen irgendwie klarzukommen.</p>
                             <p data-start="280" data-end="289.9">Das klingt fast so, als könnte sich der politische Raum selbst dadurch entspannen. Also nicht mehr diese ständige Arena, in der man sich durchsetzen und sichtbar sein muss.</p>
@@ -528,6 +533,7 @@
                             <p data-start="252" data-end="263.9">Und wenn man diesen Gedanken konsequent weiterverfolgt, dann entwerfen die Quellen das Bild einer Gesellschaft, die durch diese breite, allumfassende Beteiligung viel stabiler werden könnte.</p>
                             <p data-start="264" data-end="265.9">Stabiler und kooperativer.</p>
                             <p data-start="266" data-end="286.9">Ja, kooperativer auch, weil Menschen aus allen Ecken der Gesellschaft mit all ihren unterschiedlichen Erfahrungen und Perspektiven als Gleiche zusammenkommen. Sie müssten sich ja austauschen, einander verstehen lernen, nicht nur über abstrakte Sachfragen, sondern auch über ihre ganz konkreten, unterschiedlichen Lebenswelten.</p>
+Check.
                             <p data-start="287" data-end="288.9">Was sie dann vielleicht auch krisenfester macht.</p>
                             <p data-start="289" data-end="295.9">Womöglich sogar unabhängiger von rein ökonomischen Zyklen, weil der soziale Zusammenhalt einfach tiefer gründet.</p>
                             <p data-start="296" data-end="296.9">Das ist eine plausible Folgerung, ja.</p>
