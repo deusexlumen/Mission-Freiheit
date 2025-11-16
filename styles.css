@@ -1,0 +1,151 @@
+:root {
+    /* ... (bestehende Farben) ... */
+    --text-color-dim: #9eb3c9; 
+    --text-muted: #8b949e;        
+    --heading-color: #f0f6fc;     
+    --border-color: rgba(209, 213, 219, 0.1);
+    --card-bg: rgba(22, 27, 34, 0.5);
+    --cta-color: #a855f7;         
+
+    /* NEU: Integrierte Farben aus ISONOMIE-Artefakt */
+    --alert: #FF3333;
+    --logic: #00CC66;
+    --void: #050505;
+
+    /* ... (restliche Variablen) ... */
+}
+
+/* ... (Alle bestehenden Stile von style.css bleiben hier) ... */
+
+/* --- NEUE STILE FÜR SIMULATIONS-SEKTION (PART 0) --- */
+
+.simulation-section #canvas-wrapper {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    background-color: var(--void);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-top: 2rem;
+}
+
+#sim-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.sim-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, transparent 40%, var(--void) 100%);
+    pointer-events: none;
+}
+
+.sim-controls {
+    /* Wiederverwendet Stile von .audio-feature-box für Konsistenz */
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-glow);
+    margin: 3rem 0;
+}
+
+.sim-controls h4 {
+    color: var(--heading-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.sim-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.sim-btn {
+    flex: 1;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    background: transparent;
+    font-family: var(--font-heading);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.sim-btn.sim-btn-alert {
+    border-color: var(--alert);
+    color: var(--alert);
+}
+.sim-btn.sim-btn-alert:hover,
+.sim-btn.sim-btn-alert.active-mode {
+    background-color: var(--alert);
+    color: var(--void);
+    box-shadow: 0 0 15px rgba(255, 51, 51, 0.4);
+}
+
+.sim-btn.sim-btn-logic {
+    border-color: var(--logic);
+    color: var(--logic);
+}
+.sim-btn.sim-btn-logic:hover,
+.sim-btn.sim-btn-logic.active-mode {
+    background-color: var(--logic);
+    color: var(--void);
+    box-shadow: 0 0 15px rgba(0, 204, 102, 0.4);
+}
+
+.sim-analysis {
+    border-top: 1px solid var(--border-color);
+    padding-top: 15px;
+}
+
+.sim-analysis-header {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+}
+
+#entropy-meter {
+    font-weight: 700;
+    color: var(--alert);
+    transition: color 0.3s ease;
+}
+
+.sim-analysis p {
+    font-family: var(--font-serif, 'Cormorant Garamond', serif);
+    font-size: 1.2rem;
+    color: var(--text-color-bright);
+    margin: 0;
+}
+.sim-analysis p span {
+    transition: color 0.3s ease;
+}
+/* --- ENDE DER NEUEN STILE --- */
+
+
+/* --- RESPONSIVE OPTIMIZATIONS --- */
+
+@media (max-width: 1024px) {
+    /* ... (bestehende responsive Stile) ... */
+
+    .simulation-section #canvas-wrapper {
+        height: 400px;
+    }
+
+    .sim-buttons {
+        flex-direction: column;
+    }
+}
