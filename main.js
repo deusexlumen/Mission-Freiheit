@@ -1,5 +1,5 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.0 (Synthesized & Hardened)
-// UPGRADE: ISONOMIE Canvas-Simulation integriert. TranscriptSynchronizer-Klasse integriert.
+// VALIDIERTE VERSION: Mission Freiheit v1.1 (Simulation Erweitert)
+// UPGRADE: Simulationslogik für "Lobby-Drift" (Wahl) und "Deliberation" (Los) implementiert.
 
 /**
  * TranscriptSynchronizer
@@ -121,23 +121,42 @@ class Particle {
             this.vy *= 0.95;
             this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic (Angepasst)
             this.size = 1.5;
+        
+        // --- START MODIFIKATION (Plan 1: Deliberation) ---
         } else { // 'sortition' (LOS-MODUS)
-            // LOS-MODUS: Partikel bewegt sich zufällig (Entropie)
-            this.vx += (Math.random() - 0.5) * 0.2;
-            this.vy += (Math.random() - 0.5) * 0.2;
-            const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-            if(speed > 2) { // Geschwindigkeitsbegrenzung
-                this.vx = (this.vx/speed)*2;
-                this.vy = (this.vy/speed)*2;
-            }
-            // Geloste Partikel werden hervorgehoben
+            
             if (this.selected) {
-                this.color = '#00CC66'; // Logic-Farbe
-                this.size = 3;
+                // Plan 1: Geloste Partikel bewegen sich zur Deliberation ins Zentrum
+                let target = { x: this.width / 2, y: this.height / 2 };
+                let dx = target.x - this.x;
+                let dy = target.y - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                // Stärkere Gravitation zur Mitte
+                if(dist > 10) { 
+                    this.vx += (dx / dist) * 0.08;
+                    this.vy += (dy / dist) * 0.08;
+                }
+                this.vx *= 0.95; // Dämpfung
+                this.vy *= 0.95;
+
+                // Visuell hervorheben (Dossier-Primärfarbe)
+                this.color = '#06b6d4'; 
+                this.size = 2.5;
+
             } else {
-                this.color = '#333'; 
+                // Nicht-geloste Partikel (Rest der Gesellschaft) bewegen sich zufällig (Entropie)
+                this.vx += (Math.random() - 0.5) * 0.2;
+                this.vy += (Math.random() - 0.5) * 0.2;
+                const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                if(speed > 2) { // Geschwindigkeitsbegrenzung
+                    this.vx = (this.vx/speed)*2;
+                    this.vy = (this.vy/speed)*2;
+                }
+                this.color = '#333'; // Unauffällig
                 this.size = 1;
             }
+        // --- ENDE MODIFIKATION ---
         }
         // Position aktualisieren und an Rändern abprallen lassen
         this.x += this.vx;
@@ -195,6 +214,7 @@ class PhoenixDossier {
             height: 0,
             particles: [],
             centers: [], // Gravitationszentren
+            lobbyTarget: { x: 0, y: 0 }, // <-- MODIFIKATION (Plan 2)
             mode: 'election', // Startmodus
             animationFrame: null
         };
@@ -643,6 +663,11 @@ class PhoenixDossier {
             {x: this.simState.width * 0.75, y: this.simState.height * 0.5}
         ];
         
+        // --- MODIFIKATION (Plan 2) ---
+        // Lobby-Ziel definieren
+        this.simState.lobbyTarget = {x: this.simState.width * 0.5, y: 0 };
+        // --- ENDE MODIFIKATION ---
+
         // Stellt sicher, dass Partikel im Frame bleiben
         this.simState.particles.forEach(p => {
             p.width = this.simState.width;
@@ -661,6 +686,22 @@ class PhoenixDossier {
         // Zeichnet einen halbtransparenten Hintergrund für Bewegungsschleier
         this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // --void mit alpha
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
+
+        // --- MODIFIKATION (Plan 2: Lobby-Drift) ---
+        // Lobby-Einfluss im Wahl-Modus anwenden
+        if (this.simState.mode === 'election') {
+            const lobbyForce = 0.0005; // Schwache, konstante Kraft
+            
+            this.simState.centers.forEach(center => {
+                let dx = this.simState.lobbyTarget.x - center.x;
+                let dy = this.simState.lobbyTarget.y - center.y;
+                
+                // Zentren "driften" langsam zum Lobby-Ziel
+                center.x += dx * lobbyForce;
+                center.y += dy * lobbyForce;
+            });
+        }
+        // --- ENDE MODIFIKATION ---
 
         // Aktualisiert und zeichnet jedes Partikel
         this.simState.particles.forEach(p => {
@@ -688,28 +729,42 @@ class PhoenixDossier {
     /**
      * Wechselt den Modus der Simulation (Wahl vs. Los).
      */
+    // --- START MODIFIKATION (Plan 1 & 2 UI-Texte) ---
     setSimMode(newMode) {
         if (this.simState.mode === newMode) return;
+
+        // WICHTIG: Zentren bei Moduswechsel zurücksetzen (Plan 2 Fix)
+        // Setzt Gravitationszentren auf Standardposition zurück.
+        this.resizeSimulation(); 
+
         this.simState.mode = newMode;
 
         // Aktualisiert die UI-Texte und Button-Stile
-        const alertSpan = `<span style="color: var(--alert);">Gravitationszentren</span>`;
-        const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
+        const alertSpan = `<span style="color: var(--alert);">Stasis & Lobbyismus</span>`;
+        const logicSpan = `<span style="color: var(--logic);">Deliberation</span>`;
 
         if (newMode === 'election') {
             this.DOM.simBtnElect.classList.add('active-mode');
             this.DOM.simBtnSort.classList.remove('active-mode');
-            this.DOM.simAnalysisText.innerHTML = `Das Wahlsystem erzeugt ${alertSpan} (Parteien). Die Gesellschaft polarisiert sich. Ränder verhärten.`;
+            
+            // Neuer Text für Wahl-Modus
+            this.DOM.simAnalysisText.innerHTML = `Die Gesellschaft polarisiert sich (Stasis). Gleichzeitig driften die Machtzentren (Parteien) zu Partikularinteressen (Lobbyisten). ${alertSpan}.`;
+            
             this.DOM.simEntropyMeter.textContent = "POLARIZED";
             this.DOM.simEntropyMeter.style.color = "var(--alert)";
+        
         } else { // 'sortition'
             this.DOM.simBtnSort.classList.add('active-mode');
             this.DOM.simBtnElect.classList.remove('active-mode');
-            this.DOM.simAnalysisText.innerHTML = `Zufallsauswahl durchbricht die Blasen. Ein ${logicSpan} der Bevölkerung bildet sich. Hohe kognitive Diversität.`;
+            
+            // Neuer Text für Los-Modus
+            this.DOM.simAnalysisText.innerHTML = `Ein Querschnitt der Bürger löst sich von der Masse und kommt zur ${logicSpan} zusammen. Das System heilt durch kognitive Diversität.`;
+            
             this.DOM.simEntropyMeter.textContent = "OPTIMAL";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
         }
     }
+    // --- ENDE MODIFIKATION ---
 }
 
 // === INITIALISIERUNG ===
