@@ -1,10 +1,9 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.1 (Simulation Erweitert)
-// UPGRADE: Simulationslogik für "Lobby-Drift" (Wahl) und "Deliberation" (Los) implementiert.
+// VALIDIERTE VERSION: Mission Freiheit v1.3 (Scroll-gesteuert & Finalisiert)
+// UPGRADE: Scroll-gesteuerte Simulation, Visuelles Feedback (Lobby) & Reset-Button implementiert.
 
 /**
  * TranscriptSynchronizer
- * Eine Helferklasse, die ein <audio>-Element mit einem Transkript-Container verbindet.
- * Sie hebt die aktuell gesprochene Zeile hervor und ermöglicht das Springen per Klick.
+ * ... (Klasse bleibt unverändert) ...
  */
 class TranscriptSynchronizer {
     constructor(box) {
@@ -36,9 +35,6 @@ class TranscriptSynchronizer {
         }
     }
 
-    /**
-     * Schaltet die Sichtbarkeit des Transkripts um.
-     */
     toggle() {
         if (!this.transcriptContainer || !this.toggleBtn) return;
         const isHidden = this.transcriptContainer.hidden;
@@ -47,15 +43,11 @@ class TranscriptSynchronizer {
         this.toggleBtn.textContent = isHidden ? 'Transkript ausblenden' : 'Transkript anzeigen';
     }
 
-    /**
-     * Synchronisiert das Transkript mit der aktuellen Audio-Zeit.
-     */
     sync() {
         if (!this.transcriptContainer || this.transcriptContainer.hidden || !this.audio || this.audio.paused) return;
         const time = this.audio.currentTime;
         let activeCue = null;
         
-        // Findet die aktive Zeile
         this.cues.forEach(cue => {
             const start = parseFloat(cue.dataset.start);
             const end = parseFloat(cue.dataset.end || Infinity);
@@ -66,7 +58,6 @@ class TranscriptSynchronizer {
             }
         });
 
-        // Scrollt die aktive Zeile in die Mitte, falls nötig
         if (activeCue) {
             const container = this.transcriptContainer;
             const containerScrollTop = container.scrollTop;
@@ -74,9 +65,7 @@ class TranscriptSynchronizer {
             const cueOffsetTop = activeCue.offsetTop;
             const cueHeight = activeCue.offsetHeight;
 
-            // Prüft, ob die Zeile außerhalb des sichtbaren Bereichs ist
             if (cueOffsetTop < containerScrollTop || cueOffsetTop + cueHeight > containerScrollTop + containerHeight) {
-                // Scrollt in die Mitte
                 container.scrollTop = cueOffsetTop - (container.clientHeight / 2) + (cueHeight / 2);
             }
         }
@@ -85,7 +74,7 @@ class TranscriptSynchronizer {
 
 /**
  * Particle
- * Eine Helferklasse für die Canvas-Simulation. Repräsentiert ein einzelnes Partikel (Bürger).
+ * ... (Klasse bleibt unverändert, Logik ist in v1.2 bereits korrekt) ...
  */
 class Particle {
     constructor(width, height) {
@@ -101,11 +90,6 @@ class Particle {
         this.preference = Math.random(); // Für Wahl-Modus (0 -> Zentrum 1, 1 -> Zentrum 2)
     }
     
-    /**
-     * Aktualisiert die Position und Farbe des Partikels basierend auf dem Modus.
-     * @param {string} mode - 'election' (Wahl) oder 'sortition' (Los)
-     * @param {Array} centers - Die Gravitationszentren für den 'election'-Modus
-     */
     update(mode, centers) {
         if (mode === 'election') {
             // WAHL-MODUS: Partikel bewegt sich zu seinem bevorzugten Zentrum
@@ -122,7 +106,6 @@ class Particle {
             this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic (Angepasst)
             this.size = 1.5;
         
-        // --- START MODIFIKATION (Plan 1: Deliberation) ---
         } else { // 'sortition' (LOS-MODUS)
             
             if (this.selected) {
@@ -156,7 +139,6 @@ class Particle {
                 this.color = '#333'; // Unauffällig
                 this.size = 1;
             }
-        // --- ENDE MODIFIKATION ---
         }
         // Position aktualisieren und an Rändern abprallen lassen
         this.x += this.vx;
@@ -165,10 +147,6 @@ class Particle {
         if (this.y < 0 || this.y > this.height) this.vy *= -1;
     }
 
-    /**
-     * Zeichnet das Partikel auf den Canvas.
-     * @param {CanvasRenderingContext2D} ctx - Der 2D-Kontext des Canvas
-     */
     draw(ctx) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
@@ -199,8 +177,10 @@ class PhoenixDossier {
             simWrapper: document.getElementById('canvas-wrapper'),
             simBtnElect: document.getElementById('btn-elect'),
             simBtnSort: document.getElementById('btn-sort'),
+            simBtnReset: document.getElementById('btn-reset'), // <-- MODIFIKATION (Reset-Button)
             simAnalysisText: document.getElementById('analysis-text'),
-            simEntropyMeter: document.getElementById('entropy-meter')
+            simEntropyMeter: document.getElementById('entropy-meter'),
+            simLobbyVisual: document.getElementById('lobby-target-visual') // <-- MODIFIKATION (Visuelles Feedback)
         };
 
         this.state = {
@@ -214,9 +194,10 @@ class PhoenixDossier {
             height: 0,
             particles: [],
             centers: [], // Gravitationszentren
-            lobbyTarget: { x: 0, y: 0 }, // <-- MODIFIKATION (Plan 2)
+            lobbyTarget: { x: 0, y: 0 }, 
             mode: 'election', // Startmodus
-            animationFrame: null
+            animationFrame: null,
+            isHealed: false 
         };
 
         this.init();
@@ -229,15 +210,16 @@ class PhoenixDossier {
         this.setupPerfToggle();
         this.setupAudioPlayers();
         
-        // Simulation initialisieren, falls Elemente vorhanden
         if (this.DOM.simCanvas && this.DOM.simWrapper) {
             this.setupSimulation();
         }
         
-        // GSAP-Animationen einrichten (oder überspringen)
         try {
             if (!this.state.isLowPerfMode && window.gsap) {
-                this.setupGSAPAnimations();
+                // --- MODIFIKATION (Scroll-Steuerung) ---
+                // Übergibt 'this' (die PhoenixDossier-Instanz) an die GSAP-Funktion
+                this.setupGSAPAnimations(this);
+                // --- ENDE MODIFIKATION ---
             } else {
                 if(this.DOM.mainTitle) this.DOM.mainTitle.style.opacity = 1;
                 if(this.DOM.subTitle) this.DOM.subTitle.style.opacity = 1;
@@ -252,24 +234,26 @@ class PhoenixDossier {
         this.setupShareButtons();
         this.generateTakeaways();
         this.setupScrollSpy();
-        console.log('Synthetisiertes Dossier vollständig initialisiert.');
+        console.log('Synthetisiertes Dossier v1.3 vollständig initialisiert.');
     }
     
     /**
      * Richtet alle Audio-Player auf der Seite ein (außer dem Sim-Control-Panel).
+     * ... (Funktion bleibt unverändert) ...
      */
     setupAudioPlayers() {
         document.querySelectorAll('.audio-feature-box:not(.sim-controls)').forEach(box => {
-            new TranscriptSynchronizer(box); // Transkript-Helfer initialisieren
-            this.setupAudioControls(box); // Player-Steuerung initialisieren
+            new TranscriptSynchronizer(box);
+            this.setupAudioControls(box);
             if (!this.state.isLowPerfMode && window.innerWidth > 1024) {
-                this.setupAudioVisualizer(box); // Visualizer initialisieren
+                this.setupAudioVisualizer(box);
             }
         });
     }
 
     /**
      * Richtet die Steuerelemente für einen einzelnen Audio-Player ein.
+     * ... (Funktion bleibt unverändert) ...
      */
     setupAudioControls(box) {
         const audio = box.querySelector('audio');
@@ -289,7 +273,6 @@ class PhoenixDossier {
         const currentTimeEl = box.querySelector('.current-time');
         const skipBtns = box.querySelectorAll('.skip-btn');
         
-        // Aktualisiert das Play/Pause-Icon
         const updatePlayPauseIcon = () => {
             const isPaused = audio.paused;
             if(iconPlay) iconPlay.style.display = isPaused ? 'block' : 'none';
@@ -297,19 +280,16 @@ class PhoenixDossier {
             playPauseBtn.setAttribute('aria-label', isPaused ? 'Abspielen' : 'Pausieren');
         };
         
-        // Metadaten geladen: Gesamtzeit anzeigen
         audio.addEventListener('loadedmetadata', () => {
             totalTimeEl.textContent = this.formatTime(audio.duration);
         });
         
-        // Fehlerbehandlung
         audio.addEventListener('error', () => {
             console.error(`Audio-Datei konnte nicht geladen werden: ${audio.src}`);
             const audioBox = audio.closest('.audio-feature-box');
             if (audioBox) audioBox.innerHTML += '<p style="color:red;">Fehler: Die Audiodatei konnte nicht geladen werden.</p>';
         });
 
-        // Klick-Handler
         playPauseBtn.addEventListener('click', () => {
             audio.paused ? audio.play() : audio.pause();
         });
@@ -321,7 +301,6 @@ class PhoenixDossier {
             updatePlayPauseIcon();
         });
 
-        // Zeit-Aktualisierung
         audio.addEventListener('timeupdate', () => {
             if (progressBar) {
                 const progress = (audio.currentTime / audio.duration) * 100;
@@ -332,7 +311,6 @@ class PhoenixDossier {
             }
         });
 
-        // Klick auf Fortschrittsbalken
         progressContainer.addEventListener('click', (e) => {
             const rect = progressContainer.getBoundingClientRect();
             const clickX = e.clientX - rect.left;
@@ -340,7 +318,6 @@ class PhoenixDossier {
             audio.currentTime = newTime;
         });
 
-        // Skip-Buttons
         skipBtns.forEach(btn => {
             btn.addEventListener('click', () => {
                 const skipAmount = parseFloat(btn.dataset.skip);
@@ -348,7 +325,6 @@ class PhoenixDossier {
             });
         });
 
-        // Geschwindigkeits-Button
         if (speedBtn) {
             const speeds = [1, 1.25, 1.5, 1.75, 2, 0.75];
             let currentSpeedIndex = 0;
@@ -359,11 +335,12 @@ class PhoenixDossier {
                 speedBtn.textContent = `${newSpeed}x`;
             });
         }
-        updatePlayPauseIcon(); // Initialzustand setzen
+        updatePlayPauseIcon();
     }
     
     /**
      * Richtet den Web Audio API Visualizer ein (falls nicht im Low-Perf-Modus).
+     * ... (Funktion bleibt unverändert) ...
      */
     setupAudioVisualizer(box) {
          if (!window.AudioContext && !window.webkitAudioContext) {
@@ -381,7 +358,6 @@ class PhoenixDossier {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         const analyser = audioContext.createAnalyser();
         
-        // Verbindet die Audio-Quelle nur einmal
         if (!audio.dataset.audioSourceConnected) {
             try {
                 const source = audioContext.createMediaElementSource(audio);
@@ -398,7 +374,6 @@ class PhoenixDossier {
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
-        // Zeichenfunktion
         const draw = () => {
             if (audio.paused || audio.ended) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -413,7 +388,6 @@ class PhoenixDossier {
 
             for (let i = 0; i < bufferLength; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                // Verwendet die primäre CSS-Variable (angenommenes Cyan)
                 ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`;
                 ctx.fillRect(barX, canvas.height - barHeight, barWidth, barHeight);
                 barX += barWidth + 1;
@@ -421,7 +395,6 @@ class PhoenixDossier {
         };
 
         const startVisualizer = () => {
-            // AudioContext muss ggf. durch Nutzerinteraktion gestartet werden
             if (audioContext.state === 'suspended') {
                 audioContext.resume();
             }
@@ -430,12 +403,13 @@ class PhoenixDossier {
         
         audio.addEventListener('play', startVisualizer);
         audio.addEventListener('timeupdate', () => {
-            if (!audio.paused) draw(); // Zeichnet nur, wenn Audio aktiv ist
+            if (!audio.paused) draw();
         });
     }
     
     /**
      * Formatiert Sekunden in ein MM:SS-Format.
+     * ... (Funktion bleibt unverändert) ...
      */
     formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '00:00';
@@ -446,6 +420,7 @@ class PhoenixDossier {
 
     /**
      * Richtet den Performance-Umschalter ein.
+     * ... (Funktion bleibt unverändert) ...
      */
     setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
@@ -459,12 +434,13 @@ class PhoenixDossier {
         this.DOM.perfToggle.addEventListener('click', () => {
             this.state.isLowPerfMode = !this.state.isLowPerfMode;
             localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode));
-            window.location.reload(); // Lädt die Seite neu, um Animationen sauber zu (de-)aktivieren
+            window.location.reload();
         });
     }
 
     /**
      * Teilt Text für GSAP-Animationen in einzelne Zeichen auf.
+     * ... (Funktion bleibt unverändert) ...
      */
     manualSplitText(element) {
         if (!element) return [];
@@ -486,31 +462,31 @@ class PhoenixDossier {
     /**
      * Richtet alle GSAP-Animationen ein.
      */
-    setupGSAPAnimations() {
+    // --- START MODIFIKATION (Scroll-Steuerung) ---
+    setupGSAPAnimations(dossierInstance) { // Nimmt 'this' (die Instanz) entgegen
         if (!this.DOM.mainTitle || !this.DOM.subTitle) return;
 
         gsap.registerPlugin(ScrollTrigger);
 
-        // Header-Titel-Animation
+        // Header-Titel-Animation (bleibt gleich)
         const mainChars = this.manualSplitText(this.DOM.mainTitle);
         const subChars = this.manualSplitText(this.DOM.subTitle);
-
+        // ... (restliche Titel-Animation bleibt gleich) ...
         gsap.set([this.DOM.mainTitle, this.DOM.subTitle], { opacity: 1 });
         gsap.set(mainChars, { opacity: 0, y: '100%', rotationX: -90, transformOrigin: 'center center -50px' });
         gsap.set(subChars, { opacity: 0, y: '100%' });
-
         gsap.to(mainChars, {
             opacity: 1, y: '0%', rotationX: 0, duration: 0.8,
             ease: 'power3.out', stagger: 0.03, delay: 0.5
         });
-
         gsap.to(subChars, {
             opacity: 1, y: '0%', duration: 0.5,
             ease: 'power1.out', stagger: 0.01, delay: 1.0
         });
         
-        // Kapitel-Titel Scroll-Animation
+        // Kapitel-Titel Scroll-Animation (bleibt gleich)
         document.querySelectorAll('.chapter-section').forEach(section => {
+            // ... (Animation bleibt gleich) ...
             const title = section.querySelector('.chapter-title');
             if (title) {
                  gsap.from(title, {
@@ -523,8 +499,9 @@ class PhoenixDossier {
             }
         });
 
-        // Narrative Thread (SVG-Pfad) Animation
+        // Narrative Thread (SVG-Pfad) Animation (bleibt gleich)
         if (this.DOM.narrativePath && this.DOM.focusPane) {
+            // ... (Animation bleibt gleich) ...
             const pathLength = this.DOM.narrativePath.getTotalLength();
             if (pathLength > 0) {
                 this.DOM.narrativePath.style.strokeDasharray = pathLength;
@@ -539,26 +516,50 @@ class PhoenixDossier {
             }
         }
         
-        // "Final Actions" Sektions-Animation
+        // "Final Actions" Sektions-Animation (bleibt gleich)
         const finalSection = document.querySelector('.final-actions');
         if (finalSection) {
+            // ... (Animation bleibt gleich) ...
             const finalCta = finalSection.querySelector('#final-cta');
             const actionCards = document.querySelectorAll('.final-actions-grid > .action-card');
             if(finalCta) gsap.from(finalCta, { scrollTrigger: { trigger: finalSection, start: 'top 80%', toggleActions: 'play none none none' }, opacity: 0, y: 50, duration: 0.8, ease: 'power2.out' });
             if(actionCards.length > 0) gsap.from(actionCards, { scrollTrigger: { trigger: finalSection, start: 'top 70%', toggleActions: 'play none none none' }, opacity: 0, y: 30, duration: 1, stagger: 0.2, ease: 'power2.out' });
         }
+
+        // --- NEUE LOGIK: Scroll-gesteuerte Simulation ---
+        if (dossierInstance) {
+            // Trigger für Sektion 2 (Diagnose) -> Wahl-Modus
+            ScrollTrigger.create({
+                trigger: "#part2",
+                start: "top 30%", // Wenn Sektion 2 30% von oben erreicht
+                end: "bottom 30%",
+                onEnter: () => dossierInstance.setSimMode('election'),
+                onEnterBack: () => dossierInstance.setSimMode('election')
+            });
+
+            // Trigger für Sektion 3 (Therapie) -> Los-Modus
+            ScrollTrigger.create({
+                trigger: "#part3",
+                start: "top 30%", // Wenn Sektion 3 30% von oben erreicht
+                end: "bottom 30%",
+                onEnter: () => dossierInstance.setSimMode('sortition'),
+                onEnterBack: () => dossierInstance.setSimMode('sortition')
+            });
+        }
+        // --- ENDE MODIFIKATION ---
     }
     
     /**
      * Richtet den Scroll-Spy für die Bento-Navigation ein.
+     * ... (Funktion bleibt unverändert) ...
      */
     setupScrollSpy() {
         if (!this.DOM.sections.length || !this.DOM.navItems.length) return;
 
         const observerOptions = {
-            root: null, // Beobachtet im Browser-Viewport
+            root: null,
             rootMargin: '0px',
-            threshold: 0.3 // Auslösen, wenn 30% der Sektion sichtbar sind
+            threshold: 0.3
         };
 
         const observer = new IntersectionObserver((entries) => {
@@ -582,6 +583,7 @@ class PhoenixDossier {
 
     /**
      * Richtet die Share-Buttons ein.
+     * ... (Funktion bleibt unverändert) ...
      */
     setupShareButtons() {
         const url = encodeURIComponent(window.location.href);
@@ -599,6 +601,7 @@ class PhoenixDossier {
     
     /**
      * Generiert die Takeaway-Liste in Sektion 7 dynamisch.
+     * ... (Funktion bleibt unverändert) ...
      */
     generateTakeaways() {
         const container = document.querySelector('#knowledge-distillate ul');
@@ -606,13 +609,10 @@ class PhoenixDossier {
         
         const sections = document.querySelectorAll('section[data-takeaway]');
         sections.forEach((section) => {
-            // Überspringt die Simulations-Sektion (part0)
             if (section.id === 'part0') return;
-            
             const takeawayText = section.dataset.takeaway;
             const li = document.createElement('li');
             const chapterNumber = section.querySelector('.chapter-number')?.textContent.replace('.', '') || '';
-            
             li.innerHTML = `<strong>Teil ${chapterNumber}:</strong> ${takeawayText}`;
             container.appendChild(li);
         });
@@ -627,24 +627,32 @@ class PhoenixDossier {
     setupSimulation() {
         this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         
-        this.resizeSimulation(); // Erste Größe setzen
+        this.resizeSimulation(); 
         window.addEventListener('resize', () => this.resizeSimulation());
 
+        // Performance-Anpassung (v1.2)
+        const particleCount = window.innerWidth < 768 ? 300 : 800; 
         this.simState.particles = [];
-        for(let i=0; i<800; i++) { // Erzeugt 800 Partikel
+        for(let i=0; i < particleCount; i++) { 
             this.simState.particles.push(new Particle(this.simState.width, this.simState.height));
         }
         
-        // Wählt 50 Partikel zufällig aus (für den Los-Modus)
+        const selectCount = window.innerWidth < 768 ? 25 : 50;
         const indices = new Set();
-        while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
+        while(indices.size < selectCount) indices.add(Math.floor(Math.random() * particleCount));
         indices.forEach(i => this.simState.particles[i].selected = true);
 
         // Event Listeners für Modus-Wechsel
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
 
-        this.loopSimulation(); // Startet den Animations-Loop
+        // --- START MODIFIKATION (Reset-Button) ---
+        if (this.DOM.simBtnReset) {
+            this.DOM.simBtnReset.addEventListener('click', () => this.resetSimulation());
+        }
+        // --- ENDE MODIFIKATION ---
+
+        this.loopSimulation(); 
     }
 
     /**
@@ -663,9 +671,14 @@ class PhoenixDossier {
             {x: this.simState.width * 0.75, y: this.simState.height * 0.5}
         ];
         
-        // --- MODIFIKATION (Plan 2) ---
         // Lobby-Ziel definieren
-        this.simState.lobbyTarget = {x: this.simState.width * 0.5, y: 0 };
+        this.simState.lobbyTarget = {x: this.simState.width * 0.5, y: 20 }; // y: 20 (für padding)
+
+        // --- START MODIFIKATION (Visuelles Feedback) ---
+        // Positioniert das Lobby-Visual
+        if (this.DOM.simLobbyVisual) {
+            this.DOM.simLobbyVisual.style.top = `${this.simState.lobbyTarget.y}px`;
+        }
         // --- ENDE MODIFIKATION ---
 
         // Stellt sicher, dass Partikel im Frame bleiben
@@ -683,33 +696,28 @@ class PhoenixDossier {
     loopSimulation() {
         if (!this.simState.ctx) return;
         
-        // Zeichnet einen halbtransparenten Hintergrund für Bewegungsschleier
-        this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // --void mit alpha
+        this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
-        // --- MODIFIKATION (Plan 2: Lobby-Drift) ---
-        // Lobby-Einfluss im Wahl-Modus anwenden
-        if (this.simState.mode === 'election') {
-            const lobbyForce = 0.0005; // Schwache, konstante Kraft
+        // Heilungs-Logik (v1.2)
+        if (this.simState.mode === 'election' && !this.simState.isHealed) {
+            const lobbyForce = 0.0005; 
             
             this.simState.centers.forEach(center => {
                 let dx = this.simState.lobbyTarget.x - center.x;
                 let dy = this.simState.lobbyTarget.y - center.y;
                 
-                // Zentren "driften" langsam zum Lobby-Ziel
                 center.x += dx * lobbyForce;
                 center.y += dy * lobbyForce;
             });
         }
-        // --- ENDE MODIFIKATION ---
 
-        // Aktualisiert und zeichnet jedes Partikel
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
-        // Zeichnet die Gravitationszentren (nur im Wahl-Modus)
+        // Gravitationszentren zeichnen (v1.2)
         if(this.simState.mode === 'election') {
             this.simState.ctx.beginPath();
             this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
@@ -722,53 +730,80 @@ class PhoenixDossier {
             this.simState.ctx.fill();
         }
 
-        // Fordert den nächsten Frame an
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
     }
+
+    // --- START MODIFIKATION (Reset-Button) ---
+    /**
+     * Setzt den "Heilungs"-Status der Simulation zurück.
+     */
+    resetSimulation() {
+        this.simState.isHealed = false;
+        // Erzwingt den Wechsel in den "kaputten" Wahl-Modus,
+        // auch wenn er schon aktiv ist (setSimMode würde sonst blockieren)
+        this.simState.mode = 'sortition'; // Trick, um Wechsel zu erzwingen
+        this.setSimMode('election');
+    }
+    // --- ENDE MODIFIKATION ---
 
     /**
      * Wechselt den Modus der Simulation (Wahl vs. Los).
      */
-    // --- START MODIFIKATION (Plan 1 & 2 UI-Texte) ---
     setSimMode(newMode) {
+        // Verhindert unnötiges Umschalten, außer wenn der Reset-Button
+        // den Moduswechsel erzwingen will (siehe resetSimulation)
         if (this.simState.mode === newMode) return;
 
-        // WICHTIG: Zentren bei Moduswechsel zurücksetzen (Plan 2 Fix)
-        // Setzt Gravitationszentren auf Standardposition zurück.
-        this.resizeSimulation(); 
-
+        // Zentren bei Moduswechsel zurücksetzen (nur wenn nicht geheilt)
+        if (!this.simState.isHealed) {
+             this.resizeSimulation();
+        } else if (newMode === 'election') {
+             // Wenn geheilt und zu Wahl gewechselt wird, Zentren auch zurücksetzen,
+             // damit sie nicht an der Lobby-Position (oben) kleben bleiben.
+             this.resizeSimulation();
+        }
+        
         this.simState.mode = newMode;
 
         // Aktualisiert die UI-Texte und Button-Stile
         const alertSpan = `<span style="color: var(--alert);">Stasis & Lobbyismus</span>`;
-        const logicSpan = `<span style="color: var(--logic);">Deliberation</span>`;
+        const logicSpan = `<span style.color: var(--logic);>Deliberation</span>`;
+        const healedSpan = `<span style="color: var(--logic);">STABILISIERT</span>`;
 
         if (newMode === 'election') {
             this.DOM.simBtnElect.classList.add('active-mode');
             this.DOM.simBtnSort.classList.remove('active-mode');
             
-            // Neuer Text für Wahl-Modus
-            this.DOM.simAnalysisText.innerHTML = `Die Gesellschaft polarisiert sich (Stasis). Gleichzeitig driften die Machtzentren (Parteien) zu Partikularinteressen (Lobbyisten). ${alertSpan}.`;
-            
-            this.DOM.simEntropyMeter.textContent = "POLARIZED";
-            this.DOM.simEntropyMeter.style.color = "var(--alert)";
+            if (this.simState.isHealed) {
+                // Zustand 1: WAHL-MODUS (NACH HEILUNG)
+                this.DOM.simAnalysisText.innerHTML = `Das System ist ${healedSpan}. Die Zentren driften nicht mehr, da der Bürgerrat korrigierend gewirkt hat.`;
+                this.DOM.simEntropyMeter.textContent = "STABILIZED";
+                this.DOM.simEntropyMeter.style.color = "var(--logic)";
+                if (this.DOM.simLobbyVisual) this.DOM.simLobbyVisual.classList.remove('visible'); // <-- Visuelles Feedback
+            } else {
+                // Zustand 2: WAHL-MODUS (INITIAL)
+                this.DOM.simAnalysisText.innerHTML = `Die Gesellschaft polarisiert sich (Stasis). Gleichzeitig driften die Machtzentren (Parteien) zu Partikularinteressen (Lobbyisten). ${alertSpan}.`;
+                this.DOM.simEntropyMeter.textContent = "POLARIZED";
+                this.DOM.simEntropyMeter.style.color = "var(--alert)";
+                if (this.DOM.simLobbyVisual) this.DOM.simLobbyVisual.classList.add('visible'); // <-- Visuelles Feedback
+            }
         
         } else { // 'sortition'
+            // Zustand 3: LOS-MODUS (Startet die Heilung)
+            this.simState.isHealed = true; // <-- DER "HEILUNGS"-AKT
+            
             this.DOM.simBtnSort.classList.add('active-mode');
             this.DOM.simBtnElect.classList.remove('active-mode');
             
-            // Neuer Text für Los-Modus
             this.DOM.simAnalysisText.innerHTML = `Ein Querschnitt der Bürger löst sich von der Masse und kommt zur ${logicSpan} zusammen. Das System heilt durch kognitive Diversität.`;
-            
             this.DOM.simEntropyMeter.textContent = "OPTIMAL";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
+            if (this.DOM.simLobbyVisual) this.DOM.simLobbyVisual.classList.remove('visible'); // <-- Visuelles Feedback
         }
     }
-    // --- ENDE MODIFIKATION ---
 }
 
 // === INITIALISIERUNG ===
-// Startet die Anwendung, sobald das DOM geladen ist.
 window.addEventListener('DOMContentLoaded', () => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
