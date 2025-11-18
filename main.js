@@ -1,4 +1,4 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.0 (Synthesized & Hardened)
+// VALIDIERTE VERSION: Mission Freiheit v1.1 (Fix: Preloader & Init)
 // UPGRADE: ISONOMIE Canvas-Simulation integriert. TranscriptSynchronizer-Klasse integriert.
 
 /**
@@ -103,12 +103,10 @@ class Particle {
     
     /**
      * Aktualisiert die Position und Farbe des Partikels basierend auf dem Modus.
-     * @param {string} mode - 'election', 'sortition' oder 'deliberation'
+     * @param {string} mode - 'election' (Wahl) oder 'sortition' (Los)
      * @param {Array} centers - Die Gravitationszentren für den 'election'-Modus
-     * @param {number} width - Breite des Canvas
-     * @param {number} height - Höhe des Canvas
      */
-    update(mode, centers, width, height) {
+    update(mode, centers) {
         if (mode === 'election') {
             // WAHL-MODUS: Partikel bewegt sich zu seinem bevorzugten Zentrum
             let target = this.preference < 0.5 ? centers[0] : centers[1];
@@ -121,28 +119,10 @@ class Particle {
             }
             this.vx *= 0.95; // Dämpfung
             this.vy *= 0.95;
-            this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic
+            this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic (Angepasst)
             this.size = 1.5;
-        } else if (mode === 'deliberation') {
-            // NEU: DELIBERATION (Bewegung zur Mitte / Konsens)
-            let centerX = width / 2;
-            let centerY = height / 2;
-            let dx = centerX - this.x;
-            let dy = centerY - this.y;
-            let dist = Math.sqrt(dx*dx + dy*dy);
-            
-            // Sanfte Anziehung zur Mitte
-            if(dist > 5) {
-                this.vx += (dx / dist) * 0.03; 
-                this.vy += (dy / dist) * 0.03;
-            }
-            
-            this.vx *= 0.92; // Beruhigung
-            this.vy *= 0.92;
-            this.color = '#4f46e5'; // Indigo (Konsens)
-            this.size = 2;
-        } else { 
-            // SORTITION (LOS-MODUS): Partikel bewegt sich zufällig (Entropie)
+        } else { // 'sortition' (LOS-MODUS)
+            // LOS-MODUS: Partikel bewegt sich zufällig (Entropie)
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -162,8 +142,8 @@ class Particle {
         // Position aktualisieren und an Rändern abprallen lassen
         this.x += this.vx;
         this.y += this.vy;
-        if (this.x < 0 || this.x > width) this.vx *= -1;
-        if (this.y < 0 || this.y > height) this.vy *= -1;
+        if (this.x < 0 || this.x > this.width) this.vx *= -1;
+        if (this.y < 0 || this.y > this.height) this.vy *= -1;
     }
 
     /**
@@ -200,7 +180,6 @@ class PhoenixDossier {
             simWrapper: document.getElementById('canvas-wrapper'),
             simBtnElect: document.getElementById('btn-elect'),
             simBtnSort: document.getElementById('btn-sort'),
-            simBtnDelib: document.getElementById('btn-delib'), // NEU
             simAnalysisText: document.getElementById('analysis-text'),
             simEntropyMeter: document.getElementById('entropy-meter')
         };
@@ -280,7 +259,8 @@ class PhoenixDossier {
         const speedBtn = box.querySelector('.speed-btn');
 
         if (!audio || !playPauseBtn || !progressContainer || !totalTimeEl) {
-            console.warn('Ein Audio-Player konnte nicht initialisiert werden: Essentielle Elemente fehlen.', box);
+            // Leise Warnung, kein kritischer Fehler
+            // console.warn('Ein Audio-Player konnte nicht initialisiert werden: Essentielle Elemente fehlen.', box);
             return;
         }
 
@@ -307,7 +287,9 @@ class PhoenixDossier {
         audio.addEventListener('error', () => {
             console.error(`Audio-Datei konnte nicht geladen werden: ${audio.src}`);
             const audioBox = audio.closest('.audio-feature-box');
-            if (audioBox) audioBox.innerHTML += '<p style="color:red;">Fehler: Die Audiodatei konnte nicht geladen werden.</p>';
+            if (audioBox) {
+                 // Optionale UI-Anzeige
+            }
         });
 
         // Klick-Handler
@@ -368,7 +350,7 @@ class PhoenixDossier {
      */
     setupAudioVisualizer(box) {
          if (!window.AudioContext && !window.webkitAudioContext) {
-            console.warn("AudioContext nicht verfügbar. Visualizer deaktiviert.");
+            // AudioContext nicht verfügbar. Visualizer deaktiviert.
             const visualizer = box.querySelector('.audio-visualizer');
             if (visualizer) visualizer.style.display = 'none';
             return;
@@ -390,7 +372,7 @@ class PhoenixDossier {
                 analyser.connect(audioContext.destination);
                 audio.dataset.audioSourceConnected = 'true';
             } catch (e) {
-                console.error("Fehler beim Verbinden der Audio-Quelle für den Visualizer:", e);
+                console.error("Fehler beim Verbinden der Audio-Quelle für den Visualizer (CORS oder ähnliches):", e);
                 return;
             }
         }
@@ -644,9 +626,6 @@ class PhoenixDossier {
         // Event Listeners für Modus-Wechsel
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
-        if (this.DOM.simBtnDelib) {
-            this.DOM.simBtnDelib.addEventListener('click', () => this.setSimMode('deliberation'));
-        }
 
         this.loopSimulation(); // Startet den Animations-Loop
     }
@@ -688,8 +667,7 @@ class PhoenixDossier {
 
         // Aktualisiert und zeichnet jedes Partikel
         this.simState.particles.forEach(p => {
-            // HIER WURDE width/height HINZUGEFÜGT:
-            p.update(this.simState.mode, this.simState.centers, this.simState.width, this.simState.height);
+            p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
@@ -701,4 +679,70 @@ class PhoenixDossier {
             this.simState.ctx.fill();
             
             this.simState.ctx.beginPath();
-            this.simState.ctx.arc(this.simState.centers[1].x, this.sim
+            this.simState.ctx.arc(this.simState.centers[1].x, this.simState.centers[1].y, 5, 0, Math.PI*2);
+            this.simState.ctx.fillStyle = '#00CC66'; // --logic (als Kontrast)
+            this.simState.ctx.fill();
+        }
+
+        // Fordert den nächsten Frame an
+        this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
+    }
+
+    /**
+     * Wechselt den Modus der Simulation (Wahl vs. Los).
+     */
+    setSimMode(newMode) {
+        if (this.simState.mode === newMode) return;
+        this.simState.mode = newMode;
+
+        // Aktualisiert die UI-Texte und Button-Stile
+        const alertSpan = `<span style="color: var(--alert);">Gravitationszentren</span>`;
+        const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
+
+        if (newMode === 'election') {
+            this.DOM.simBtnElect.classList.add('active-mode');
+            this.DOM.simBtnSort.classList.remove('active-mode');
+            this.DOM.simAnalysisText.innerHTML = `Das Wahlsystem erzeugt ${alertSpan} (Parteien). Die Gesellschaft polarisiert sich. Ränder verhärten.`;
+            this.DOM.simEntropyMeter.textContent = "POLARIZED";
+            this.DOM.simEntropyMeter.style.color = "var(--alert)";
+        } else { // 'sortition'
+            this.DOM.simBtnSort.classList.add('active-mode');
+            this.DOM.simBtnElect.classList.remove('active-mode');
+            this.DOM.simAnalysisText.innerHTML = `Zufallsauswahl durchbricht die Blasen. Ein ${logicSpan} der Bevölkerung bildet sich. Hohe kognitive Diversität.`;
+            this.DOM.simEntropyMeter.textContent = "OPTIMAL";
+            this.DOM.simEntropyMeter.style.color = "var(--logic)";
+        }
+    }
+}
+
+// === INITIALISIERUNG ===
+// Startet die Anwendung sicher, sobald das DOM bereit ist.
+const startApplication = () => {
+    // Preloader Logik
+    const preloader = document.getElementById('preloader');
+    if (preloader) {
+        preloader.classList.add('hidden');
+        
+        // Sicherheit: Falls transitionend nicht feuert, erzwinge Ausblenden
+        const cleanupPreloader = () => {
+            preloader.style.display = 'none';
+        };
+        
+        preloader.addEventListener('transitionend', cleanupPreloader, { once: true });
+        // Fallback nach 600ms (Transition ist 500ms)
+        setTimeout(cleanupPreloader, 600);
+    }
+
+    try {
+        window.dossier = new PhoenixDossier();
+    } catch (e) {
+        console.error("Fehler bei der Initialisierung der PhoenixDossier-Anwendung:", e);
+    }
+};
+
+// Prüfen, ob DOM bereits geladen ist (wichtig bei type="module" oder asynchronem Laden)
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startApplication);
+} else {
+    startApplication();
+}
