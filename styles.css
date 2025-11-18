@@ -15,6 +15,7 @@
     /* NEU: Integrierte Farben aus ISONOMIE-Artefakt */
     --alert: #FF3333; /* Signalrot */
     --logic: #00CC66; /* Signalgrün */
+    --delib: #a855f7; /* Lila für Deliberation */
     --void: #050505;  /* Tiefstes Schwarz für Canvas */
 
     /* Helfer & Layout */
@@ -591,6 +592,18 @@ li {
     box-shadow: 0 0 15px rgba(0, 204, 102, 0.4);
 }
 
+/* NEU: Deliberation Button Style */
+.sim-btn.sim-btn-delib {
+    border-color: var(--delib);
+    color: var(--delib);
+}
+.sim-btn.sim-btn-delib:hover,
+.sim-btn.sim-btn-delib.active-mode {
+    background-color: var(--delib);
+    color: white;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
+}
+
 .sim-analysis {
     border-top: 1px solid var(--border-color);
     padding-top: 15px;
@@ -622,20 +635,6 @@ li {
 .sim-analysis p span {
     transition: color 0.3s ease;
 }
-
-/* Styling für den Deliberation-Button (Weisheit/Konsens) */
-.sim-btn.sim-btn-wisdom {
-    border-color: var(--secondary-color);
-    color: var(--secondary-color);
-}
-
-.sim-btn.sim-btn-wisdom:hover,
-.sim-btn.sim-btn-wisdom.active-mode {
-    background-color: var(--secondary-color);
-    color: #ffffff;
-    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
-}
-
 /* --- Ende Simulations-Stile --- */
 
 
