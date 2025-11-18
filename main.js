@@ -1,4 +1,4 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.2 (Bulletproof Loader & Lazy Audio)
+// VALIDIERTE VERSION: Mission Freiheit v1.3 (Deliberation Mode added)
 
 /**
  * TranscriptSynchronizer
@@ -92,7 +92,31 @@ class Particle {
             this.vy *= 0.95;
             this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66';
             this.size = 1.5;
+        } else if (mode === 'deliberation') {
+            // DELIBERATION-MODUS: Konsensfindung in der Mitte
+            let targetX = this.width / 2;
+            let targetY = this.height / 2;
+            let dx = targetX - this.x;
+            let dy = targetY - this.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Sanfte Anziehung
+            if(dist > 20) {
+                this.vx += (dx / dist) * 0.03;
+                this.vy += (dy / dist) * 0.03;
+            }
+            
+            // Leichte Brownsche Bewegung für Diskussion
+            this.vx += (Math.random() - 0.5) * 0.1;
+            this.vy += (Math.random() - 0.5) * 0.1;
+
+            this.vx *= 0.96; // Dämpfung
+            this.vy *= 0.96;
+            
+            this.color = '#a855f7'; // Lila für Konsens
+            this.size = 2; 
         } else {
+            // LOS-MODUS (Sortition): Zufall / Diversität
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -140,6 +164,7 @@ class PhoenixDossier {
             simWrapper: document.getElementById('canvas-wrapper'),
             simBtnElect: document.getElementById('btn-elect'),
             simBtnSort: document.getElementById('btn-sort'),
+            simBtnDelib: document.getElementById('btn-delib'), // NEU
             simAnalysisText: document.getElementById('analysis-text'),
             simEntropyMeter: document.getElementById('entropy-meter')
         };
@@ -184,7 +209,6 @@ class PhoenixDossier {
         document.querySelectorAll('.audio-feature-box:not(.sim-controls)').forEach(box => {
             new TranscriptSynchronizer(box);
             this.setupAudioControls(box);
-            // Visualizer wird NICHT hier gestartet, sondern erst bei Klick auf Play
         });
     }
 
@@ -217,7 +241,6 @@ class PhoenixDossier {
         // === LAZY LOAD VISUALIZER & PLAY ===
         playPauseBtn.addEventListener('click', () => {
             if (audio.paused) {
-                // Versuche Visualizer erst jetzt zu starten
                 if (!this.state.isLowPerfMode && !audio.dataset.visualizerInitialized) {
                     this.initSingleVisualizer(box);
                 }
@@ -270,9 +293,6 @@ class PhoenixDossier {
         updatePlayPauseIcon();
     }
 
-    /**
-     * Initialisiert den Visualizer für eine spezifische Box erst bei Bedarf.
-     */
     initSingleVisualizer(box) {
         if (window.innerWidth <= 1024 || !window.AudioContext && !window.webkitAudioContext) return;
         
@@ -456,8 +476,10 @@ class PhoenixDossier {
         while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
         indices.forEach(i => this.simState.particles[i].selected = true);
 
-        this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
-        this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
+        if(this.DOM.simBtnElect) this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
+        if(this.DOM.simBtnSort) this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
+        if(this.DOM.simBtnDelib) this.DOM.simBtnDelib.addEventListener('click', () => this.setSimMode('deliberation'));
+
         this.loopSimulation();
     }
 
@@ -481,10 +503,12 @@ class PhoenixDossier {
         if (!this.simState.ctx) return;
         this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)';
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
+        
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
+
         if(this.simState.mode === 'election') {
             this.simState.ctx.beginPath();
             this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
@@ -495,34 +519,43 @@ class PhoenixDossier {
             this.simState.ctx.fillStyle = '#00CC66';
             this.simState.ctx.fill();
         }
+        
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
     }
 
     setSimMode(newMode) {
         if (this.simState.mode === newMode) return;
         this.simState.mode = newMode;
+        
         const alertSpan = `<span style="color: var(--alert);">Gravitationszentren</span>`;
         const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
+        const delibSpan = `<span style="color: var(--delib);">Konsens</span>`;
+
+        if(this.DOM.simBtnElect) this.DOM.simBtnElect.classList.remove('active-mode');
+        if(this.DOM.simBtnSort) this.DOM.simBtnSort.classList.remove('active-mode');
+        if(this.DOM.simBtnDelib) this.DOM.simBtnDelib.classList.remove('active-mode');
+
         if (newMode === 'election') {
             this.DOM.simBtnElect.classList.add('active-mode');
-            this.DOM.simBtnSort.classList.remove('active-mode');
             this.DOM.simAnalysisText.innerHTML = `Das Wahlsystem erzeugt ${alertSpan} (Parteien). Die Gesellschaft polarisiert sich. Ränder verhärten.`;
             this.DOM.simEntropyMeter.textContent = "POLARIZED";
             this.DOM.simEntropyMeter.style.color = "var(--alert)";
-        } else {
+        } else if (newMode === 'sortition') {
             this.DOM.simBtnSort.classList.add('active-mode');
-            this.DOM.simBtnElect.classList.remove('active-mode');
             this.DOM.simAnalysisText.innerHTML = `Zufallsauswahl durchbricht die Blasen. Ein ${logicSpan} der Bevölkerung bildet sich. Hohe kognitive Diversität.`;
             this.DOM.simEntropyMeter.textContent = "OPTIMAL";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
+        } else if (newMode === 'deliberation') {
+            this.DOM.simBtnDelib.classList.add('active-mode');
+            this.DOM.simAnalysisText.innerHTML = `Durch Beratung nähern sich die Positionen an. Ein ${delibSpan} entsteht jenseits der Parteilinien.`;
+            this.DOM.simEntropyMeter.textContent = "CONSENSUS";
+            this.DOM.simEntropyMeter.style.color = "var(--delib)";
         }
     }
 }
 
 // === KRITISCHE INITIALISIERUNG ===
 const startApplication = () => {
-    // SCHRITT 1: Preloader SOFORT entfernen, egal was sonst passiert.
-    // Das garantiert, dass du Inhalt siehst, selbst wenn JS crasht.
     const preloader = document.getElementById('preloader');
     if (preloader) {
         preloader.style.opacity = '0';
@@ -531,18 +564,15 @@ const startApplication = () => {
         }, 500);
     }
 
-    // SCHRITT 2: App starten mit Sicherheitsnetz
     try {
         window.dossier = new PhoenixDossier();
         console.log("Mission Freiheit: Gestartet.");
     } catch (e) {
         console.error("Kritischer Startfehler:", e);
-        // Wenn alles schiefgeht, stellen wir sicher, dass man zumindest scrollen kann
         document.body.style.overflow = 'auto';
     }
 };
 
-// Startet sofort, wenn DOM schon da ist, oder wartet auf Event
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', startApplication);
 } else {
