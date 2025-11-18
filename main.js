@@ -2,6 +2,7 @@
 // UPGRADE: ISONOMIE Canvas-Simulation integriert. TranscriptSynchronizer-Klasse integriert.
 // UPGRADE V2: IntersectionObserver für Canvas-Simulation UND Audio-Visualizer integriert.
 // UPGRADE V3: Simulations-Modus "Deliberation" hinzugefügt.
+// UPGRADE V4: Dritter Partikel-Typ (Professionals) und Konsens-Funktion (Deliberation) hinzugefügt.
 
 /**
  * TranscriptSynchronizer
@@ -73,7 +74,7 @@ class TranscriptSynchronizer {
             const container = this.transcriptContainer;
             const containerScrollTop = container.scrollTop;
             const containerHeight = container.clientHeight;
-            const cueOffsetTop = activeGefunden.offsetTop;
+            const cueOffsetTop = activeCue.offsetTop;
             const cueHeight = activeCue.offsetHeight;
 
             // Prüft, ob die Zeile außerhalb des sichtbaren Bereichs ist
@@ -85,22 +86,61 @@ class TranscriptSynchronizer {
     }
 }
 
+// Hilfsfunktion zur Interpolation von Farben (Rot/Grün/Cyan)
+function interpolateColor(ratio) {
+    // 0 = Rot (Alert), 0.5 = Cyan (Primary), 1 = Grün (Logic)
+
+    // Einfache 3-Wege-RGB-Interpolation:
+    const colorRed = {r: 255, g: 51, b: 51};     // #FF3333
+    const colorCyan = {r: 6, g: 182, b: 212};    // #06b6d4
+    const colorGreen = {r: 0, g: 204, b: 102};   // #00CC66
+
+    let startColor, endColor, localRatio;
+
+    if (ratio < 0.5) {
+        startColor = colorRed;
+        endColor = colorCyan;
+        localRatio = ratio * 2; // Skaliert 0..0.5 auf 0..1
+    } else {
+        startColor = colorCyan;
+        endColor = colorGreen;
+        localRatio = (ratio - 0.5) * 2; // Skaliert 0.5..1 auf 0..1
+    }
+
+    const interpolatedR = Math.round(startColor.r + (endColor.r - startColor.r) * localRatio);
+    const interpolatedG = Math.round(startColor.g + (endColor.g - startColor.g) * localRatio);
+    const interpolatedB = Math.round(startColor.b + (endColor.b - startColor.b) * localRatio);
+    
+    // Stellt sicher, dass Hex-Werte korrekt formatiert sind
+    const toHex = (c) => c.toString(16).padStart(2, '0');
+    
+    return `#${toHex(interpolatedR)}${toHex(interpolatedG)}${toHex(interpolatedB)}`;
+}
+
+
 /**
  * Particle
  * Eine Helferklasse für die Canvas-Simulation. Repräsentiert ein einzelnes Partikel (Bürger).
  */
 class Particle {
-    constructor(width, height) {
+    constructor(width, height, isProfessional = false) { // NEU: isProfessional Flag
         this.width = width;
         this.height = height;
         this.x = Math.random() * this.width;
         this.y = Math.random() * this.height;
         this.vx = (Math.random() - 0.5) * 0.5; // Geschwindigkeit x
         this.vy = (Math.random() - 0.5) * 0.5; // Geschwindigkeit y
-        this.size = Math.random() * 1.5 + 0.5;
+        this.size = isProfessional ? 2.5 : (Math.random() * 1.5 + 0.5); // Profis sind größer
         this.color = '#444444'; // Basis-Partikelfarbe
         this.selected = false; // Für Los-Modus
+        this.isProfessional = isProfessional; // NEU
         this.preference = Math.random(); // Für Wahl-Modus (0 -> Zentrum 1, 1 -> Zentrum 2)
+        
+        // NEU: Nur für Deliberations-Modus relevant
+        this.consensusValue = this.preference; // Startet polarisiert (0 bis 1)
+        
+        // Referenz auf den globalen simState (wird bei Erstellung gesetzt)
+        this.simState = null; 
     }
     
     /**
@@ -115,19 +155,47 @@ class Particle {
             let dx = target.x - this.x;
             let dy = target.y - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
+
+            // Profis haben eine höhere Anziehung und Dämpfung (kleben näher an der Macht)
+            let attraction = this.isProfessional ? 0.08 : 0.05; 
+            let dampening = this.isProfessional ? 0.9 : 0.95;
+
             if(dist > 10) {
-                this.vx += (dx / dist) * 0.05; // Gravitationskraft
-                this.vy += (dy / dist) * 0.05;
+                this.vx += (dx / dist) * attraction; // Gravitationskraft
+                this.vy += (dy / dist) * attraction;
             }
-            this.vx *= 0.95; // Dämpfung
-            this.vy *= 0.95;
-            this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic
-            this.size = 1.5;
+            this.vx *= dampening; // Dämpfung
+            this.vy *= dampening;
+
+            // Profis werden Gelb/Gold (visuelle Aristokratie-Nähe)
+            if (this.isProfessional) {
+                this.color = '#FFD700'; 
+                this.size = 2.5;
+            } else {
+                this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Alert vs Logic
+                this.size = 1.5;
+            }
 
         } else if (mode === 'deliberation') {
             // NEU: DELIBERATIONS-MODUS
+            
+            // 1. Konsens-Logik (nur für geloste Partikel)
             if (this.selected) {
-                // Geloste Partikel bewegen sich ins Zentrum
+                // Konvergiert langsam zum neutralen Wert 0.5 (Cyan-Mischfarbe)
+                const consensusTarget = 0.5;
+                const speed = 0.005; 
+                if (this.consensusValue < consensusTarget) {
+                    this.consensusValue += speed;
+                    if (this.consensusValue > consensusTarget) this.consensusValue = consensusTarget;
+                } else if (this.consensusValue > consensusTarget) {
+                    this.consensusValue -= speed;
+                     if (this.consensusValue < consensusTarget) this.consensusValue = consensusTarget;
+                }
+                
+                // Setzt Farbe basierend auf dem aktuellen Konsens-Wert
+                this.color = interpolateColor(this.consensusValue);
+                
+                // Bewegung zum Zentrum (Deliberation)
                 let target = centers[2]; // Das neue Zentrum (Canvas-Mitte)
                 let dx = target.x - this.x;
                 let dy = target.y - this.y;
@@ -144,7 +212,6 @@ class Particle {
                 
                 this.vx *= 0.96; // Stärkere Dämpfung
                 this.vy *= 0.96;
-                this.color = '#00CC66'; // Logic-Farbe
                 this.size = 3;
             } else {
                 // Nicht-geloste Partikel (Hintergrundrauschen)
@@ -168,15 +235,22 @@ class Particle {
                 this.vx = (this.vx/speed)*2;
                 this.vy = (this.vy/speed)*2;
             }
+            
+            if (this.isProfessional) {
+                this.color = '#FFD700'; // Gold
+                this.size = 2.5;
+            } 
             // Geloste Partikel werden hervorgehoben
-            if (this.selected) {
-                this.color = '#00CC66'; // Logic-Farbe
+            else if (this.selected) {
+                // Im Los-Modus zeigen sie ihre *ursprüngliche* Präferenzfarbe
+                this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66';
                 this.size = 3;
             } else {
                 this.color = '#333'; 
                 this.size = 1;
             }
         }
+        
         // Position aktualisieren und an Rändern abprallen lassen
         this.x += this.vx;
         this.y += this.vy;
@@ -197,10 +271,19 @@ class Particle {
      * @param {CanvasRenderingContext2D} ctx - Der 2D-Kontext des Canvas
      */
     draw(ctx) {
+        if (!this.simState) this.simState = window.dossier?.simState; // Stellt sicher, dass simState verfügbar ist
+        
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
         ctx.fill();
+        
+        // NEU: Zeichnet einen weißen Ring um Profis
+        if (this.isProfessional && this.simState && this.simState.mode !== 'deliberation') {
+             ctx.strokeStyle = 'white';
+             ctx.lineWidth = 1;
+             ctx.stroke();
+        }
     }
 }
 
@@ -429,16 +512,21 @@ class PhoenixDossier {
         
         // NEU: Status-Flag, das vom Observer gesteuert wird
         let isVisible = false;
+        let animationFrameId = null;
         
         // Zeichenfunktion
         const draw = () => {
             // OPTIMIERT: Stoppt, wenn pausiert ODER nicht sichtbar (spart Akku)
             if (audio.paused || audio.ended || !isVisible) {
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
                 return;
             }
             
-            requestAnimationFrame(draw);
+            animationFrameId = requestAnimationFrame(draw);
             analyser.getByteFrequencyData(dataArray);
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -460,12 +548,14 @@ class PhoenixDossier {
                 audioContext.resume();
             }
             // Startet den Loop nur, wenn der Player auch sichtbar ist
-            if (isVisible) {
+            if (isVisible && !animationFrameId) {
                 draw();
             }
         };
         
         audio.addEventListener('play', startVisualizer);
+        audio.addEventListener('pause', draw); // Ruft draw auf, um zu löschen
+        audio.addEventListener('ended', draw); // Ruft draw auf, um zu löschen
 
         // NEU: IntersectionObserver für den Audio-Visualizer
         const observer = new IntersectionObserver((entries) => {
@@ -679,14 +769,35 @@ class PhoenixDossier {
         window.addEventListener('resize', () => this.resizeSimulation());
 
         this.simState.particles = [];
-        for(let i=0; i<800; i++) { // Erzeugt 800 Partikel
-            this.simState.particles.push(new Particle(this.simState.width, this.simState.height));
+        const totalParticles = 800;
+        const professionalCount = 25; // NEU: 25 Partikel sind "Profis" (ca. 3%)
+
+        // Erzeugt 25 "Professionals"
+        for(let i=0; i<professionalCount; i++) { 
+            const p = new Particle(this.simState.width, this.simState.height, true);
+            p.simState = this.simState; // Referenz auf globalen State
+            this.simState.particles.push(p);
+        }
+
+        // Erzeugt die restlichen "Bürger"
+        for(let i=0; i<(totalParticles - professionalCount); i++) { 
+            const p = new Particle(this.simState.width, this.simState.height, false);
+            p.simState = this.simState; // Referenz auf globalen State
+            this.simState.particles.push(p);
         }
         
-        // Wählt 50 Partikel zufällig aus (für den Los-Modus)
+        // Wählt 50 Partikel zufällig aus (für den Los-Modus) - muss keine Profis einschließen
         const indices = new Set();
-        while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
+        while(indices.size < 50) indices.add(Math.floor(Math.random() * totalParticles));
         indices.forEach(i => this.simState.particles[i].selected = true);
+        
+        // Setzt den Konsens-Wert der gelosten Partikel zurück, damit die Farben frisch starten
+        this.simState.particles.forEach(p => {
+            if (p.selected) {
+                 // Startet mit dem polarisierten Wert (z.B. 0.1 oder 0.9)
+                p.consensusValue = p.preference; 
+            }
+        });
 
         // Event Listeners für Modus-Wechsel
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
@@ -729,6 +840,9 @@ class PhoenixDossier {
         if (this.DOM.simWrapper) {
             observer.observe(this.DOM.simWrapper);
         }
+        
+        // Sicherstellen, dass der Start-Modus korrekt gesetzt wird
+        this.setSimMode('election', true);
     }
 
     /**
@@ -782,13 +896,15 @@ class PhoenixDossier {
 
         // Zeichnet die Gravitationszentren (nur im Wahl-Modus)
         if(this.simState.mode === 'election') {
+            // Gravitationszentrum 1
             this.simState.ctx.beginPath();
-            this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
+            this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 10, 0, Math.PI*2);
             this.simState.ctx.fillStyle = '#FF3333'; // --alert
             this.simState.ctx.fill();
             
+            // Gravitationszentrum 2
             this.simState.ctx.beginPath();
-            this.simState.ctx.arc(this.simState.centers[1].x, this.simState.centers[1].y, 5, 0, Math.PI*2);
+            this.simState.ctx.arc(this.simState.centers[1].x, this.simState.centers[1].y, 10, 0, Math.PI*2);
             this.simState.ctx.fillStyle = '#00CC66'; // --logic (als Kontrast)
             this.simState.ctx.fill();
         }
@@ -797,8 +913,14 @@ class PhoenixDossier {
         if(this.simState.mode === 'deliberation') {
             const pulse = Math.abs(Math.sin(Date.now() * 0.002)) * 5 + 5; // Puls 5px -> 10px
             this.simState.ctx.beginPath();
+            this.simState.ctx.arc(this.simState.centers[2].x, this.simState.centers[2].y, 15, 0, Math.PI*2);
+            this.simState.ctx.fillStyle = 'rgba(6, 182, 212, 0.2)'; // Feste äußere Hülle
+            this.simState.ctx.fill();
+            
+            // Innerer Puls
+            this.simState.ctx.beginPath();
             this.simState.ctx.arc(this.simState.centers[2].x, this.simState.centers[2].y, pulse, 0, Math.PI*2);
-            this.simState.ctx.fillStyle = 'rgba(6, 182, 212, 0.5)'; // --primary-color translucent
+            this.simState.ctx.fillStyle = 'rgba(6, 182, 212, 0.8)'; // Hellere Farbe für Puls
             this.simState.ctx.fill();
         }
 
@@ -808,40 +930,51 @@ class PhoenixDossier {
 
     /**
      * Wechselt den Modus der Simulation (Wahl vs. Los).
+     * @param {string} newMode - Der neue Modus
+     * @param {boolean} initial - Ist dies der Start der App?
      */
-    setSimMode(newMode) {
-        if (this.simState.mode === newMode) return;
+    setSimMode(newMode, initial = false) {
+        if (this.simState.mode === newMode && !initial) return;
         this.simState.mode = newMode;
 
         // Aktualisiert die UI-Texte und Button-Stile
         const alertSpan = `<span style="color: var(--alert);">Gravitationszentren</span>`;
         const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
         const deliberateSpan = `<span style="color: var(--primary-color);">Bürgerrat</span>`;
+        const eliteSpan = `<span style="color: #FFD700;">Elite</span>`; // Gold
 
         // Button-Zustände zurücksetzen
         this.DOM.simBtnElect.classList.remove('active-mode');
         this.DOM.simBtnSort.classList.remove('active-mode');
         this.DOM.simBtnDeliberate.classList.remove('active-mode');
+        
+        // De-/Aktiviert den Deliberations-Button
+        if (this.DOM.simBtnDeliberate) {
+            this.DOM.simBtnDeliberate.disabled = (newMode !== 'sortition');
+        }
 
         if (newMode === 'election') {
             this.DOM.simBtnElect.classList.add('active-mode');
-            this.DOM.simBtnDeliberate.disabled = true; // Deliberation nach Wahl nicht möglich
-            this.DOM.simAnalysisText.innerHTML = `Das Wahlsystem erzeugt ${alertSpan} (Parteien). Die Gesellschaft polarisiert sich. Ränder verhärten.`;
+            this.DOM.simAnalysisText.innerHTML = `Das Wahlsystem erzeugt ${alertSpan} (Parteien). Die Gesellschaft polarisiert sich. Eine kleine, ${eliteSpan} behält die Macht.`;
             this.DOM.simEntropyMeter.textContent = "POLARIZED";
             this.DOM.simEntropyMeter.style.color = "var(--alert)";
+            // Setzt alle gelosten Partikel zurück (damit die Deliberation neu starten kann)
+             this.simState.particles.forEach(p => {
+                if (p.selected) p.consensusValue = p.preference; 
+            });
 
         } else if (newMode === 'sortition') {
             this.DOM.simBtnSort.classList.add('active-mode');
-            this.DOM.simBtnDeliberate.disabled = false; // Deliberation jetzt freigeschaltet
-            this.DOM.simAnalysisText.innerHTML = `Zufallsauswahl durchbricht die Blasen. Ein ${logicSpan} der Bevölkerung bildet sich. Hohe kognitive Diversität.`;
-            this.DOM.simEntropyMeter.textContent = "OPTIMAL";
+            this.DOM.simAnalysisText.innerHTML = `Zufallsauswahl durchbricht die Blasen. Ein ${logicSpan} der Bevölkerung (rot/grün) wird gelost und repräsentiert die Diversität.`;
+            this.DOM.simEntropyMeter.textContent = "DIVERSE";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
 
         } else if (newMode === 'deliberation') {
+            // Stellt sicher, dass der 'sortition' Button nicht mehr aktiv ist
+            this.DOM.simBtnSort.classList.remove('active-mode');
             this.DOM.simBtnDeliberate.classList.add('active-mode');
-            this.DOM.simBtnDeliberate.disabled = false; // Bleibt klickbar
-            this.DOM.simAnalysisText.innerHTML = `Der ${logicSpan} trifft sich zur Deliberation. Im ${deliberateSpan} findet ein Austausch statt, um eine gemeinsame Lösung zu finden.`;
-            this.DOM.simEntropyMeter.textContent = "DELIBERATING";
+            this.DOM.simAnalysisText.innerHTML = `Der ${logicSpan} trifft sich zur Deliberation. Im ${deliberateSpan} konvergieren die Meinungen (rot/grün) zu einer gemeinsamen Lösung (cyan).`;
+            this.DOM.simEntropyMeter.textContent = "CONSENSUS-SEEKING";
             this.DOM.simEntropyMeter.style.color = "var(--primary-color)";
         }
     }
