@@ -591,28 +591,6 @@ li {
     box-shadow: 0 0 15px rgba(0, 204, 102, 0.4);
 }
 
-/* NEUE STYLES FÜR DEN DELIBERATIONS-BUTTON */
-.sim-btn.sim-btn-deliberate {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-}
-.sim-btn.sim-btn-deliberate:hover:not(:disabled),
-.sim-btn.sim-btn-deliberate.active-mode {
-    background-color: var(--primary-color);
-    color: var(--void);
-    box-shadow: 0 0 15px var(--primary-color-translucent);
-}
-
-.sim-btn:disabled {
-    border-color: var(--border-color);
-    color: var(--text-muted);
-    opacity: 0.5;
-    cursor: not-allowed;
-    background-color: transparent;
-    box-shadow: none;
-}
-/* ENDE NEUE STYLES */
-
 .sim-analysis {
     border-top: 1px solid var(--border-color);
     padding-top: 15px;
@@ -644,6 +622,20 @@ li {
 .sim-analysis p span {
     transition: color 0.3s ease;
 }
+
+/* Styling für den Deliberation-Button (Weisheit/Konsens) */
+.sim-btn.sim-btn-wisdom {
+    border-color: var(--secondary-color);
+    color: var(--secondary-color);
+}
+
+.sim-btn.sim-btn-wisdom:hover,
+.sim-btn.sim-btn-wisdom.active-mode {
+    background-color: var(--secondary-color);
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(79, 70, 229, 0.4);
+}
+
 /* --- Ende Simulations-Stile --- */
 
 
@@ -800,8 +792,6 @@ li {
     .narrative-interface { 
         grid-template-columns: 1fr;
         gap: 1rem;
-        /* OPTIMIERUNG: Deaktiviert den teuren Parallax-Effekt auf Mobilgeräten, um Scroll-Ruckeln zu verhindern */
-        background-attachment: scroll;
     }
     .bento-nav { 
         position: static; 
