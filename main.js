@@ -1,4 +1,4 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.3 (Deliberation Mode added)
+// VALIDIERTE VERSION: Mission Freiheit v1.4 (Visual Upgrade: Synaptic Connections)
 
 /**
  * TranscriptSynchronizer
@@ -100,21 +100,27 @@ class Particle {
             let dy = targetY - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Sanfte Anziehung
+            // Sanfte Anziehung zur Mitte
             if(dist > 20) {
                 this.vx += (dx / dist) * 0.03;
                 this.vy += (dy / dist) * 0.03;
             }
             
-            // Leichte Brownsche Bewegung für Diskussion
-            this.vx += (Math.random() - 0.5) * 0.1;
-            this.vy += (Math.random() - 0.5) * 0.1;
-
-            this.vx *= 0.96; // Dämpfung
-            this.vy *= 0.96;
+            // WICHTIG: Mehr "Reibung" im Deliberation Modus (Zuhören braucht Ruhe)
+            this.vx += (Math.random() - 0.5) * 0.05;
+            this.vy += (Math.random() - 0.5) * 0.05;
+            this.vx *= 0.94; 
+            this.vy *= 0.94;
             
-            this.color = '#a855f7'; // Lila für Konsens
-            this.size = 2; 
+            // Farbe: Wenn ausgewählt, helles Lila, sonst dunkleres Grau als Hintergrundrauschen
+            if (this.selected) {
+                this.color = '#a855f7'; 
+                this.size = 2.5;
+            } else {
+                this.color = '#2a2a2a'; // Hintergrundpartikel dimmen
+                this.size = 1;
+            }
+
         } else {
             // LOS-MODUS (Sortition): Zufall / Diversität
             this.vx += (Math.random() - 0.5) * 0.2;
@@ -132,8 +138,11 @@ class Particle {
                 this.size = 1;
             }
         }
+        
+        // Update Position
         this.x += this.vx;
         this.y += this.vy;
+        // Abprallen an Rändern
         if (this.x < 0 || this.x > this.width) this.vx *= -1;
         if (this.y < 0 || this.y > this.height) this.vy *= -1;
     }
@@ -164,7 +173,7 @@ class PhoenixDossier {
             simWrapper: document.getElementById('canvas-wrapper'),
             simBtnElect: document.getElementById('btn-elect'),
             simBtnSort: document.getElementById('btn-sort'),
-            simBtnDelib: document.getElementById('btn-delib'), // NEU
+            simBtnDelib: document.getElementById('btn-delib'),
             simAnalysisText: document.getElementById('analysis-text'),
             simEntropyMeter: document.getElementById('entropy-meter')
         };
@@ -186,7 +195,6 @@ class PhoenixDossier {
             this.setupSimulation();
         }
         
-        // Sicherer GSAP Check
         if (!this.state.isLowPerfMode && window.gsap && window.ScrollTrigger) {
             try {
                 this.setupGSAPAnimations();
@@ -238,7 +246,6 @@ class PhoenixDossier {
             if(totalTimeEl) totalTimeEl.textContent = this.formatTime(audio.duration);
         });
         
-        // === LAZY LOAD VISUALIZER & PLAY ===
         playPauseBtn.addEventListener('click', () => {
             if (audio.paused) {
                 if (!this.state.isLowPerfMode && !audio.dataset.visualizerInitialized) {
@@ -304,7 +311,6 @@ class PhoenixDossier {
             const ctx = canvas.getContext('2d');
             const AudioContextClass = window.AudioContext || window.webkitAudioContext;
             const audioContext = new AudioContextClass();
-            
             const analyser = audioContext.createAnalyser();
             const source = audioContext.createMediaElementSource(audio);
             source.connect(analyser);
@@ -313,7 +319,6 @@ class PhoenixDossier {
             analyser.fftSize = 128;
             const bufferLength = analyser.frequencyBinCount;
             const dataArray = new Uint8Array(bufferLength);
-            
             audio.dataset.visualizerInitialized = 'true';
 
             const draw = () => {
@@ -338,9 +343,8 @@ class PhoenixDossier {
                 if (audioContext.state === 'suspended') audioContext.resume();
                 draw();
             });
-
         } catch (e) {
-            console.warn("Visualizer konnte nicht gestartet werden (CORS?):", e);
+            console.warn("Visualizer konnte nicht gestartet werden:", e);
         }
     }
     
@@ -520,6 +524,31 @@ class PhoenixDossier {
             this.simState.ctx.fill();
         }
         
+        // === VISUALISIERUNG DER VERNETZUNG (Deliberation) ===
+        if (this.simState.mode === 'deliberation') {
+            const selectedParticles = this.simState.particles.filter(p => p.selected);
+            this.simState.ctx.beginPath();
+            this.simState.ctx.strokeStyle = 'rgba(168, 85, 247, 0.15)'; // Dezentes Lila
+            this.simState.ctx.lineWidth = 1;
+            
+            // Verbindet ausgewählte Partikel miteinander, wenn sie nahe sind
+            for (let i = 0; i < selectedParticles.length; i++) {
+                for (let j = i + 1; j < selectedParticles.length; j++) {
+                    const p1 = selectedParticles[i];
+                    const p2 = selectedParticles[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 120) { // Verbindungsschwelle
+                        this.simState.ctx.moveTo(p1.x, p1.y);
+                        this.simState.ctx.lineTo(p2.x, p2.y);
+                    }
+                }
+            }
+            this.simState.ctx.stroke();
+        }
+
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
     }
 
