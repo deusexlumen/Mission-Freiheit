@@ -1,4 +1,4 @@
-// MISSION FREIHEIT V2.0 - FINAL GOLDEN MASTER
+// MISSION FREIHEIT V2.0 - FINAL
 // Features: Audio Sync, Canvas Physik Engine (Resilienz & Deliberation), GSAP Animationen
 
 /**
@@ -19,6 +19,7 @@ class TranscriptSynchronizer {
                 const isHidden = this.transcriptContainer.hidden;
                 this.transcriptContainer.hidden = !isHidden;
                 this.toggleBtn.textContent = isHidden ? 'Transkript ausblenden' : 'Transkript anzeigen';
+                this.toggleBtn.setAttribute('aria-expanded', String(!isHidden));
             });
         }
         
@@ -154,7 +155,13 @@ class PhoenixDossier {
             simBtnSort: document.getElementById('btn-sort'),
             simBtnDelib: document.getElementById('btn-delib'),
             simAnalysisText: document.getElementById('analysis-text'),
-            simEntropyMeter: document.getElementById('entropy-meter')
+            simEntropyMeter: document.getElementById('entropy-meter'),
+            narrativePath: document.querySelector('.narrative-thread-path'),
+            mainTitle: document.getElementById('title-split'),
+            subTitle: document.getElementById('subtitle-split'),
+            perfToggle: document.getElementById('perf-toggle'),
+            body: document.body,
+            focusPane: document.querySelector('.focus-pane')
         };
         this.simState = { ctx: null, width: 0, height: 0, particles: [], centers: [], mode: 'election', mouse: {x:0, y:0, isPressed:false} };
         this.init();
@@ -168,13 +175,19 @@ class PhoenixDossier {
         this.setupScrollSpy();
         
         // Performance Toggle
-        const perfToggle = document.getElementById('perf-toggle');
-        if(perfToggle) {
-            perfToggle.addEventListener('click', () => {
+        if(this.DOM.perfToggle) {
+            this.DOM.perfToggle.addEventListener('click', () => {
                 const lowPerf = localStorage.getItem('lowPerfMode') === 'true';
                 localStorage.setItem('lowPerfMode', !lowPerf);
                 window.location.reload();
             });
+        }
+        
+        // Preloader weg
+        const pl = document.getElementById('preloader');
+        if(pl) {
+            pl.classList.add('hidden');
+            setTimeout(() => pl.style.display = 'none', 500);
         }
     }
 
@@ -186,15 +199,41 @@ class PhoenixDossier {
             const audio = box.querySelector('audio');
             const btn = box.querySelector('.play-pause-btn');
             const progress = box.querySelector('.audio-progress-bar');
+            const timeEl = box.querySelector('.current-time');
+            const totalEl = box.querySelector('.total-time');
             
             if (audio && btn) {
+                const updateIcon = () => {
+                    const iconPlay = btn.querySelector('.icon-play');
+                    const iconPause = btn.querySelector('.icon-pause');
+                    if(iconPlay) iconPlay.style.display = audio.paused ? 'block' : 'none';
+                    if(iconPause) iconPause.style.display = audio.paused ? 'none' : 'block';
+                };
+                
                 btn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
-                audio.addEventListener('timeupdate', () => {
-                    if(progress) progress.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+                audio.addEventListener('play', updateIcon);
+                audio.addEventListener('pause', updateIcon);
+                
+                audio.addEventListener('loadedmetadata', () => {
+                    if(totalEl) totalEl.textContent = this.formatTime(audio.duration);
                 });
                 
-                // Visualizer (Vollständig)
-                if (window.innerWidth > 1024 && !localStorage.getItem('lowPerfMode')) {
+                audio.addEventListener('timeupdate', () => {
+                    if(progress) progress.style.width = (audio.currentTime / audio.duration) * 100 + '%';
+                    if(timeEl) timeEl.textContent = this.formatTime(audio.currentTime);
+                });
+                
+                // Klick auf Progressbar
+                const pCont = box.querySelector('.audio-progress-container');
+                if(pCont) {
+                    pCont.addEventListener('click', (e) => {
+                        const rect = pCont.getBoundingClientRect();
+                        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                    });
+                }
+                
+                // Visualizer
+                if (window.innerWidth > 1024 && localStorage.getItem('lowPerfMode') !== 'true') {
                     const canvas = box.querySelector('.audio-visualizer');
                     if (canvas) {
                         const ctx = canvas.getContext('2d');
@@ -227,11 +266,21 @@ class PhoenixDossier {
                             };
                             draw();
                         };
-                        audio.addEventListener('play', startVis);
+                        // AudioContext darf erst nach User-Geste starten
+                        audio.addEventListener('play', () => {
+                            if(!audioCtx) startVis();
+                        });
                     }
                 }
             }
         });
+    }
+    
+    formatTime(s) {
+        if(isNaN(s)) return "00:00";
+        const m = Math.floor(s/60);
+        const sec = Math.floor(s%60);
+        return `${m < 10 ? '0'+m : m}:${sec < 10 ? '0'+sec : sec}`;
     }
 
     setupSimulation() {
@@ -372,7 +421,6 @@ class PhoenixDossier {
         gsap.from(titleChars, { opacity: 0, y: 50, rotateX: -90, stagger: 0.05, duration: 0.8, ease: "back.out" });
         gsap.from(subChars, { opacity: 0, y: 20, stagger: 0.02, duration: 0.6, delay: 0.5 });
 
-        // Narrative Thread
         const path = this.DOM.narrativePath;
         if (path) {
             const len = path.getTotalLength();
@@ -414,6 +462,5 @@ class PhoenixDossier {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('preloader')?.style.setProperty('display', 'none');
     new PhoenixDossier();
 });
