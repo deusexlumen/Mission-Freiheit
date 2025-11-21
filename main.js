@@ -1,497 +1,5 @@
-Gerne\! Da die Änderungen alle drei Kerndateien (`index.html`, `styles.css`, `main.js`) betreffen, habe ich hier den **vollständigen, zusammengefügten Code** für jede Datei vorbereitet.
-
-Du kannst den Inhalt einfach kopieren und die alten Dateien komplett überschreiben.
-
-### 1\. `index.html` (Vollständig)
-
-Hier sind der Lesefortschrittsbalken, die erweiterte Simulationsanzeige und der Light-Mode-Button integriert.
-
-```html
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Freiheit | Das Ultimative Dossier</title>
-    
-    <meta name="description" content="Das ultimative interaktive Dossier zur Isonomie und Losdemokratie. Analyse der Demokratiekrise, interaktive Simulation und konkrete Lösungswege.">
-    <meta name="keywords" content="Isonomie, Losdemokratie, Mission Freiheit, Simulation, Web-Anwendung, Stasis, Tyrannei, UX, Performance, Architektur, Systemwandel, Demokratiekrise">
-    <link rel="canonical" href="https://deusexlumen.github.io/losdemokratie/">
-    
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://deusexlumen.github.io/losdemokratie/">
-    <meta property="og:title" content="Mission Freiheit | Das Ultimative Dossier">
-    <meta property="og:description" content="Ein interaktives Dossier, das die Demokratiekrise analysiert, eine Simulation von Wahl vs. Los bietet und mit der Losdemokratie einen konkreten Lösungsweg aufzeigt.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1504711434969-e33886168f5c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80">
-    
-    <meta http-equiv="Content-Security-Policy" content="
-        default-src 'self';
-        script-src 'self' https://cdnjs.cloudflare.com;
-        style-src 'self' https://fonts.googleapis.com 'unsafe-inline';
-        font-src 'self' https://fonts.gstatic.com;
-        img-src 'self' data: https://images.unsplash.com;
-        media-src 'self' https://cdn.jsdelivr.net;
-        connect-src 'self' https://cdn.jsdelivr.net;
-        object-src 'none';
-        base-uri 'self';
-        form-action 'self';
-    ">
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2322d3ee%22/></svg>">
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap">
-    </noscript>
-    
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <div id="reading-progress" class="reading-progress-bar"></div>
-
-    <div id="preloader" class="preloader">
-        <div class="spinner"></div>
-        <p class="loading-text">Dossier wird geladen...</p>
-    </div>
-
-    <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
-    
-    <div class="narrative-interface">
-        
-        <aside class="bento-nav-container">
-            <nav class="bento-nav">
-                <div class="bento-header">
-                    <span class="logo">M.F. V1.0</span>
-                    <h1 class="nav-title">Mission Freiheit</h1>
-                    <p class="nav-subtitle">Das Ultimative Dossier</p>
-                </div>
-                <a href="#part0" class="nav-item"><span class="nav-icon">🔬</span><span class="nav-text">0. Die Simulation</span></a>
-                <a href="#part1" class="nav-item"><span class="nav-icon">🚨</span><span class="nav-text">1. Der Ursprung</span></a>
-                <a href="#part2" class="nav-item"><span class="nav-icon">🩺</span><span class="nav-text">2. Die Diagnose</span></a>
-                <a href="#part3" class="nav-item"><span class="nav-icon">💊</span><span class="nav-text">3. Die Therapie</span></a>
-                <a href="#part4" class="nav-item"><span class="nav-icon">❤️‍🩹</span><span class="nav-text">4. Die Heilung</span></a>
-                <a href="#part5" class="nav-item"><span class="nav-icon">🚧</span><span class="nav-text">5. Die Hürden</span></a>
-                <a href="#part6" class="nav-item"><span class="nav-icon">🔭</span><span class="nav-text">6. Der Ausblick</span></a>
-            </nav>
-        </aside>
-
-        <main id="main-content" class="focus-pane" role="main">
-            <div class="narrative-thread-container">
-                <svg class="narrative-thread" viewBox="0 0 40 1000" preserveAspectRatio="none">
-                    <path class="narrative-thread-path" d="M 20 0 C 10 250, 30 500, 20 750 S 30 900, 20 1000" stroke-width="2" fill="none"/>
-                </svg>
-            </div>
-
-            <header class="document-header">
-                <hgroup>
-                    <p class="subtitle" id="subtitle-split">Das ultimative Dossier zur Isonomie.</p>
-                    <h1 class="main-title" id="title-split">Mission Freiheit.</h1>
-                </hgroup>
-                <p class="abstract">
-                    Dieses Dossier analysiert die architektonischen Fehler der modernen Demokratie. Es kombiniert eine interaktive Simulation von <strong>Wahl vs. Los</strong> mit einer tiefgehenden Analyse der <strong>Isonomie</strong> als systemischen Lösungsansatz.
-                </p>
-                 <div class="metadata">
-                    <p>Version: Mission Freiheit 1.1 (Enhanced)</p>
-                    <p>Autor: Deus Ex Lumen</p>
-                    <p>Datum: 2025</p>
-                </div>
-            </header>
-            
-            <article class="document-content">
-
-                <section id="part0" aria-labelledby="nav-part0" class="chapter-section simulation-section" data-takeaway="Die Simulation visualisiert den Kernkonflikt: Wahlen erzeugen Polarisierung, während das Losverfahren (Isonomie) Diversität und Repräsentation wiederherstellt.">
-                    <h2 class="chapter-title"><span class="chapter-number">00.</span>Die Simulation: Wahl vs. Los</h2>
-                    
-                    <div class="sim-controls audio-feature-box">
-                        <h4>Experiment-Einstellungen</h4>
-                        <p class="audio-description">Wähle einen Modus, um die gesellschaftliche Dynamik zu beobachten. Interagiere mit der Maus!</p>
-                        
-                        <div class="sim-buttons">
-                            <button id="btn-elect" class="sim-btn sim-btn-alert active-mode">
-                                Wahl (Status Quo)
-                            </button>
-                            <button id="btn-sort" class="sim-btn sim-btn-logic">
-                                Los (Isonomie)
-                            </button>
-                        </div>
-
-                        <div class="sim-analysis">
-                            <div class="sim-analysis-header">
-                                <span>SYSTEM-STATUS</span>
-                                <span id="entropy-meter">POLARIZED</span>
-                            </div>
-                            <div class="metric-bar-container">
-                                <div id="metric-bar" class="metric-bar"></div>
-                            </div>
-                            <p id="analysis-text">
-                                Das Wahlsystem erzeugt <span style="color: var(--alert);">Gravitationszentren</span> (Parteien). Die Gesellschaft polarisiert sich.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div id="canvas-wrapper"> 
-                        <canvas id="sim-canvas" width="750" height="500"></canvas>
-                        <div class="sim-overlay"></div>
-                    </div>
-                </section>
-
-                <section id="part1" aria-labelledby="nav-part1" class="chapter-section" data-takeaway="Die Konzentration politischer Macht in den Händen Weniger (Aristokratie) ist das Kernproblem moderner Gesellschaften.">
-                    <h2 class="chapter-title"><span class="chapter-number">01.</span>Die Krise unserer Zeit</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 1: Ein System am Limit</h4>
-                        <p class="audio-description">Eine Analyse der Machtkonzentration und der lähmenden Konsequenzen.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20EINS__Isonomie__Entlarvt_die_faktische_Aristokratie_und_die_Falle_der_Politik.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="play-pause-btn"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div></div>
-                        <button class="transcript-toggle-btn">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part1" hidden>
-                             <p data-start="0" data-end="7.9">Kennen Sie das auch? Dieses Gefühl der politischen Frustration...</p>
-                             </div>
-                    </div>
-                    <p>Alles beginnt mit einem Gefühl. Einem leisen, aber nagenden Zweifel an der Art und Weise, wie wir als Gesellschaft Entscheidungen treffen.</p>
-                </section>
-                
-                <section id="part2" class="chapter-section" data-takeaway="Stasis (Parteienkampf) führt zu Handlungsunfähigkeit und dem Ruf nach Tyrannei.">
-                    <h2 class="chapter-title"><span class="chapter-number">02.</span>Diagnose: Stasis &amp; Tyrannei</h2>
-                    <p>Die repräsentative Demokratie leidet unter chronischen Krankheiten...</p>
-                </section>
-
-                <section id="part3" class="chapter-section" data-takeaway="Die Therapie ist die Isonomie, erreicht durch das Losverfahren.">
-                    <h2 class="chapter-title"><span class="chapter-number">03.</span>Therapie: Die vergessene Lösung</h2>
-                     <p>Die Losdemokratie ist eine kraftvolle Behandlungsmethode...</p>
-                </section>
-
-                <section id="part4" class="chapter-section" data-takeaway="Isonomie schafft einen herrschaftsfreien Raum für Deliberation.">
-                    <h2 class="chapter-title"><span class="chapter-number">04.</span>Heilung: Isonomie in Aktion</h2>
-                     <p>Isonomie beendet die unproduktiven Parteienkämpfe...</p>
-                </section>
-
-                <section id="part5" class="chapter-section" data-takeaway="Die größten Hürden sind falsche Feindbilder und aristokratische Illusionen.">
-                    <h2 class="chapter-title"><span class="chapter-number">05.</span>Die Hürden</h2>
-                     <p>Die moderne Zeit verwechselt oft Anarchie mit Anomie...</p>
-                </section>
-
-                <section id="part6" aria-labelledby="nav-part6" class="chapter-section" data-takeaway="Der Quantensprung gelingt, indem Last und Lust der Politik gerecht verteilt werden.">
-                    <h2 class="chapter-title"><span class="chapter-number">06.</span>Der Quantensprung</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 6: Der Quantensprung zur Mündigkeit</h4>
-                        <p class="audio-description">Eine Vision für eine wahrhaft politische Gesellschaft.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20SECHS__Isonomie_und_Losverfahren__Der_Quantensprung_zur_politischen_M%C3%BCndigkeit.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="play-pause-btn"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div></div>
-                         </div>
-                    <p>Die Isonomie, basierend auf dem Losverfahren, ist der einzige Weg...</p>
-                </section>
-                
-                <section id="knowledge-distillate" class="chapter-section">
-                    <h2 id="distillate-title" class="chapter-title"><span class="chapter-number">07.</span>Ihr Wissens-Destillat</h2>
-                    <p>Kernargumente auf einen Blick:</p>
-                    <ul></ul>
-                </section>
-                
-                <section id="final-actions" class="chapter-section final-actions">
-                    <h2 id="final-cta" class="chapter-title"><span class="chapter-number">08.</span>Werden Sie zum Systemwandler</h2>
-                    <div class="final-actions-grid">
-                        <div class="action-card">
-                            <h3 class="card-title">Ihre Mission</h3>
-                            <p>Wissen ist der erste Schritt, Handeln der nächste.</p>
-                            <a href="https://losdemokratie.de/antrag" target="_blank" class="cta-button">Teil der Bewegung werden</a>
-                             </div>
-                        <div class="action-card">
-                            <h3 class="card-title">Ihre Werkzeugkiste</h3>
-                             </div>
-                    </div>
-                </section>
-            </article>
-        </main>
-        
-        <footer class="page-footer">
-            <p>created by <a href="https://youtube.com/@deusexlumen" target="_blank">deus.ex.lumen</a> 2025</p>
-        </footer>
-        
-        <div class="ui-controls-container">
-            <button id="theme-toggle" class="perf-toggle-button" aria-label="Design wechseln">☀️ Light Mode</button>
-            <button id="perf-toggle" class="perf-toggle-button" aria-pressed="false">✨ Animationen an</button>
-        </div>
-    </div>
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <script type="module" src="main.js"></script>
-</body>
-</html>
-```
-
-### 2\. `styles.css` (Vollständig)
-
-Beinhaltet alle Basisstile plus die neuen Erweiterungen für Light Mode, Mobile Nav und Sticky Audio.
-
-```css
-:root {
-    /* Dark Mode Defaults */
-    --bg-color: #0d1117;
-    --primary-color: #06b6d4;      
-    --secondary-color: #4f46e5;   
-    --highlight-color: #67e8f9;     
-    --text-color-bright: #e6edf3;  
-    --text-color-dim: #9eb3c9;     
-    --text-muted: #8b949e;         
-    --heading-color: #f0f6fc;      
-    --border-color: rgba(209, 213, 219, 0.1);
-    --card-bg: rgba(22, 27, 34, 0.5);
-    --cta-color: #a855f7;          
-
-    --alert: #FF3333; 
-    --logic: #00CC66; 
-    --void: #050505; 
-
-    --font-heading: 'Inter', sans-serif;
-    --font-main: 'Source Sans Pro', sans-serif;
-    --border-radius: 16px;
-
-    --primary-color-translucent: rgba(34, 211, 238, 0.3);
-    --shadow-glow: 0 0 24px var(--primary-color-translucent), 0 0 48px rgba(6, 182, 212, 0.2), inset 0 0 10px rgba(6, 182, 212, 0.1);
-    --shadow-small: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-}
-
-/* --- NEU: Light Mode Variablen --- */
-body.light-theme {
-    --bg-color: #f3f4f6;           
-    --card-bg: #ffffff;            
-    --text-color-dim: #4b5563;     
-    --text-color-bright: #111827;  
-    --heading-color: #1f2937;      
-    --border-color: rgba(0, 0, 0, 0.1);
-    --void: #e5e7eb;               
-    --shadow-glow: 0 0 15px rgba(6, 182, 212, 0.15);
-}
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; background-color: var(--bg-color); }
-
-body {
-    font-family: var(--font-main);
-    color: var(--text-color-dim);
-    line-height: 1.7;
-    background-color: var(--bg-color);
-    min-height: 100vh;
-    overflow-x: hidden;
-    position: relative; 
-}
-
-/* Low Perf Mode */
-.low-perf-mode * { transition: none !important; animation: none !important; scroll-behavior: auto !important; }
-.low-perf-mode .narrative-thread-container, .low-perf-mode .audio-visualizer { display: none !important; }
-
-a { color: var(--highlight-color); text-decoration: none; transition: color 0.3s ease; }
-a:hover { color: var(--primary-color); text-decoration: underline; }
-
-h1, h2, h3, h4 { font-family: var(--font-heading); color: var(--heading-color); line-height: 1.2; margin-bottom: 0.5em; }
-h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; }
-h2 { font-size: clamp(2rem, 3.5vw, 2.8rem); font-weight: 800; }
-h3 { font-size: 1.5rem; font-weight: 700; }
-
-p { margin-bottom: 1.5rem; }
-ul, ol { margin-bottom: 1.5rem; padding-left: 20px; }
-li { margin-bottom: 0.5rem; }
-
-/* Preloader */
-.preloader {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background-color: var(--bg-color);
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 9999; opacity: 1; transition: opacity 0.5s ease-in-out;
-}
-.preloader.hidden { opacity: 0; pointer-events: none; }
-.spinner {
-    width: 50px; height: 50px; border: 4px solid var(--border-color);
-    border-top-color: var(--primary-color); border-radius: 50%;
-    animation: spin 1s linear infinite; margin-bottom: 1rem;
-}
-.loading-text { color: var(--text-color-bright); font-size: 1.1rem; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Layout */
-.narrative-interface {
-    display: grid; grid-template-columns: 280px 1fr;
-    min-height: 100vh; max-width: 1400px; margin: 0 auto;
-    position: relative;
-    background: radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 90%, rgba(79, 70, 229, 0.05) 0%, transparent 20%),
-                var(--bg-color);
-    background-attachment: fixed;
-}
-
-.bento-nav-container { padding: 2rem 1.5rem 2rem 2rem; }
-.bento-nav {
-    position: sticky; top: 2rem; height: calc(100vh - 4rem); padding: 20px;
-    border: 1px solid var(--border-color); border-radius: var(--border-radius);
-    background: var(--card-bg); box-shadow: var(--shadow-small);
-    display: flex; flex-direction: column;
-}
-.bento-header { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px dashed var(--border-color); }
-.logo { display: block; color: var(--primary-color); font-size: 0.75rem; font-weight: 700; margin-bottom: 4px; letter-spacing: 0.1em; }
-.nav-title { font-size: 1.6rem; font-weight: 900; margin-bottom: 0; }
-.nav-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0; }
-.nav-item {
-    display: flex; align-items: center; padding: 10px 12px; margin-bottom: 8px;
-    border-radius: 12px; color: var(--text-color-bright); font-weight: 600;
-    transition: background-color 0.2s, box-shadow 0.2s;
-}
-.nav-item:hover { background-color: rgba(6, 182, 212, 0.1); box-shadow: 0 0 5px rgba(6, 182, 212, 0.3); text-decoration: none; }
-.nav-item.active { background-color: var(--primary-color-translucent); box-shadow: var(--shadow-glow); color: var(--highlight-color); }
-.nav-item-cta { background-color: var(--cta-color); margin-top: auto; color: white; box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
-.nav-icon { font-size: 1.2rem; margin-right: 12px; }
-.nav-text { flex-grow: 1; }
-
-.focus-pane { padding: 2rem 2rem 5rem 1.5rem; position: relative; }
-
-/* Content */
-.document-header { margin-bottom: 4rem; padding-left: 1.5rem; }
-.subtitle { font-size: 1.2rem; color: var(--text-muted); font-weight: 600; margin-bottom: 0.5rem; }
-.main-title { margin-top: 0; display: flex; flex-wrap: wrap; overflow: hidden; }
-.abstract { font-size: 1.15rem; font-weight: 300; color: var(--text-color-bright); margin-bottom: 1rem; border-left: 4px solid var(--primary-color); padding-left: 15px; }
-.metadata { font-size: 0.85rem; color: var(--text-muted); display: flex; gap: 20px; }
-
-.document-content { max-width: 750px; }
-.chapter-section { padding-left: 1.5rem; margin-bottom: 5rem; padding-top: 1rem; }
-.chapter-title { display: flex; align-items: flex-start; gap: 10px; }
-.chapter-number { font-size: 1.5rem; color: var(--primary-color); font-weight: 900; flex-shrink: 0; }
-
-.highlight-box, .pull-quote {
-    background-color: var(--card-bg); border: 1px solid var(--border-color);
-    border-radius: var(--border-radius); padding: 20px; margin: 2rem 0; box-shadow: var(--shadow-small);
-}
-.highlight-box { border-left: 4px solid var(--secondary-color); }
-.highlight-box strong { color: var(--text-color-bright); }
-.pull-quote { font-style: italic; font-size: 1.3rem; line-height: 1.5; color: var(--text-color-bright); border-left: 4px solid var(--cta-color); }
-.pull-quote::before { content: "„"; font-size: 3rem; line-height: 0; color: var(--cta-color); position: relative; top: 10px; margin-right: 5px; display: inline-block; }
-.pull-quote + figcaption { display: block; text-align: right; font-size: 0.9rem; color: var(--text-muted); margin-top: -1.5rem; padding-right: 20px; }
-
-/* Audio Feature Box */
-.audio-feature-box {
-    padding: 20px; background: rgba(255, 255, 255, 0.05);
-    border-radius: var(--border-radius); border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-glow); transition: box-shadow 1.5s ease; margin: 3rem 0;
-}
-.audio-feature-box h4 { color: var(--heading-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-.audio-description { font-size: 0.95rem; color: var(--text-muted); margin-top: -0.5rem; }
-.custom-audio-player { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
-.audio-player-hidden { display: none; }
-.play-pause-btn, .skip-btn { background: transparent; border: none; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; }
-.play-pause-btn svg, .skip-btn svg { width: 24px; height: 24px; fill: var(--text-color-bright); transition: fill 0.2s, transform 0.2s; }
-.play-pause-btn:hover svg { fill: var(--highlight-color); transform: scale(1.1); }
-.icon-pause { display: none; }
-.audio-progress-container { flex-grow: 1; height: 8px; background-color: rgba(255, 255, 255, 0.1); border-radius: 4px; cursor: pointer; overflow: hidden; }
-.audio-progress-bar { width: 0%; height: 100%; background-color: var(--primary-color); border-radius: 4px; transition: width 0.1s linear; }
-.audio-visualizer { width: 100px; height: 40px; }
-.audio-time { color: var(--text-color-bright); font-size: 0.9rem; font-variant-numeric: tabular-nums; }
-.speed-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); color: var(--text-color-bright); border-radius: 6px; padding: 4px 8px; cursor: pointer; font-size: 0.85rem; }
-.transcript-toggle-btn { background: transparent; color: var(--highlight-color); border: 1px solid var(--highlight-color); border-radius: 8px; padding: 8px 15px; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-.transcript-toggle-btn:hover { background-color: rgba(6, 182, 212, 0.1); }
-.transcript-container { padding: 15px 10px 5px 10px; margin-top: 15px; border-top: 1px solid var(--border-color); max-height: 300px; overflow-y: auto; }
-.transcript-container p { margin-bottom: 0.5rem; padding: 5px; cursor: pointer; transition: color 0.2s, background-color 0.2s; border-radius: 4px; }
-.transcript-container p.active-cue { color: var(--highlight-color); background-color: rgba(6, 182, 212, 0.1); font-weight: 600; }
-
-/* Simulation Styles */
-.simulation-section #canvas-wrapper {
-    position: relative; width: 100%; height: 500px; background-color: var(--void);
-    border: 1px solid var(--border-color); border-radius: var(--border-radius);
-    overflow: hidden; margin-top: 2rem;
-}
-#sim-canvas { display: block; width: 100%; height: 100%; }
-.sim-overlay { position: absolute; inset: 0; background: radial-gradient(circle, transparent 40%, var(--void) 100%); pointer-events: none; }
-.sim-controls { padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-glow); margin: 3rem 0; }
-.sim-controls h4 { color: var(--heading-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px; }
-.sim-buttons { display: flex; gap: 10px; margin-bottom: 1.5rem; }
-.sim-btn { flex: 1; padding: 12px; border: 1px solid var(--border-color); color: var(--text-muted); background: transparent; font-family: var(--font-heading); font-weight: 600; text-transform: uppercase; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; }
-.sim-btn.sim-btn-alert { border-color: var(--alert); color: var(--alert); }
-.sim-btn.sim-btn-alert:hover, .sim-btn.sim-btn-alert.active-mode { background-color: var(--alert); color: var(--void); box-shadow: 0 0 15px rgba(255, 51, 51, 0.4); }
-.sim-btn.sim-btn-logic { border-color: var(--logic); color: var(--logic); }
-.sim-btn.sim-btn-logic:hover, .sim-btn.sim-btn-logic.active-mode { background-color: var(--logic); color: var(--void); box-shadow: 0 0 15px rgba(0, 204, 102, 0.4); }
-.sim-analysis { border-top: 1px solid var(--border-color); padding-top: 15px; }
-.sim-analysis-header { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
-#entropy-meter { font-weight: 700; color: var(--alert); transition: color 0.3s ease; }
-.sim-analysis p { font-family: serif; font-size: 1.2rem; line-height: 1.4; color: var(--text-color-bright); margin: 0; }
-
-/* Footer & Controls */
-.page-footer { grid-column: 1 / -1; text-align: center; padding: 2rem 0 1rem 0; border-top: 1px solid var(--border-color); margin-top: 3rem; font-size: 0.85rem; color: var(--text-muted); }
-.ui-controls-container { position: fixed; bottom: 20px; right: 20px; z-index: 100; display: flex; flex-direction: column; gap: 10px; }
-.perf-toggle-button { background-color: rgba(255, 255, 255, 0.1); color: var(--text-color-bright); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 15px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.2s; }
-.perf-toggle-button:hover { background-color: rgba(255, 255, 255, 0.2); }
-.skip-link { position: absolute; top: -40px; left: 50%; transform: translateX(-50%); z-index: 999; padding: 8px 16px; color: var(--bg-color); background-color: var(--highlight-color); transition: top 0.3s ease-in-out; font-weight: 700; border-radius: 8px; }
-.skip-link:focus { top: 0; }
-
-.narrative-thread-container { position: absolute; top: 0; left: -1.5rem; width: 40px; height: 100%; z-index: -1; pointer-events: none; }
-.narrative-thread { width: 100%; height: 100%; overflow: visible; }
-.narrative-thread-path { stroke: var(--primary-color); transition: stroke 1.5s ease; }
-
-.final-actions-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 2rem; }
-.action-card { padding: 30px; background: rgba(79, 70, 229, 0.05); border: 1px solid rgba(79, 70, 229, 0.3); border-radius: var(--border-radius); box-shadow: 0 0 15px rgba(79, 70, 229, 0.1); }
-.action-card .card-title { color: var(--heading-color); margin-bottom: 1rem; border-bottom: 1px solid rgba(79, 70, 229, 0.4); padding-bottom: 10px; }
-.cta-button { display: inline-block; background-color: var(--cta-color); color: white; border: none; border-radius: 8px; padding: 12px 20px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s; margin-top: 1rem; width: 100%; text-align: center; }
-.cta-button:hover { background-color: #8b5cf6; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(168, 85, 247, 0.4); text-decoration: none; }
-.share-buttons { margin-top: 1.5rem; display: flex; gap: 10px; flex-wrap: wrap; }
-.share-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; background-color: rgba(255, 255, 255, 0.1); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color-bright); transition: background-color 0.2s; }
-.share-btn:hover { background-color: rgba(255, 255, 255, 0.2); text-decoration: none; }
-
-/* --- NEU: Lesefortschrittsbalken --- */
-.reading-progress-bar {
-    position: fixed; top: 0; left: 0; height: 4px;
-    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-    width: 0%; z-index: 10000; transition: width 0.1s linear;
-    box-shadow: 0 0 10px var(--primary-color);
-}
-
-/* --- NEU: Metrik-Balken (Simulation) --- */
-.metric-bar-container {
-    width: 100%; height: 6px; background: rgba(255,255,255,0.1);
-    border-radius: 3px; margin: 10px 0; overflow: hidden;
-}
-.light-theme .metric-bar-container { background: rgba(0,0,0,0.1); }
-.metric-bar { height: 100%; width: 50%; background-color: var(--text-muted); transition: width 0.5s ease, background-color 0.5s ease; }
-
-/* --- UPDATE: Mobile Navigation --- */
-@media (max-width: 1024px) {
-    .narrative-interface { grid-template-columns: 1fr; gap: 1rem; }
-    .narrative-thread-container { display: none; }
-    .ui-controls-container { bottom: 80px; right: 10px; } /* Angepasst für Mobile Nav */
-    
-    .bento-nav-container { padding: 0; height: 0; }
-    .bento-nav {
-        position: fixed; bottom: 0; left: 0; width: 100%; height: auto;
-        margin: 0; border-radius: 0; border-top: 1px solid var(--border-color);
-        flex-direction: row; justify-content: space-around; padding: 10px;
-        z-index: 5000; background: var(--bg-color); box-shadow: 0 -5px 20px rgba(0,0,0,0.2);
-    }
-    .bento-header, .nav-subtitle, .nav-item-cta, .nav-text { display: none; }
-    .nav-item { flex-direction: column; padding: 5px; margin: 0; background: transparent !important; box-shadow: none !important; }
-    .nav-item.active { color: var(--primary-color); }
-    .nav-icon { margin: 0; font-size: 1.4rem; }
-    .page-footer { padding-bottom: 80px; }
-    
-    .simulation-section #canvas-wrapper { height: 400px; }
-    .sim-buttons { flex-direction: column; }
-    .final-actions-grid { grid-template-columns: 1fr; }
-}
-
-/* --- NEU: Sticky Audio Player (Desktop) --- */
-@media (min-width: 1024px) {
-    .audio-feature-box {
-        position: sticky; top: 2rem; z-index: 50;
-        background: var(--bg-color);
-        backdrop-filter: blur(10px); border: 1px solid var(--primary-color-translucent);
-    }
-}
-```
-
-### 3\. `main.js` (Vollständig)
-
-Hier ist die komplett überarbeitete Logik mit Maus-Interaktion, Trails, Theme-Toggle und Lesefortschritt.
-
-```javascript
-// VALIDIERTE VERSION: Mission Freiheit v1.1 (Enhanced)
-// UPGRADE: Interaktive Simulation & UI-Verbesserungen
+// VALIDIERTE VERSION: Mission Freiheit v1.2 (Stable)
+// FIX: Preloader Safety-Net & Robust Error Handling
 
 class TranscriptSynchronizer {
     constructor(box) {
@@ -564,7 +72,7 @@ class Particle {
     
     update(mode, centers, mouse) {
         // 1. Maus-Interaktion
-        if (mouse.x != null && mouse.y != null) {
+        if (mouse && mouse.x != null && mouse.y != null) {
             let dx = mouse.x - this.x;
             let dy = mouse.y - this.y;
             let distance = Math.sqrt(dx*dx + dy*dy);
@@ -648,7 +156,6 @@ class PhoenixDossier {
             simBtnSort: document.getElementById('btn-sort'),
             simAnalysisText: document.getElementById('analysis-text'),
             simEntropyMeter: document.getElementById('entropy-meter'),
-            // NEU
             readingProgress: document.getElementById('reading-progress'),
             themeToggle: document.getElementById('theme-toggle'),
             metricBar: document.getElementById('metric-bar')
@@ -661,14 +168,14 @@ class PhoenixDossier {
         this.simState = {
             ctx: null, width: 0, height: 0, particles: [], centers: [],
             mode: 'election', animationFrame: null,
-            mouse: { x: null, y: null } // NEU
+            mouse: { x: null, y: null }
         };
 
         this.init();
     }
 
     init() {
-        this.setupPerfToggle();
+        this.setupPerfToggle(); // Wichtig: Muss früh laufen
         this.setupAudioPlayers();
         this.setupReadingProgress();
         this.setupThemeToggle();
@@ -678,20 +185,25 @@ class PhoenixDossier {
         }
         
         try {
-            if (!this.state.isLowPerfMode && window.gsap) {
+            // GSAP Check mit Safety Catch
+            if (!this.state.isLowPerfMode && window.gsap && window.ScrollTrigger) {
                 this.setupGSAPAnimations();
             } else {
-                if(this.DOM.mainTitle) this.DOM.mainTitle.style.opacity = 1;
-                if(this.DOM.subTitle) this.DOM.subTitle.style.opacity = 1;
+                this.showTitlesFallback();
             }
         } catch (error) {
-            if(this.DOM.mainTitle) this.DOM.mainTitle.style.opacity = 1;
-            if(this.DOM.subTitle) this.DOM.subTitle.style.opacity = 1;
+            console.warn("GSAP Animation Fehler:", error);
+            this.showTitlesFallback();
         }
         
         this.setupShareButtons();
         this.generateTakeaways();
         this.setupScrollSpy();
+    }
+
+    showTitlesFallback() {
+        if(this.DOM.mainTitle) this.DOM.mainTitle.style.opacity = 1;
+        if(this.DOM.subTitle) this.DOM.subTitle.style.opacity = 1;
     }
     
     setupReadingProgress() {
@@ -699,7 +211,7 @@ class PhoenixDossier {
         window.addEventListener('scroll', () => {
             const scrollTop = window.scrollY;
             const docHeight = document.body.scrollHeight - window.innerHeight;
-            const progress = (scrollTop / docHeight) * 100;
+            const progress = (docHeight > 0) ? (scrollTop / docHeight) * 100 : 0;
             this.DOM.readingProgress.style.width = `${progress}%`;
         });
     }
@@ -721,11 +233,13 @@ class PhoenixDossier {
 
     setupAudioPlayers() {
         document.querySelectorAll('.audio-feature-box:not(.sim-controls)').forEach(box => {
-            new TranscriptSynchronizer(box);
-            this.setupAudioControls(box);
-            if (!this.state.isLowPerfMode && window.innerWidth > 1024) {
-                this.setupAudioVisualizer(box);
-            }
+            try {
+                new TranscriptSynchronizer(box);
+                this.setupAudioControls(box);
+                if (!this.state.isLowPerfMode && window.innerWidth > 1024) {
+                    this.setupAudioVisualizer(box);
+                }
+            } catch(e) { console.warn("Audio Player Fehler:", e); }
         });
     }
 
@@ -760,20 +274,20 @@ class PhoenixDossier {
         audio.addEventListener('pause', updatePlayPauseIcon);
         audio.addEventListener('ended', () => { audio.currentTime = 0; updatePlayPauseIcon(); });
         audio.addEventListener('timeupdate', () => {
-            if (progressBar) progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
+            if (progressBar && audio.duration) progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
             if (currentTimeEl) currentTimeEl.textContent = this.formatTime(audio.currentTime);
         });
 
         if(progressContainer) {
             progressContainer.addEventListener('click', (e) => {
                 const rect = progressContainer.getBoundingClientRect();
-                audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+                if(audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
             });
         }
 
         skipBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + parseFloat(btn.dataset.skip)));
+                if(audio.duration) audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + parseFloat(btn.dataset.skip)));
             });
         });
 
@@ -790,45 +304,45 @@ class PhoenixDossier {
     }
     
     setupAudioVisualizer(box) {
-         if (!window.AudioContext && !window.webkitAudioContext) return;
+        if (!window.AudioContext && !window.webkitAudioContext) return;
         const canvas = box.querySelector('.audio-visualizer');
         const audio = box.querySelector('audio');
         if (!canvas || !audio) return;
 
-        const ctx = canvas.getContext('2d');
-        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-        const analyser = audioContext.createAnalyser();
-        
-        if (!audio.dataset.audioSourceConnected) {
-            try {
+        try {
+            const ctx = canvas.getContext('2d');
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            
+            if (!audio.dataset.audioSourceConnected) {
                 const source = audioContext.createMediaElementSource(audio);
                 source.connect(analyser);
                 analyser.connect(audioContext.destination);
                 audio.dataset.audioSourceConnected = 'true';
-            } catch (e) { return; }
-        }
-
-        analyser.fftSize = 128;
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-        
-        const draw = () => {
-            if (audio.paused || audio.ended) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
-            requestAnimationFrame(draw);
-            analyser.getByteFrequencyData(dataArray);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const barWidth = (canvas.width / bufferLength);
-            let barX = 0;
-            for (let i = 0; i < bufferLength; i++) {
-                const barHeight = dataArray[i] / 2.5;
-                ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`;
-                ctx.fillRect(barX, canvas.height - barHeight, barWidth, barHeight);
-                barX += barWidth + 1;
             }
-        };
 
-        const startVisualizer = () => { if (audioContext.state === 'suspended') audioContext.resume(); draw(); };
-        audio.addEventListener('play', startVisualizer);
+            analyser.fftSize = 128;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            const draw = () => {
+                if (audio.paused || audio.ended) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+                requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / bufferLength);
+                let barX = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = dataArray[i] / 2.5;
+                    ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`;
+                    ctx.fillRect(barX, canvas.height - barHeight, barWidth, barHeight);
+                    barX += barWidth + 1;
+                }
+            };
+
+            const startVisualizer = () => { if (audioContext.state === 'suspended') audioContext.resume(); draw(); };
+            audio.addEventListener('play', startVisualizer);
+        } catch(e) { console.warn("Visualizer Error:", e); }
     }
     
     formatTime(seconds) {
@@ -840,14 +354,18 @@ class PhoenixDossier {
 
     setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
-        const isLowPerf = localStorage.getItem('lowPerfMode') === 'true';
+        // Safe Read aus LocalStorage
+        let isLowPerf = false;
+        try { isLowPerf = localStorage.getItem('lowPerfMode') === 'true'; } catch(e){}
+        
         this.state.isLowPerfMode = isLowPerf;
         this.DOM.perfToggle.setAttribute('aria-pressed', String(isLowPerf));
         this.DOM.perfToggle.textContent = isLowPerf ? '💤 Animationen aus' : '✨ Animationen an';
         if (this.DOM.body) this.DOM.body.classList.toggle('low-perf-mode', isLowPerf);
+        
         this.DOM.perfToggle.addEventListener('click', () => {
             this.state.isLowPerfMode = !this.state.isLowPerfMode;
-            localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode));
+            try { localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode)); } catch(e){}
             window.location.reload();
         });
     }
@@ -887,12 +405,14 @@ class PhoenixDossier {
         });
 
         if (this.DOM.narrativePath && this.DOM.focusPane) {
-            const pathLength = this.DOM.narrativePath.getTotalLength();
-            if (pathLength > 0) {
-                this.DOM.narrativePath.style.strokeDasharray = pathLength;
-                this.DOM.narrativePath.style.strokeDashoffset = pathLength;
-                gsap.to(this.DOM.narrativePath, { strokeDashoffset: 0, ease: "none", scrollTrigger: { trigger: this.DOM.focusPane, start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true } });
-            }
+            try {
+                const pathLength = this.DOM.narrativePath.getTotalLength();
+                if (pathLength > 0) {
+                    this.DOM.narrativePath.style.strokeDasharray = pathLength;
+                    this.DOM.narrativePath.style.strokeDashoffset = pathLength;
+                    gsap.to(this.DOM.narrativePath, { strokeDashoffset: 0, ease: "none", scrollTrigger: { trigger: this.DOM.focusPane, start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true } });
+                }
+            } catch(e) { console.warn("SVG Error:", e); }
         }
         
         const finalSection = document.querySelector('.final-actions');
@@ -935,6 +455,8 @@ class PhoenixDossier {
     generateTakeaways() {
         const container = document.querySelector('#knowledge-distillate ul');
         if (!container) return;
+        // Leeren vor dem Füllen
+        container.innerHTML = '';
         document.querySelectorAll('section[data-takeaway]').forEach((section) => {
             if (section.id === 'part0') return;
             const li = document.createElement('li');
@@ -956,8 +478,8 @@ class PhoenixDossier {
         while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
         indices.forEach(i => this.simState.particles[i].selected = true);
 
-        this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
-        this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
+        if(this.DOM.simBtnElect) this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
+        if(this.DOM.simBtnSort) this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
 
         // Maus-Tracking
         this.DOM.simCanvas.addEventListener('mousemove', (e) => {
@@ -994,7 +516,6 @@ class PhoenixDossier {
     loopSimulation() {
         if (!this.simState.ctx) return;
         
-        // Trails Effekt
         const isLight = document.body.classList.contains('light-theme');
         this.simState.ctx.fillStyle = isLight ? 'rgba(229, 231, 235, 0.25)' : 'rgba(5, 5, 5, 0.15)';
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
@@ -1048,12 +569,35 @@ class PhoenixDossier {
     }
 }
 
+// === INITIALISIERUNG (ROBUST) ===
 window.addEventListener('DOMContentLoaded', () => {
     const preloader = document.getElementById('preloader');
+    
+    // FUNKTION: Preloader entfernen
+    const removePreloader = () => {
+        if (preloader) {
+            preloader.style.display = 'none';
+        }
+    };
+
     if (preloader) {
+        // 1. Klasse hinzufügen (startet CSS Transition)
         preloader.classList.add('hidden');
-        preloader.addEventListener('transitionend', () => { preloader.style.display = 'none'; }, { once: true });
+        
+        // 2. Auf TransitionEnd hören
+        preloader.addEventListener('transitionend', removePreloader, { once: true });
+        
+        // 3. SAFETY NET: Nach 600ms hart entfernen, falls Transition fehlschlägt
+        // (z.B. bei tab switch oder low-perf-mode)
+        setTimeout(removePreloader, 600);
     }
-    try { window.dossier = new PhoenixDossier(); } catch (e) { console.error(e); }
+
+    // App Starten mit Error Catch
+    try { 
+        window.dossier = new PhoenixDossier(); 
+    } catch (e) { 
+        console.error("Kritischer Fehler beim Starten:", e);
+        // Falls App crasht, sicherstellen dass Preloader weg ist
+        removePreloader();
+    }
 });
-```
