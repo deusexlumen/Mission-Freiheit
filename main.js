@@ -98,33 +98,27 @@ class Particle {
                 this.vy += (dy / dist) * 0.08;
             }
             this.vx *= 0.92; this.vy *= 0.92;
-            this.color = this.preference < 0.5 ? '#FF3333' : '#00CC66'; // Rot vs Grün
+            this.color = this.preference < 0.5 ? '#ef4444' : '#10b981'; // Rot vs Grün (Updated Colors)
 
         } else if (mode === 'deliberation') {
-            // NEU: DELIBERATION: Sanfte Attraktion zur Mitte (Konsens)
-            // Ziel ist die Bildmitte (Gemeinwohl)
+            // DELIBERATION: Sanfte Attraktion zur Mitte
             let centerX = this.width / 2;
             let centerY = this.height / 2;
             let dx = centerX - this.x;
             let dy = centerY - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Sanfte Anziehung
             if(dist > 50) {
                 this.vx += (dx / dist) * 0.03; 
                 this.vy += (dy / dist) * 0.03;
             }
-            
-            // Starke Dämpfung (Zuhören/Verlangsamen)
-            this.vx *= 0.90;
-            this.vy *= 0.90;
+            this.vx *= 0.90; this.vy *= 0.90;
 
-            // Farbe: Gold für Konsens
-            this.color = '#F59E0B'; 
-            this.size = this.selected ? 3.5 : 1.5; // Etwas größer
+            this.color = '#f59e0b'; // Gold
+            this.size = this.selected ? 3.5 : 1.5;
 
         } else { 
-            // LOS: Zufällige Bewegung
+            // LOS
             this.vx += (Math.random() - 0.5) * 0.3;
             this.vy += (Math.random() - 0.5) * 0.3;
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -133,10 +127,10 @@ class Particle {
                 this.vy = (this.vy/speed)*2.5;
             }
             if (this.selected) {
-                this.color = '#00CC66'; // Grün für Geloste
+                this.color = '#10b981'; 
                 this.size = 3;
             } else {
-                this.color = document.body.classList.contains('light-theme') ? '#999' : '#333';
+                this.color = document.body.classList.contains('light-theme') ? '#94a3b8' : '#334155';
                 this.size = 1;
             }
         }
@@ -144,7 +138,6 @@ class Particle {
         this.x += this.vx;
         this.y += this.vy;
 
-        // Wände
         if (this.x < 0) { this.x = 0; this.vx *= -1; }
         if (this.x > this.width) { this.x = this.width; this.vx *= -1; }
         if (this.y < 0) { this.y = 0; this.vy *= -1; }
@@ -176,7 +169,7 @@ class PhoenixDossier {
             
             simBtnElect: document.getElementById('btn-elect'),
             simBtnSort: document.getElementById('btn-sort'),
-            simBtnDelib: document.getElementById('btn-delib'), // NEU
+            simBtnDelib: document.getElementById('btn-delib'),
 
             simAnalysisText: document.getElementById('analysis-text'),
             simEntropyMeter: document.getElementById('entropy-meter'),
@@ -262,22 +255,27 @@ class PhoenixDossier {
         });
     }
     
-    // ... (Audio Controls & Visualizer wie gehabt, hier gekürzt für Übersicht, aber im Code bitte drin lassen) ...
-    setupAudioControls(box) { /* Code wie in voriger Version */ 
+    setupAudioControls(box) {
         const audio = box.querySelector('audio');
         const playPauseBtn = box.querySelector('.play-pause-btn');
         if (!audio || !playPauseBtn) return;
+        
         const iconPlay = playPauseBtn.querySelector('.icon-play');
         const iconPause = playPauseBtn.querySelector('.icon-pause');
         const progressBar = box.querySelector('.audio-progress-bar');
         const currentTimeEl = box.querySelector('.current-time');
         const skipBtns = box.querySelectorAll('.skip-btn');
+        
         const updatePlayPauseIcon = () => {
             const isPaused = audio.paused;
             if(iconPlay) iconPlay.style.display = isPaused ? 'block' : 'none';
             if(iconPause) iconPause.style.display = isPaused ? 'none' : 'block';
+            playPauseBtn.setAttribute('aria-label', isPaused ? 'Abspielen' : 'Pausieren');
         };
-        audio.addEventListener('loadedmetadata', () => { if(box.querySelector('.total-time')) box.querySelector('.total-time').textContent = this.formatTime(audio.duration); });
+        
+        audio.addEventListener('loadedmetadata', () => {
+            if(box.querySelector('.total-time')) box.querySelector('.total-time').textContent = this.formatTime(audio.duration);
+        });
         playPauseBtn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
         audio.addEventListener('play', updatePlayPauseIcon);
         audio.addEventListener('pause', updatePlayPauseIcon);
@@ -286,11 +284,61 @@ class PhoenixDossier {
             if (progressBar && audio.duration) progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
             if (currentTimeEl) currentTimeEl.textContent = this.formatTime(audio.currentTime);
         });
-        skipBtns.forEach(btn => btn.addEventListener('click', () => { if(audio.duration) audio.currentTime += parseFloat(btn.dataset.skip); }));
+        
+        const progressContainer = box.querySelector('.audio-progress-container');
+        if(progressContainer) {
+            progressContainer.addEventListener('click', (e) => {
+                const rect = progressContainer.getBoundingClientRect();
+                if(audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+            });
+        }
+
+        skipBtns.forEach(btn => btn.addEventListener('click', () => { 
+            if(audio.duration) audio.currentTime += parseFloat(btn.dataset.skip); 
+        }));
         updatePlayPauseIcon();
     }
 
-    setupAudioVisualizer(box) { /* Code wie in voriger Version */ }
+    setupAudioVisualizer(box) {
+        if (!window.AudioContext && !window.webkitAudioContext) return;
+        const canvas = box.querySelector('.audio-visualizer');
+        const audio = box.querySelector('audio');
+        if (!canvas || !audio) return;
+
+        try {
+            const ctx = canvas.getContext('2d');
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const analyser = audioContext.createAnalyser();
+            
+            if (!audio.dataset.audioSourceConnected) {
+                const source = audioContext.createMediaElementSource(audio);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+                audio.dataset.audioSourceConnected = 'true';
+            }
+
+            analyser.fftSize = 128;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            
+            const draw = () => {
+                if (audio.paused || audio.ended) { ctx.clearRect(0, 0, canvas.width, canvas.height); return; }
+                requestAnimationFrame(draw);
+                analyser.getByteFrequencyData(dataArray);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const barWidth = (canvas.width / bufferLength);
+                let barX = 0;
+                for (let i = 0; i < bufferLength; i++) {
+                    const barHeight = dataArray[i] / 2.5;
+                    ctx.fillStyle = `rgba(6, 182, 212, ${barHeight / 100})`;
+                    ctx.fillRect(barX, canvas.height - barHeight, barWidth, barHeight);
+                    barX += barWidth + 1;
+                }
+            };
+            const startVisualizer = () => { if (audioContext.state === 'suspended') audioContext.resume(); draw(); };
+            audio.addEventListener('play', startVisualizer);
+        } catch(e) { console.warn("Visualizer Error:", e); }
+    }
 
     formatTime(seconds) {
         if (isNaN(seconds) || seconds < 0) return '00:00';
@@ -299,7 +347,7 @@ class PhoenixDossier {
         return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
-    setupPerfToggle() { /* Code wie in voriger Version */ 
+    setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
         let isLowPerf = false;
         try { isLowPerf = localStorage.getItem('lowPerfMode') === 'true'; } catch(e){}
@@ -314,7 +362,7 @@ class PhoenixDossier {
         });
     }
 
-    manualSplitText(element) { /* Code wie in voriger Version */ 
+    manualSplitText(element) {
         if (!element) return [];
         const originalText = element.textContent;
         element.innerHTML = '';
@@ -330,7 +378,7 @@ class PhoenixDossier {
         return chars;
     }
 
-    setupGSAPAnimations() { /* Code wie in voriger Version */ 
+    setupGSAPAnimations() {
         if (!this.DOM.mainTitle) return;
         gsap.registerPlugin(ScrollTrigger);
         const mainChars = this.manualSplitText(this.DOM.mainTitle);
@@ -340,13 +388,33 @@ class PhoenixDossier {
         gsap.set(subChars, { opacity: 0, y: '100%' });
         gsap.to(mainChars, { opacity: 1, y: '0%', rotationX: 0, duration: 0.8, ease: 'power3.out', stagger: 0.03, delay: 0.5 });
         gsap.to(subChars, { opacity: 1, y: '0%', duration: 0.5, ease: 'power1.out', stagger: 0.01, delay: 1.0 });
+        
         document.querySelectorAll('.chapter-section').forEach(section => {
             const title = section.querySelector('.chapter-title');
             if (title) gsap.from(title, { y: 100, opacity: 0, ease: "power2.out", scrollTrigger: { trigger: section, start: "top 80%", end: "top 20%", scrub: true, toggleActions: "play none none reverse" } });
         });
+        
+        if (this.DOM.narrativePath && this.DOM.focusPane) {
+             try {
+                const pathLength = this.DOM.narrativePath.getTotalLength();
+                if (pathLength > 0) {
+                    this.DOM.narrativePath.style.strokeDasharray = pathLength;
+                    this.DOM.narrativePath.style.strokeDashoffset = pathLength;
+                    gsap.to(this.DOM.narrativePath, { strokeDashoffset: 0, ease: "none", scrollTrigger: { trigger: this.DOM.focusPane, start: "top top", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true } });
+                }
+            } catch(e) { console.warn("SVG Error:", e); }
+        }
+
+        const finalSection = document.querySelector('.final-actions');
+        if (finalSection) {
+            const finalCta = finalSection.querySelector('#final-cta');
+            const actionCards = document.querySelectorAll('.final-actions-grid > .action-card');
+            if(finalCta) gsap.from(finalCta, { scrollTrigger: { trigger: finalSection, start: 'top 80%', toggleActions: 'play none none none' }, opacity: 0, y: 50, duration: 0.8, ease: 'power2.out' });
+            if(actionCards.length > 0) gsap.from(actionCards, { scrollTrigger: { trigger: finalSection, start: 'top 70%', toggleActions: 'play none none none' }, opacity: 0, y: 30, duration: 1, stagger: 0.2, ease: 'power2.out' });
+        }
     }
 
-    setupScrollSpy() { /* Code wie in voriger Version */ 
+    setupScrollSpy() {
         if (!this.DOM.sections.length) return;
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -363,10 +431,12 @@ class PhoenixDossier {
         this.DOM.sections.forEach(section => observer.observe(section));
     }
 
-    setupShareButtons() { /* Code wie in voriger Version */ 
+    setupShareButtons() {
         const url = encodeURIComponent(window.location.href);
         const title = encodeURIComponent(document.title);
         if(document.getElementById('share-email')) document.getElementById('share-email').href = `mailto:?subject=${title}&body=${url}`;
+        if(document.getElementById('share-x')) document.getElementById('share-x').href = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+        if(document.getElementById('share-facebook')) document.getElementById('share-facebook').href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
     }
 
     generateTakeaways() {
@@ -396,7 +466,7 @@ class PhoenixDossier {
 
         if(this.DOM.simBtnElect) this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         if(this.DOM.simBtnSort) this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
-        if(this.DOM.simBtnDelib) this.DOM.simBtnDelib.addEventListener('click', () => this.setSimMode('deliberation')); // NEU
+        if(this.DOM.simBtnDelib) this.DOM.simBtnDelib.addEventListener('click', () => this.setSimMode('deliberation'));
 
         this.DOM.simCanvas.addEventListener('mousemove', (e) => {
             const rect = this.DOM.simCanvas.getBoundingClientRect();
@@ -433,16 +503,13 @@ class PhoenixDossier {
         });
 
         if(this.simState.mode === 'election') {
-            // Zeichne Zentren
             this.simState.centers.forEach((center, i) => {
                 this.simState.ctx.beginPath();
                 this.simState.ctx.arc(center.x, center.y, 6, 0, Math.PI*2);
-                this.simState.ctx.fillStyle = i === 0 ? '#FF3333' : '#00CC66';
+                this.simState.ctx.fillStyle = i === 0 ? '#ef4444' : '#10b981';
                 this.simState.ctx.fill();
             });
         }
-
-        // Animation Loop
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
     }
 
@@ -454,7 +521,6 @@ class PhoenixDossier {
         const logicSpan = `<span style="color: var(--logic);">Querschnitt</span>`;
         const delibSpan = `<span style="color: var(--delib);">Konsens</span>`;
 
-        // Reset Buttons
         [this.DOM.simBtnElect, this.DOM.simBtnSort, this.DOM.simBtnDelib].forEach(btn => {
             if(btn) btn.classList.remove('active-mode');
         });
@@ -489,13 +555,9 @@ window.addEventListener('DOMContentLoaded', () => {
     if (preloader) {
         preloader.classList.add('hidden');
         preloader.addEventListener('transitionend', removePreloader, { once: true });
-        // SAFETY NET: Entfernen nach 600ms, falls Transition fehlschlägt
-        setTimeout(removePreloader, 600);
+        setTimeout(removePreloader, 600); // Safety Net
     }
 
     try { window.dossier = new PhoenixDossier(); } 
-    catch (e) { 
-        console.error("Startfehler:", e); 
-        removePreloader(); // Sicherstellen, dass User Inhalt sieht
-    }
+    catch (e) { console.error("Startfehler:", e); removePreloader(); }
 });
