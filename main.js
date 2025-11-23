@@ -1,5 +1,5 @@
-// VALIDIERTE VERSION: Mission Freiheit v1.1 (High-End Visuals)
-// UPGRADE: Constellation-Effekt, Motion-Trails und Performance-Optimierungen.
+// VALIDIERTE VERSION: Mission Freiheit v1.2 (Final Polish)
+// FEATURES: Isonomie-Rotation, Constellation-Effekt, High-End Visuals
 
 /**
  * TranscriptSynchronizer
@@ -104,23 +104,49 @@ class Particle {
             
             this.vx *= 0.95; // Dämpfung
             this.vy *= 0.95;
-            this.color = this.preference < 0.5 ? '#FF3333' : '#4f46e5'; // Rot vs Indigo (angepasst an Design)
+            this.color = this.preference < 0.5 ? '#FF3333' : '#4f46e5'; // Rot vs Indigo
             this.size = 1.5;
+
         } else { 
-            // LOS: Zufällige Bewegung (Entropie)
-            this.vx += (Math.random() - 0.5) * 0.2;
-            this.vy += (Math.random() - 0.5) * 0.2;
-            const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
-            if(speed > 2) { 
-                this.vx = (this.vx/speed)*2;
-                this.vy = (this.vy/speed)*2;
-            }
+            // LOS (Isonomie):
             
             if (this.selected) {
+                // DIE GELOSTEN: Sammeln sich in der Mitte (Deliberation)
+                const centerX = this.width / 2;
+                const centerY = this.height / 2;
+                
+                let dx = centerX - this.x;
+                let dy = centerY - this.y;
+                let dist = Math.sqrt(dx*dx + dy*dy);
+
+                // Sanfte Anziehung zur Mitte
+                if (dist > 5) {
+                    this.vx += (dx / dist) * 0.03;
+                    this.vy += (dy / dist) * 0.03;
+                }
+
+                // Diskussions-Energie (Zittern)
+                this.vx += (Math.random() - 0.5) * 0.5;
+                this.vy += (Math.random() - 0.5) * 0.5;
+
+                this.vx *= 0.94; // Stabilisierung
+                this.vy *= 0.94;
+
                 this.color = '#00CC66'; // Isonomie-Grün
-                this.size = 3.5; // Etwas größer für Sichtbarkeit
+                this.size = 3.5; 
             } else {
-                this.color = 'rgba(255, 255, 255, 0.15)'; // Inaktive Bürger sind geisterhaft
+                // DER REST: Freies Treiben (Entropie/Entspannung)
+                this.vx += (Math.random() - 0.5) * 0.2;
+                this.vy += (Math.random() - 0.5) * 0.2;
+                
+                // Speed Limit
+                const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+                if(speed > 2) { 
+                    this.vx = (this.vx/speed)*2;
+                    this.vy = (this.vy/speed)*2;
+                }
+
+                this.color = 'rgba(255, 255, 255, 0.15)'; // Geisterhaft
                 this.size = 1;
             }
         }
@@ -128,7 +154,7 @@ class Particle {
         this.x += this.vx;
         this.y += this.vy;
         
-        // Wrap-Around (Pacman-Effekt) statt Abprallen für flüssigeren Look
+        // Wrap-Around (Pacman-Effekt)
         if (this.x < 0) this.x = this.width;
         if (this.x > this.width) this.x = 0;
         if (this.y < 0) this.y = this.height;
@@ -178,7 +204,8 @@ class PhoenixDossier {
             particles: [],
             centers: [],
             mode: 'election',
-            animationFrame: null
+            animationFrame: null,
+            lastRotation: 0 // Timer für Rotation
         };
 
         this.init();
@@ -208,7 +235,7 @@ class PhoenixDossier {
         this.setupShareButtons();
         this.generateTakeaways();
         this.setupScrollSpy();
-        console.log('Mission Freiheit v1.1 initialisiert.');
+        console.log('Mission Freiheit v1.2 initialisiert.');
     }
     
     // --- AUDIO PLAYER LOGIK ---
@@ -313,7 +340,7 @@ class PhoenixDossier {
             } catch (e) { return; }
         }
 
-        analyser.fftSize = 64; // Reduziert für den Retro-Look
+        analyser.fftSize = 64; 
         const bufferLength = analyser.frequencyBinCount;
         const dataArray = new Uint8Array(bufferLength);
         
@@ -331,7 +358,7 @@ class PhoenixDossier {
 
             for (let i = 0; i < bufferLength; i++) {
                 const barHeight = dataArray[i] / 2.5;
-                ctx.fillStyle = `rgba(103, 232, 249, ${barHeight / 100})`; // Highlight Cyan
+                ctx.fillStyle = `rgba(103, 232, 249, ${barHeight / 100})`; 
                 ctx.fillRect(barX, canvas.height - barHeight, barWidth - 1, barHeight);
                 barX += barWidth;
             }
@@ -350,41 +377,24 @@ class PhoenixDossier {
         return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
-    /**
-     * Richtet den Performance-Umschalter ein.
-     * Standard: Animationen sind AN (isLowPerfMode = false).
-     */
+    // --- PERFORMANCE TOGGLE ---
     setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
-        
-        // Prüfen: Steht explizit 'true' im Speicher? Wenn nicht (null/false), bleiben Animationen AN.
         const isLowPerf = localStorage.getItem('lowPerfMode') === 'true';
         this.state.isLowPerfMode = isLowPerf;
-
-        // Initiale UI-Anpassung basierend auf dem Status
         this.updatePerfUI();
 
         this.DOM.perfToggle.addEventListener('click', () => {
             this.state.isLowPerfMode = !this.state.isLowPerfMode;
             localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode));
-            
-            // Reload erzwingen, um Animationen (GSAP/Canvas) sauber neu zu initialisieren oder zu stoppen
             window.location.reload(); 
         });
     }
 
-    /**
-     * Aktualisiert Text und Klasse basierend auf dem Modus.
-     */
     updatePerfUI() {
         const isLowPerf = this.state.isLowPerfMode;
-
-        // 1. Button Text & Aria aktualisieren
         this.DOM.perfToggle.setAttribute('aria-pressed', String(isLowPerf));
-        // Text zeigt den AKTUELLEN Status an
         this.DOM.perfToggle.textContent = isLowPerf ? '💤 Animationen: AUS' : '✨ Animationen: AN';
-
-        // 2. Body Klasse setzen (wichtig für CSS)
         if (isLowPerf && this.DOM.body) {
             this.DOM.body.classList.add('low-perf-mode');
         } else if (this.DOM.body) {
@@ -514,13 +524,11 @@ class PhoenixDossier {
         this.resizeSimulation(); 
         window.addEventListener('resize', () => this.resizeSimulation());
 
-        // 800 Partikel für dichte Masse
         this.simState.particles = [];
         for(let i=0; i<800; i++) { 
             this.simState.particles.push(new Particle(this.simState.width, this.simState.height));
         }
         
-        // 50 Partikel für Los-Auswahl (Isonomie-Gruppe)
         const indices = new Set();
         while(indices.size < 50) indices.add(Math.floor(Math.random() * 800));
         indices.forEach(i => this.simState.particles[i].selected = true);
@@ -543,75 +551,46 @@ class PhoenixDossier {
         ];
     }
 
-/**
+    /**
      * Der Haupt-Animations-Loop für die Simulation.
      */
     loopSimulation() {
         if (!this.simState.ctx) return;
         
-        // Zeichnet einen halbtransparenten Hintergrund für Bewegungsschleier
         this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; 
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
-        // --- NEU: ROTATIONS-LOGIK (Der Puls der Isonomie) ---
-        // Wenn wir im Los-Modus sind, tauschen wir ständig Mitglieder aus.
+        // --- ROTATIONS-LOGIK ---
         if (this.simState.mode === 'sortition') {
             const now = Date.now();
-            
-            // Initialisierung des Timers beim ersten Durchlauf
             if (!this.simState.lastRotation) this.simState.lastRotation = now;
 
-            // Alle 100ms findet eine Rotation statt (Geschwindigkeit anpassbar)
+            // Alle 100ms Rotation
             if (now - this.simState.lastRotation > 100) {
-                
-                // 1. Finde alle aktuellen Ratsmitglieder
                 const councilMembers = this.simState.particles.filter(p => p.selected);
-                
-                // 2. Finde alle "normalen" Bürger
                 const citizens = this.simState.particles.filter(p => !p.selected);
 
                 if (councilMembers.length > 0 && citizens.length > 0) {
-                    // Ein Mitglied verlässt den Rat (tritt zurück in die Masse)
                     const retiringIdx = Math.floor(Math.random() * councilMembers.length);
                     councilMembers[retiringIdx].selected = false;
 
-                    // Ein neuer Bürger wird per Los bestimmt (rückt nach)
                     const newMemberIdx = Math.floor(Math.random() * citizens.length);
                     citizens[newMemberIdx].selected = true;
                 }
-
                 this.simState.lastRotation = now;
             }
         }
-        // ----------------------------------------------------
 
-        // Aktualisiert und zeichnet jedes Partikel
+        // Partikel zeichnen
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
-        // Zeichnet die Gravitationszentren (nur im Wahl-Modus sichtbar)
-        if(this.simState.mode === 'election') {
-            // ... (Code für die roten/grünen Punkte bleibt gleich) ...
-            this.simState.ctx.beginPath();
-            this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
-            this.simState.ctx.fillStyle = '#FF3333'; 
-            this.simState.ctx.fill();
-            
-            this.simState.ctx.beginPath();
-            this.simState.ctx.arc(this.simState.centers[1].x, this.simState.centers[1].y, 5, 0, Math.PI*2);
-            this.simState.ctx.fillStyle = '#00CC66';
-            this.simState.ctx.fill();
-        }
-
-        this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
-    }
-
-        // Zentren im Wahl-Modus zeichnen
+        // Zentren zeichnen (nur im Wahl-Modus)
         if(this.simState.mode === 'election') {
             this.drawCenter(this.simState.centers[0], '#FF3333');
-            this.drawCenter(this.simState.centers[1], '#4f46e5'); // Indigo statt Grün für Kontrast
+            this.drawCenter(this.simState.centers[1], '#4f46e5'); 
         }
 
         this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
@@ -654,7 +633,6 @@ class PhoenixDossier {
 window.addEventListener('DOMContentLoaded', () => {
     const preloader = document.getElementById('preloader');
     if (preloader) {
-        // Simuliert kurze Ladezeit für Effekt
         setTimeout(() => {
             preloader.classList.add('hidden');
             preloader.addEventListener('transitionend', () => preloader.style.display = 'none', { once: true });
