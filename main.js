@@ -543,45 +543,70 @@ class PhoenixDossier {
         ];
     }
 
+/**
+     * Der Haupt-Animations-Loop für die Simulation.
+     */
     loopSimulation() {
         if (!this.simState.ctx) return;
         
-        // 1. TRAILS: Geringe Opazität lässt alte Frames langsam verblassen -> Schweif
-        this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.15)'; 
+        // Zeichnet einen halbtransparenten Hintergrund für Bewegungsschleier
+        this.simState.ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; 
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
-        // Partikel Updates & Zeichnen
+        // --- NEU: ROTATIONS-LOGIK (Der Puls der Isonomie) ---
+        // Wenn wir im Los-Modus sind, tauschen wir ständig Mitglieder aus.
+        if (this.simState.mode === 'sortition') {
+            const now = Date.now();
+            
+            // Initialisierung des Timers beim ersten Durchlauf
+            if (!this.simState.lastRotation) this.simState.lastRotation = now;
+
+            // Alle 100ms findet eine Rotation statt (Geschwindigkeit anpassbar)
+            if (now - this.simState.lastRotation > 100) {
+                
+                // 1. Finde alle aktuellen Ratsmitglieder
+                const councilMembers = this.simState.particles.filter(p => p.selected);
+                
+                // 2. Finde alle "normalen" Bürger
+                const citizens = this.simState.particles.filter(p => !p.selected);
+
+                if (councilMembers.length > 0 && citizens.length > 0) {
+                    // Ein Mitglied verlässt den Rat (tritt zurück in die Masse)
+                    const retiringIdx = Math.floor(Math.random() * councilMembers.length);
+                    councilMembers[retiringIdx].selected = false;
+
+                    // Ein neuer Bürger wird per Los bestimmt (rückt nach)
+                    const newMemberIdx = Math.floor(Math.random() * citizens.length);
+                    citizens[newMemberIdx].selected = true;
+                }
+
+                this.simState.lastRotation = now;
+            }
+        }
+        // ----------------------------------------------------
+
+        // Aktualisiert und zeichnet jedes Partikel
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
-        // 2. CONSTELLATION EFFEKT (Nur im Los-Modus)
-        // Verbindet die ausgewählten "Bürgerräte" (grüne Punkte) mit Linien
-        if (this.simState.mode === 'sortition') {
-            const activeParticles = this.simState.particles.filter(p => p.selected);
-            this.simState.ctx.lineWidth = 0.5;
+        // Zeichnet die Gravitationszentren (nur im Wahl-Modus sichtbar)
+        if(this.simState.mode === 'election') {
+            // ... (Code für die roten/grünen Punkte bleibt gleich) ...
+            this.simState.ctx.beginPath();
+            this.simState.ctx.arc(this.simState.centers[0].x, this.simState.centers[0].y, 5, 0, Math.PI*2);
+            this.simState.ctx.fillStyle = '#FF3333'; 
+            this.simState.ctx.fill();
             
-            for (let i = 0; i < activeParticles.length; i++) {
-                for (let j = i + 1; j < activeParticles.length; j++) {
-                    const p1 = activeParticles[i];
-                    const p2 = activeParticles[j];
-                    const dx = p1.x - p2.x;
-                    const dy = p1.y - p2.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
-
-                    // Wenn nah genug, zeichne Verbindungslinie
-                    if (dist < 120) {
-                        this.simState.ctx.beginPath();
-                        // Linie wird transparenter, je weiter weg
-                        this.simState.ctx.strokeStyle = `rgba(0, 204, 102, ${1 - dist/120})`; 
-                        this.simState.ctx.moveTo(p1.x, p1.y);
-                        this.simState.ctx.lineTo(p2.x, p2.y);
-                        this.simState.ctx.stroke();
-                    }
-                }
-            }
+            this.simState.ctx.beginPath();
+            this.simState.ctx.arc(this.simState.centers[1].x, this.simState.centers[1].y, 5, 0, Math.PI*2);
+            this.simState.ctx.fillStyle = '#00CC66';
+            this.simState.ctx.fill();
         }
+
+        this.simState.animationFrame = requestAnimationFrame(() => this.loopSimulation());
+    }
 
         // Zentren im Wahl-Modus zeichnen
         if(this.simState.mode === 'election') {
