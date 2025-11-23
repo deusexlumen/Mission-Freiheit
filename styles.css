@@ -12,7 +12,7 @@
     --card-bg: rgba(22, 27, 34, 0.5);
     --cta-color: #a855f7;          /* Lebhaftes Lila für Haupt-CTA */
 
-    /* NEU: Integrierte Farben aus ISONOMIE-Artefakt */
+    /* Farben aus ISONOMIE-Artefakt */
     --alert: #FF3333; /* Signalrot */
     --logic: #00CC66; /* Signalgrün */
     --void: #050505;  /* Tiefstes Schwarz für Canvas */
@@ -23,7 +23,7 @@
     --border-radius: 16px;
 
     /* Dynamische Eigenschaften für Animationen */
-    --primary-color-translucent: rgba(34, 211, 238, 0.3); /* Basis für Leuchteffekte */
+    --primary-color-translucent: rgba(34, 211, 238, 0.3);
     --shadow-glow: 0 0 24px var(--primary-color-translucent), 0 0 48px rgba(6, 182, 212, 0.2), inset 0 0 10px rgba(6, 182, 212, 0.1);
     --shadow-small: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
@@ -48,7 +48,7 @@ body {
     background-color: var(--bg-color);
     min-height: 100vh;
     overflow-x: hidden;
-    position: relative; /* Für Preloader */
+    position: relative; 
 }
 
 /* --- Low Performance Modus --- */
@@ -489,7 +489,6 @@ li {
     border-top: 1px solid var(--border-color);
     max-height: 300px;
     overflow-y: auto;
-    position: relative; /* FIX: Notwendig für korrekte offsetTop Berechnung in JS */
 }
 
 .transcript-container p {
