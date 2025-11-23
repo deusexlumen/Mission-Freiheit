@@ -161,10 +161,10 @@ li { margin-bottom: 0.5rem; }
     max-width: 1400px;
     margin: 0 auto;
     position: relative;
-    background: radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.03) 0%, transparent 40%),
+    /* background: radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.03) 0%, transparent 40%),
                 radial-gradient(circle at 90% 90%, rgba(79, 70, 229, 0.03) 0%, transparent 40%),
                 var(--bg-color);
-    background-attachment: fixed;
+    /* background-attachment: fixed;
 }
 
 /* Linke Spalte: Navigation */
@@ -448,4 +448,121 @@ li { margin-bottom: 0.5rem; }
     .final-actions-grid { grid-template-columns: 1fr; }
     .simulation-section #canvas-wrapper { height: 350px; }
     h1 { font-size: 2.5rem; }
+    /* =========================================
+   PHASE 1 UPGRADE: ATMOSPHÄRE & TIEFE
+   ========================================= */
+
+/* --- 1. Aurora Background (Lebendige Lichter) --- */
+
+.ambient-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1; /* Liegt hinter allem */
+    overflow: hidden;
+    background-color: var(--bg-color);
+    pointer-events: none; /* Klicks gehen durch */
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px); /* Macht die Kreise weich und diffus */
+    opacity: 0.4;
+    animation: float 20s infinite ease-in-out;
+    will-change: transform; /* Performance-Optimierung */
+}
+
+/* Orb 1: Das Cyan (Oben Links) */
+.orb-1 {
+    width: 60vw;
+    height: 60vw;
+    background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+    top: -15%;
+    left: -15%;
+    animation-delay: 0s;
+}
+
+/* Orb 2: Das Indigo (Unten Rechts) */
+.orb-2 {
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, var(--secondary-color) 0%, transparent 70%);
+    bottom: -10%;
+    right: -5%;
+    animation-delay: -5s;
+}
+
+/* Orb 3: Der Lila Akzent (Wandernd) */
+.orb-3 {
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, var(--cta-color) 0%, transparent 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0.2;
+    animation-duration: 35s;
+}
+
+/* Die schwebende Bewegung */
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* --- 2. Deep Glassmorphism (Milchglas-Effekt) --- */
+
+/* Wir wenden den Effekt auf alle Container an */
+.bento-nav,
+.audio-feature-box,
+.sim-controls,
+.highlight-box,
+.pull-quote,
+.action-card,
+.preloader {
+    /* Halbtransparenter dunkler Hintergrund */
+    background: rgba(22, 27, 34, 0.45) !important;
+    
+    /* Der Blur-Effekt (Milchglas) */
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important; /* Safari Support */
+    
+    /* Feiner weißer Rand (nur 8% sichtbar) für den "geätzten" Look */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    
+    /* Komplexer Schatten für Tiefe */
+    box-shadow: 
+        0 4px 30px rgba(0, 0, 0, 0.1),             /* Weicher Schlagschatten */
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05)  /* Innerer Glanz */
+        !important;
+}
+
+/* Spezieller Fokus für aktive Elemente */
+.bento-nav:hover,
+.audio-feature-box:hover {
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.2),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1)
+        !important;
+}
+
+/* --- 3. Film Grain (Optional: Für Kino-Look) --- */
+/* Fügt eine sehr subtile Körnigkeit hinzu, um Color-Banding zu verhindern */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.4;
+}
 }
