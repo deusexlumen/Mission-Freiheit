@@ -350,19 +350,46 @@ class PhoenixDossier {
         return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     }
 
+    /**
+     * Richtet den Performance-Umschalter ein.
+     * Standard: Animationen sind AN (isLowPerfMode = false).
+     */
     setupPerfToggle() {
         if (!this.DOM.perfToggle) return;
+        
+        // Prüfen: Steht explizit 'true' im Speicher? Wenn nicht (null/false), bleiben Animationen AN.
         const isLowPerf = localStorage.getItem('lowPerfMode') === 'true';
         this.state.isLowPerfMode = isLowPerf;
-        this.DOM.perfToggle.setAttribute('aria-pressed', String(isLowPerf));
-        this.DOM.perfToggle.textContent = isLowPerf ? '💤 Animationen aus' : '✨ Animationen an';
-        if (this.DOM.body) this.DOM.body.classList.toggle('low-perf-mode', isLowPerf);
+
+        // Initiale UI-Anpassung basierend auf dem Status
+        this.updatePerfUI();
 
         this.DOM.perfToggle.addEventListener('click', () => {
             this.state.isLowPerfMode = !this.state.isLowPerfMode;
             localStorage.setItem('lowPerfMode', String(this.state.isLowPerfMode));
-            window.location.reload();
+            
+            // Reload erzwingen, um Animationen (GSAP/Canvas) sauber neu zu initialisieren oder zu stoppen
+            window.location.reload(); 
         });
+    }
+
+    /**
+     * Aktualisiert Text und Klasse basierend auf dem Modus.
+     */
+    updatePerfUI() {
+        const isLowPerf = this.state.isLowPerfMode;
+
+        // 1. Button Text & Aria aktualisieren
+        this.DOM.perfToggle.setAttribute('aria-pressed', String(isLowPerf));
+        // Text zeigt den AKTUELLEN Status an
+        this.DOM.perfToggle.textContent = isLowPerf ? '💤 Animationen: AUS' : '✨ Animationen: AN';
+
+        // 2. Body Klasse setzen (wichtig für CSS)
+        if (isLowPerf && this.DOM.body) {
+            this.DOM.body.classList.add('low-perf-mode');
+        } else if (this.DOM.body) {
+            this.DOM.body.classList.remove('low-perf-mode');
+        }
     }
 
     // --- ANIMATIONEN ---
