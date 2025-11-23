@@ -489,6 +489,7 @@ li {
     border-top: 1px solid var(--border-color);
     max-height: 300px;
     overflow-y: auto;
+    position: relative; /* FIX: Notwendig für korrekte offsetTop Berechnung in JS */
 }
 
 .transcript-container p {
@@ -771,165 +772,50 @@ li {
     flex-shrink: 0;
 }
 
-/* Standard: Hamburger-Button verstecken (Desktop) */
-.hamburger-btn {
-    display: none;
-}
 
+/* --- Responsive Optimierungen --- */
 
-/* --- MOBILE OPTIMIERUNGEN & HAMBURGER MENÜ (Smartphone) --- */
-@media (max-width: 768px) {
-
-    /* 1. Layout Anpassungen */
+@media (max-width: 1024px) {
     .narrative-interface { 
         grid-template-columns: 1fr;
         gap: 1rem;
     }
-
+    .bento-nav { 
+        position: static; 
+        height: auto;
+        margin-bottom: 3rem;
+    }
+    .bento-nav-container {
+        padding: 1rem 1rem 0 1rem;
+    }
     .focus-pane {
         padding: 1rem 1rem 5rem 1rem;
     }
-
     .document-header, .chapter-section {
         padding-left: 0;
     }
-
     .narrative-thread-container { display: none; }
-    .audio-visualizer { display: none; }
-    .final-actions-grid { grid-template-columns: 1fr; }
-
-    /* 2. Navigation kompakt & Hamburger Header */
-    .bento-nav-container {
-        padding: 0;
-        position: relative;
-        z-index: 1000;
-    }
-
-    .bento-nav {
-        margin-bottom: 2rem;
-        border-radius: 0 0 var(--border-radius) var(--border-radius);
-        border-top: none;
-        border-left: none;
-        border-right: none;
-        position: static;
-        height: auto;
-    }
-
-    /* Header Flex-Layout: Text links, Button rechts */
-    .bento-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-bottom: 15px;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 10px;
-    }
-
-    /* Hamburger Button Styling */
-    .hamburger-btn {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        width: 30px;
-        height: 25px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        padding: 0;
-        z-index: 10;
-    }
-
-    .hamburger-btn .bar {
-        width: 100%;
-        height: 3px;
-        background-color: var(--primary-color);
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-
-    /* Button Animation (Zum X) */
-    .hamburger-btn[aria-expanded="true"] .bar:nth-child(1) {
-        transform: translateY(8px) rotate(45deg);
-    }
-    .hamburger-btn[aria-expanded="true"] .bar:nth-child(2) {
-        opacity: 0;
-    }
-    .hamburger-btn[aria-expanded="true"] .bar:nth-child(3) {
-        transform: translateY(-8px) rotate(-45deg);
-    }
-
-    /* Dropdown-Verhalten der Nav-Links */
-    .nav-links {
-        max-height: 0; /* Standard: zugeklappt */
-        overflow: hidden;
-        transition: max-height 0.4s ease-in-out, opacity 0.3s ease;
-        opacity: 0;
-        display: flex;
-        flex-direction: column;
-        margin-top: 0;
-    }
-
-    /* Zustand "OFFEN" (wird via JS .menu-open getoggelt) */
-    .bento-nav.menu-open .nav-links {
-        max-height: 500px; /* Ausreichend Platz */
-        opacity: 1;
-        margin-top: 15px;
-    }
     
-    .bento-nav .nav-item {
-        padding: 15px; /* Größere Klickfläche */
-        background-color: rgba(255,255,255,0.03);
-        margin-bottom: 5px;
+    .ui-controls-container { display: none; }
+    .final-actions-grid { grid-template-columns: 1fr; }
+    .audio-visualizer { display: none; }
+    .audio-feature-box { margin: 2rem 0; }
+
+    .custom-audio-player { 
+        flex-wrap: wrap; 
+        gap: 5px;
+    }
+    .audio-progress-container { 
+        order: -1; 
+        width: 100%; 
+        margin-bottom: 1rem;
     }
 
-    /* 3. Typografie */
-    h1 { font-size: 2.5rem; }
-    h2 { font-size: 1.8rem; }
-    .nav-title { font-size: 1.2rem; }
-    .chapter-section { padding-top: 0; margin-bottom: 3rem; }
-
-    /* 4. Touch-Optimierung für Audio-Player */
-    .play-pause-btn, .skip-btn {
-        padding: 12px; /* Größere Touch-Fläche */
-    }
-    .audio-feature-box {
-        padding: 15px;
-        margin: 2rem 0;
-    }
-    .custom-audio-player {
-        flex-wrap: wrap;
-    }
-    .audio-progress-container {
-        width: 100%;
-        order: -1; /* Progress Bar oben */
-        height: 12px; /* Dickerer Balken */
-        margin-bottom: 15px;
-    }
-
-    /* 5. Simulation Canvas Optimierung */
+    /* Responsive Anpassung für Simulation */
     .simulation-section #canvas-wrapper {
-        height: auto;
-        aspect-ratio: 4/3;
-        max-height: 60vh;
+        height: 400px;
     }
     .sim-buttons {
         flex-direction: column;
-        gap: 12px;
-    }
-    .sim-btn {
-        padding: 15px;
-        font-size: 1rem;
-    }
-
-    /* 6. UI Controls (Perf Toggle) */
-    .ui-controls-container {
-        display: block;
-        bottom: 10px;
-        right: 10px;
-    }
-    .perf-toggle-button {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-        opacity: 0.8;
     }
 }
