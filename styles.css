@@ -17,10 +17,10 @@
     --logic: #00CC66; /* Signalgrün */
     --void: #050505;  /* Tiefstes Schwarz für Canvas */
 
-    /* Helfer & Layout */
-    --font-heading: 'Inter', sans-serif;
-    --font-main: 'Source Sans Pro', sans-serif;
-    --border-radius: 16px;
+/* Helfer & Layout (UPGRADE PHASE 2) */
+    --font-heading: 'Playfair Display', serif; /* Klassisch, autoritär, elegant */
+    --font-main: 'Source Sans Pro', sans-serif; /* Bleibt für gute Lesbarkeit im Fließtext */
+    --font-mono: 'JetBrains Mono', monospace; /* Für Daten, Code & Analysen */
 
     /* Dynamische Eigenschaften */
     --primary-color-translucent: rgba(34, 211, 238, 0.15);
