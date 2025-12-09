@@ -1,4 +1,4 @@
-// VALIDIERTE VERSION: Mission Freiheit v2.1 (Rotation Restored)
+// VALIDIERTE VERSION: Mission Freiheit v2.2 (Dynamic Power Rotation)
 
 /**
  * TranscriptSynchronizer
@@ -59,6 +59,8 @@ class TranscriptSynchronizer {
 
 /**
  * Particle
+ * Repräsentiert einen Bürger. 
+ * Jetzt mit Interpolation für smoothe Machtwechsel-Animationen.
  */
 class Particle {
     constructor(width, height) {
@@ -68,79 +70,92 @@ class Particle {
         this.y = Math.random() * this.height;
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = Math.random() * 2 + 0.5;
-        this.color = 'rgba(241, 245, 249, 0.3)'; 
-        this.selected = false; 
-        this.preference = Math.random(); 
+        
+        // Rendering Properties
+        this.currentSize = 1;
+        this.targetSize = 1;
+        this.currentColor = 'rgba(241, 245, 249, 0.3)';
+        this.preference = Math.random(); // Politische Neigung (0.0 - 1.0)
+        this.selected = false; // Ist aktuell im Bürgerrat?
     }
     
     update(mode, centers) {
+        // --- PHYSIK & BEWEGUNG ---
         if (mode === 'election') {
-            // WAHL-MODUS
+            // WAHL-MODUS: Anziehung zu den Polen (Parteien)
             let target = this.preference < 0.5 ? centers[0] : centers[1];
             let dx = target.x - this.x;
             let dy = target.y - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
             
-            // Gravitation
             if(dist > 10) {
                 this.vx += (dx / dist) * 0.05;
                 this.vy += (dy / dist) * 0.05;
             }
-
-            // NEU: Leichte Rotation um das Zentrum (Vortex-Effekt)
-            // Dies erzeugt eine dynamischere "Simulation" als nur pure Anziehung
-            let angle = Math.atan2(dy, dx);
-            this.vx += Math.cos(angle + Math.PI/2) * 0.02;
-            this.vy += Math.sin(angle + Math.PI/2) * 0.02;
-
-            this.vx *= 0.95;
+            this.vx *= 0.95; // Dämpfung
             this.vy *= 0.95;
             
-            this.color = this.preference < 0.5 ? '#fb7185' : '#4ade80'; 
-            this.size = 2;
+            // Farben basierend auf Lager (Rot vs Grün)
+            this.currentColor = this.preference < 0.5 ? '#fb7185' : '#4ade80'; 
+            this.targetSize = 2;
+
         } else { 
-            // LOS-MODUS
+            // LOS-MODUS: Freie Bewegung & Diffusion
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
+            
+            // Speed Limit
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
             if(speed > 2) {
                 this.vx = (this.vx/speed)*2;
                 this.vy = (this.vy/speed)*2;
             }
+
+            // Visualisierung der Macht-Rotation
             if (this.selected) {
-                this.color = '#22d3ee'; 
-                this.size = 3.5;
+                this.currentColor = '#22d3ee'; // Neon Cyan (Im Amt)
+                this.targetSize = 5; // Groß und sichtbar
             } else {
-                this.color = 'rgba(241, 245, 249, 0.2)'; 
-                this.size = 1;
+                this.currentColor = 'rgba(241, 245, 249, 0.2)'; // Neutral (Bürger)
+                this.targetSize = 1;
             }
         }
         
+        // Position Update
         this.x += this.vx;
         this.y += this.vy;
+        
+        // Wände
         if (this.x < 0 || this.x > this.width) this.vx *= -1;
         if (this.y < 0 || this.y > this.height) this.vy *= -1;
+
+        // --- ANIMATION INTERPOLATION ---
+        // Smoother Übergang der Größe für den "Aufleucht"-Effekt beim Machtwechsel
+        this.currentSize += (this.targetSize - this.currentSize) * 0.1;
     }
 
     draw(ctx) {
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color;
-        if(this.selected) {
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = this.color;
+        ctx.arc(this.x, this.y, this.currentSize, 0, Math.PI * 2);
+        ctx.fillStyle = this.currentColor;
+        
+        // Glow nur für ausgewählte Partikel im Los-Modus
+        if(this.selected && this.currentSize > 2) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = this.currentColor;
         } else {
             ctx.shadowBlur = 0;
         }
+        
         ctx.fill();
-        ctx.shadowBlur = 0;
+        ctx.shadowBlur = 0; // Reset
     }
 }
 
 
 /**
  * PhoenixDossier
+ * Hauptsteuerung.
  */
 class PhoenixDossier {
     constructor() {
@@ -158,7 +173,11 @@ class PhoenixDossier {
         this.state = { isLowPerfMode: false };
         this.simState = {
             ctx: null, width: 0, height: 0,
-            particles: [], centers: [], mode: 'election', animationFrame: null
+            particles: [], centers: [], 
+            mode: 'election', 
+            lastRotation: 0, // Zeitstempel für letzten Machtwechsel
+            rotationInterval: 2500, // Alle 2.5 Sekunden rotiert die Macht
+            animationFrame: null
         };
 
         this.init();
@@ -167,7 +186,7 @@ class PhoenixDossier {
     init() {
         this.setupPerfToggle();
         this.setupAudioPlayers();
-        this.setupShareButtons(); // WIEDER DA
+        this.setupShareButtons();
         
         if (this.DOM.simCanvas && this.DOM.simWrapper) {
             this.setupSimulation();
@@ -188,13 +207,11 @@ class PhoenixDossier {
         }
     }
 
-    // Hilfsfunktion: Text in Buchstaben splitten für Rotation
     manualSplitText(element) {
         if (!element) return [];
         const originalText = element.textContent;
         element.innerHTML = '';
         const chars = [];
-        
         originalText.split('').forEach(char => {
             const charSpan = document.createElement('span');
             charSpan.className = 'char-anim';
@@ -209,36 +226,18 @@ class PhoenixDossier {
     setupGSAP() {
         gsap.registerPlugin(ScrollTrigger);
         
-        // Titel-Rotation wiederhergestellt
         const mainTitle = document.getElementById('title-split');
-        const chars = this.manualSplitText(mainTitle);
-        
-        gsap.set(mainTitle, { opacity: 1 });
-        // Startzustand: Rotiert um X-Achse
-        gsap.set(chars, { 
-            opacity: 0, 
-            y: '100%', 
-            rotationX: -90, 
-            transformOrigin: 'center center -50px' 
-        });
-
-        // Animation zum Normalzustand
-        gsap.to(chars, {
-            opacity: 1, 
-            y: '0%', 
-            rotationX: 0, 
-            duration: 1.2,
-            ease: 'back.out(1.7)', 
-            stagger: 0.05, 
-            delay: 0.5
-        });
+        if(mainTitle) {
+            const chars = this.manualSplitText(mainTitle);
+            gsap.set(mainTitle, { opacity: 1 });
+            gsap.set(chars, { opacity: 0, y: '100%', rotationX: -90, transformOrigin: 'center center -50px' });
+            gsap.to(chars, { opacity: 1, y: '0%', rotationX: 0, duration: 1.2, ease: 'back.out(1.7)', stagger: 0.05, delay: 0.5 });
+        }
         
         document.querySelectorAll('.chapter-section').forEach(section => {
             gsap.from(section, {
                 opacity: 0, y: 50, duration: 1,
-                scrollTrigger: {
-                    trigger: section, start: "top 80%", toggleActions: "play none none reverse"
-                }
+                scrollTrigger: { trigger: section, start: "top 80%", toggleActions: "play none none reverse" }
             });
         });
     }
@@ -260,7 +259,6 @@ class PhoenixDossier {
     setupAudioPlayers() {
         document.querySelectorAll('.audio-feature-box').forEach(box => {
             new TranscriptSynchronizer(box);
-            
             const audio = box.querySelector('audio');
             const playBtn = box.querySelector('.play-pause-btn');
             const progressBar = box.querySelector('.audio-progress-bar');
@@ -279,21 +277,12 @@ class PhoenixDossier {
                 if(iconPause) iconPause.style.display = audio.paused ? 'none' : 'block';
             };
 
-            playBtn.addEventListener('click', () => {
-                audio.paused ? audio.play() : audio.pause();
-            });
-            
-            skipBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    audio.currentTime += parseFloat(btn.dataset.skip);
-                });
-            });
+            playBtn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
+            skipBtns.forEach(btn => btn.addEventListener('click', () => audio.currentTime += parseFloat(btn.dataset.skip)));
 
             audio.addEventListener('play', updateIcons);
             audio.addEventListener('pause', updateIcons);
-            audio.addEventListener('loadedmetadata', () => {
-                if(totalTimeDisplay) totalTimeDisplay.textContent = this.formatTime(audio.duration);
-            });
+            audio.addEventListener('loadedmetadata', () => { if(totalTimeDisplay) totalTimeDisplay.textContent = this.formatTime(audio.duration); });
             audio.addEventListener('timeupdate', () => {
                 if(progressBar) progressBar.style.width = `${(audio.currentTime / audio.duration) * 100}%`;
                 if(timeDisplay) timeDisplay.textContent = this.formatTime(audio.currentTime);
@@ -350,7 +339,6 @@ class PhoenixDossier {
     setupScrollSpy() {
         const navItems = document.querySelectorAll('.nav-item');
         const sections = document.querySelectorAll('.chapter-section');
-        
         const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
                 if(entry.isIntersecting) {
@@ -361,24 +349,25 @@ class PhoenixDossier {
                 }
             });
         }, { threshold: 0.3 });
-        
         sections.forEach(s => observer.observe(s));
     }
 
+    // --- SIMULATION CORE ---
     setupSimulation() {
         this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         this.resizeSimulation();
         window.addEventListener('resize', () => this.resizeSimulation());
 
         this.simState.particles = Array.from({length: 600}, () => new Particle(this.simState.width, this.simState.height));
-        const subset = new Set();
-        while(subset.size < 30) subset.add(Math.floor(Math.random() * 600));
-        subset.forEach(i => this.simState.particles[i].selected = true);
+        
+        // Initial Selection
+        this.rotateSortitionPower(); 
 
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
 
-        this.loopSimulation();
+        // Start Loop mit Timestamp
+        requestAnimationFrame((t) => this.loopSimulation(t));
     }
 
     resizeSimulation() {
@@ -393,17 +382,50 @@ class PhoenixDossier {
         ];
     }
 
-    loopSimulation() {
+    loopSimulation(timestamp) {
         if (!this.simState.ctx) return;
+        
+        // Hintergrund mit Trail-Effekt
         this.simState.ctx.fillStyle = 'rgba(2, 6, 23, 0.2)'; 
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
+
+        // --- MACHT-ROTATION LOGIK ---
+        if (this.simState.mode === 'sortition') {
+            if (!this.simState.lastRotation) this.simState.lastRotation = timestamp;
+            
+            // Check ob Zeit für Amtswechsel ist
+            if (timestamp - this.simState.lastRotation > this.simState.rotationInterval) {
+                this.rotateSortitionPower();
+                this.simState.lastRotation = timestamp;
+            }
+        }
 
         this.simState.particles.forEach(p => {
             p.update(this.simState.mode, this.simState.centers);
             p.draw(this.simState.ctx);
         });
 
-        requestAnimationFrame(() => this.loopSimulation());
+        requestAnimationFrame((t) => this.loopSimulation(t));
+    }
+
+    /**
+     * Wählt eine neue zufällige Gruppe von Bürgern aus (Sortition)
+     */
+    rotateSortitionPower() {
+        // Alle abwählen
+        this.simState.particles.forEach(p => p.selected = false);
+        
+        // Neue Gruppe auslosen (ca. 40 Partikel)
+        const subsetSize = 40; 
+        const indices = new Set();
+        while(indices.size < subsetSize) {
+            indices.add(Math.floor(Math.random() * this.simState.particles.length));
+        }
+        
+        // Status aktualisieren
+        indices.forEach(i => {
+            this.simState.particles[i].selected = true;
+        });
     }
 
     setSimMode(mode) {
@@ -419,9 +441,12 @@ class PhoenixDossier {
         } else {
             this.DOM.simBtnSort.classList.add('active-mode');
             this.DOM.simBtnElect.classList.remove('active-mode');
-            this.DOM.simAnalysisText.innerHTML = `Isonomie: <span style="color:var(--logic)">Diversität</span>. Zufallsauswahl durchbricht Blasen.`;
-            this.DOM.simEntropyMeter.textContent = "STATUS: STABIL";
+            this.DOM.simAnalysisText.innerHTML = `Isonomie: <span style="color:var(--logic)">Diversität</span>. Repräsentanten rotieren periodisch.`;
+            this.DOM.simEntropyMeter.textContent = "STATUS: ROTATING";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
+            
+            // Sofortige Rotation bei Moduswechsel triggern
+            this.rotateSortitionPower();
         }
     }
 }
