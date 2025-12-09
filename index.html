@@ -29,7 +29,7 @@
     
     <div id="preloader" class="preloader">
         <div class="spinner"></div>
-        <p style="color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.2em;">SYSTEM INITIALISIERUNG</p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.2em; margin-top: 1rem;">SYSTEM INITIALISIERUNG</p>
     </div>
 
     <div class="narrative-interface">
@@ -37,7 +37,7 @@
         <aside class="bento-nav-container">
             <nav class="bento-nav">
                 <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass);">
-                    <span class="subtitle">M.F. PROTOCOL V2.0</span>
+                    <span class="subtitle">M.F. PROTOCOL V2.1</span>
                     <h2 style="margin:0; font-size:1.4rem; color:#fff;">Mission<br>Freiheit</h2>
                 </div>
                 <a href="#part0" class="nav-item"><span class="nav-icon">⬡</span>00. Simulation</a>
@@ -55,7 +55,7 @@
             <header class="document-header">
                 <hgroup>
                     <p class="subtitle" id="subtitle-anim">Statusbericht // Isonomie</p>
-                    <h1 class="main-title" id="title-anim">Mission Freiheit.</h1>
+                    <h1 class="main-title" id="title-split">Mission Freiheit.</h1>
                 </hgroup>
                 <p class="abstract">
                     Dieses Dossier analysiert die architektonischen Fehler der modernen Demokratie. Es kombiniert eine interaktive Simulation von <strong>Wahl vs. Los</strong> mit einer tiefgehenden Analyse der <strong>Isonomie</strong> als systemischen Lösungsansatz.
@@ -477,7 +477,6 @@
                         <p data-start="252" data-end="263.9">Und wenn man diesen Gedanken konsequent weiterverfolgt, dann entwerfen die Quellen das Bild einer Gesellschaft, die durch diese breite, allumfassende Beteiligung viel stabiler werden könnte.</p>
                         <p data-start="264" data-end="265.9">Stabiler und kooperativer.</p>
                         <p data-start="266" data-end="286.9">Ja, kooperativer auch, weil Menschen aus allen Ecken der Gesellschaft mit all ihren unterschiedlichen Erfahrungen und Perspektiven als Gleiche zusammenkommen. Sie müssten sich ja austauschen, einander verstehen lernen, nicht nur über abstrakte Sachfragen, sondern auch über ihre ganz konkreten, unterschiedlichen Lebenswelten.</p>
-Check.
                         <p data-start="287" data-end="288.9">Was sie dann vielleicht auch krisenfester macht.</p>
                         <p data-start="289" data-end="295.9">Womöglich sogar unabhängiger von rein ökonomischen Zyklen, weil der soziale Zusammenhalt einfach tiefer gründet.</p>
                         <p data-start="296" data-end="296.9">Das ist eine plausible Folgerung, ja.</p>
@@ -520,7 +519,26 @@ Check.
                         <h3 class="subtitle">Mission Parameters</h3>
                         <p>Wissen ist der erste Schritt.</p>
                         <a href="https://losdemokratie.de/antrag" target="_blank" class="cta-button">INITIATIVE BEITRETEN</a>
+                        
+                        <div class="share-buttons" style="margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border-glass);">
+                            <span class="subtitle" style="display:block; margin-bottom:1rem;">Dossier teilen</span>
+                            <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                                <a href="#" id="share-email" class="share-btn" target="_blank">
+                                    <svg viewBox="0 0 24 24"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"></path></svg>
+                                    Email
+                                </a>
+                                <a href="#" id="share-x" class="share-btn" target="_blank">
+                                    <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg>
+                                    X
+                                </a>
+                                <a href="#" id="share-facebook" class="share-btn" target="_blank">
+                                    <svg viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"></path></svg>
+                                    Facebook
+                                </a>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div class="action-card">
                         <h3 class="subtitle">Data Uplink</h3>
                         <ul style="list-style: none; padding: 0; color: var(--text-muted);">
