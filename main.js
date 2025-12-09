@@ -1,3 +1,5 @@
+// VALIDIERTE VERSION: Mission Freiheit v2.1 (Rotation Restored)
+
 /**
  * TranscriptSynchronizer
  * Verbindet Audio mit Text.
@@ -57,7 +59,6 @@ class TranscriptSynchronizer {
 
 /**
  * Particle
- * Visualisiert Bürger im Simulations-Canvas.
  */
 class Particle {
     constructor(width, height) {
@@ -80,14 +81,23 @@ class Particle {
             let dx = target.x - this.x;
             let dy = target.y - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Gravitation
             if(dist > 10) {
                 this.vx += (dx / dist) * 0.05;
                 this.vy += (dy / dist) * 0.05;
             }
+
+            // NEU: Leichte Rotation um das Zentrum (Vortex-Effekt)
+            // Dies erzeugt eine dynamischere "Simulation" als nur pure Anziehung
+            let angle = Math.atan2(dy, dx);
+            this.vx += Math.cos(angle + Math.PI/2) * 0.02;
+            this.vy += Math.sin(angle + Math.PI/2) * 0.02;
+
             this.vx *= 0.95;
             this.vy *= 0.95;
             
-            this.color = this.preference < 0.5 ? '#fb7185' : '#4ade80'; // Neon Rot / Grün
+            this.color = this.preference < 0.5 ? '#fb7185' : '#4ade80'; 
             this.size = 2;
         } else { 
             // LOS-MODUS
@@ -99,7 +109,7 @@ class Particle {
                 this.vy = (this.vy/speed)*2;
             }
             if (this.selected) {
-                this.color = '#22d3ee'; // Neon Cyan
+                this.color = '#22d3ee'; 
                 this.size = 3.5;
             } else {
                 this.color = 'rgba(241, 245, 249, 0.2)'; 
@@ -131,7 +141,6 @@ class Particle {
 
 /**
  * PhoenixDossier
- * Hauptsteuerung.
  */
 class PhoenixDossier {
     constructor() {
@@ -158,6 +167,7 @@ class PhoenixDossier {
     init() {
         this.setupPerfToggle();
         this.setupAudioPlayers();
+        this.setupShareButtons(); // WIEDER DA
         
         if (this.DOM.simCanvas && this.DOM.simWrapper) {
             this.setupSimulation();
@@ -177,12 +187,50 @@ class PhoenixDossier {
             }, 800);
         }
     }
+
+    // Hilfsfunktion: Text in Buchstaben splitten für Rotation
+    manualSplitText(element) {
+        if (!element) return [];
+        const originalText = element.textContent;
+        element.innerHTML = '';
+        const chars = [];
+        
+        originalText.split('').forEach(char => {
+            const charSpan = document.createElement('span');
+            charSpan.className = 'char-anim';
+            charSpan.style.display = 'inline-block';
+            charSpan.textContent = (char === ' ') ? '\u00A0' : char; 
+            element.appendChild(charSpan);
+            chars.push(charSpan);
+        });
+        return chars;
+    }
     
     setupGSAP() {
         gsap.registerPlugin(ScrollTrigger);
         
-        gsap.from("#title-anim", {
-            duration: 1.5, y: 100, opacity: 0, ease: "power4.out", delay: 0.5
+        // Titel-Rotation wiederhergestellt
+        const mainTitle = document.getElementById('title-split');
+        const chars = this.manualSplitText(mainTitle);
+        
+        gsap.set(mainTitle, { opacity: 1 });
+        // Startzustand: Rotiert um X-Achse
+        gsap.set(chars, { 
+            opacity: 0, 
+            y: '100%', 
+            rotationX: -90, 
+            transformOrigin: 'center center -50px' 
+        });
+
+        // Animation zum Normalzustand
+        gsap.to(chars, {
+            opacity: 1, 
+            y: '0%', 
+            rotationX: 0, 
+            duration: 1.2,
+            ease: 'back.out(1.7)', 
+            stagger: 0.05, 
+            delay: 0.5
         });
         
         document.querySelectorAll('.chapter-section').forEach(section => {
@@ -193,6 +241,20 @@ class PhoenixDossier {
                 }
             });
         });
+    }
+
+    setupShareButtons() {
+        const url = encodeURIComponent(window.location.href);
+        const title = encodeURIComponent(document.title);
+        
+        const emailBtn = document.getElementById('share-email');
+        if (emailBtn) emailBtn.href = `mailto:?subject=${title}&body=Schau dir dieses Dossier an: ${url}`;
+        
+        const xBtn = document.getElementById('share-x');
+        if (xBtn) xBtn.href = `https://twitter.com/intent/tweet?url=${url}&text=${title}`;
+
+        const facebookBtn = document.getElementById('share-facebook');
+        if (facebookBtn) facebookBtn.href = `https://www.facebook.com/sharer/sharer.php?u=${url}`;
     }
 
     setupAudioPlayers() {
