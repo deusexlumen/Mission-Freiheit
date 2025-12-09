@@ -1,5 +1,3 @@
-// VALIDIERTE VERSION: Mission Freiheit v2.0 (High Gloss Upgrade)
-
 /**
  * TranscriptSynchronizer
  * Verbindet Audio mit Text.
@@ -31,7 +29,6 @@ class TranscriptSynchronizer {
         const isHidden = this.transcriptContainer.hidden;
         this.transcriptContainer.hidden = !isHidden;
         this.toggleBtn.textContent = isHidden ? 'Transkript schließen' : 'Transkript öffnen';
-        // Smooth scroll to container if opening
         if(isHidden) {
              setTimeout(() => {
                 this.transcriptContainer.scrollIntoView({behavior: "smooth", block: "center"});
@@ -71,7 +68,6 @@ class Particle {
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
         this.size = Math.random() * 2 + 0.5;
-        // Basis-Farbe (Neutrales Grau/Weiß)
         this.color = 'rgba(241, 245, 249, 0.3)'; 
         this.selected = false; 
         this.preference = Math.random(); 
@@ -79,7 +75,7 @@ class Particle {
     
     update(mode, centers) {
         if (mode === 'election') {
-            // WAHL-MODUS: Zieht zu Polen
+            // WAHL-MODUS
             let target = this.preference < 0.5 ? centers[0] : centers[1];
             let dx = target.x - this.x;
             let dy = target.y - this.y;
@@ -91,12 +87,10 @@ class Particle {
             this.vx *= 0.95;
             this.vy *= 0.95;
             
-            // Neon Farben für Wahlkampf (Rot vs Grün/Cyan)
-            // Entspricht CSS var(--alert) und var(--logic)
-            this.color = this.preference < 0.5 ? '#ff4757' : '#2ed573'; 
+            this.color = this.preference < 0.5 ? '#fb7185' : '#4ade80'; // Neon Rot / Grün
             this.size = 2;
         } else { 
-            // LOS-MODUS: Brownsche Bewegung
+            // LOS-MODUS
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
@@ -105,7 +99,7 @@ class Particle {
                 this.vy = (this.vy/speed)*2;
             }
             if (this.selected) {
-                this.color = '#06b6d4'; // Primary Cyan Glow
+                this.color = '#22d3ee'; // Neon Cyan
                 this.size = 3.5;
             } else {
                 this.color = 'rgba(241, 245, 249, 0.2)'; 
@@ -123,7 +117,6 @@ class Particle {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
-        // Optionaler Glow für ausgewählte Partikel
         if(this.selected) {
             ctx.shadowBlur = 10;
             ctx.shadowColor = this.color;
@@ -131,7 +124,7 @@ class Particle {
             ctx.shadowBlur = 0;
         }
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset
+        ctx.shadowBlur = 0;
     }
 }
 
@@ -170,7 +163,6 @@ class PhoenixDossier {
             this.setupSimulation();
         }
         
-        // GSAP Animationen
         if (!this.state.isLowPerfMode && window.gsap && window.ScrollTrigger) {
             this.setupGSAP();
         }
@@ -178,7 +170,6 @@ class PhoenixDossier {
         this.generateTakeaways();
         this.setupScrollSpy();
         
-        // Preloader ausblenden
         const preloader = document.getElementById('preloader');
         if(preloader) {
             setTimeout(() => {
@@ -190,12 +181,10 @@ class PhoenixDossier {
     setupGSAP() {
         gsap.registerPlugin(ScrollTrigger);
         
-        // Titel Animation
-        gsap.from("#title-split", {
+        gsap.from("#title-anim", {
             duration: 1.5, y: 100, opacity: 0, ease: "power4.out", delay: 0.5
         });
         
-        // Section Fade-In
         document.querySelectorAll('.chapter-section').forEach(section => {
             gsap.from(section, {
                 opacity: 0, y: 50, duration: 1,
@@ -204,20 +193,6 @@ class PhoenixDossier {
                 }
             });
         });
-
-        // Narrative Thread Draw
-        const path = document.querySelector('.narrative-thread-path');
-        if (path) {
-            const len = path.getTotalLength();
-            path.style.strokeDasharray = len;
-            path.style.strokeDashoffset = len;
-            gsap.to(path, {
-                strokeDashoffset: 0,
-                scrollTrigger: {
-                    trigger: document.body, start: "top top", end: "bottom bottom", scrub: 1
-                }
-            });
-        }
     }
 
     setupAudioPlayers() {
@@ -226,14 +201,14 @@ class PhoenixDossier {
             
             const audio = box.querySelector('audio');
             const playBtn = box.querySelector('.play-pause-btn');
-            const progressContainer = box.querySelector('.audio-progress-container');
             const progressBar = box.querySelector('.audio-progress-bar');
             const timeDisplay = box.querySelector('.current-time');
             const totalTimeDisplay = box.querySelector('.total-time');
+            const progressContainer = box.querySelector('.audio-progress-container');
+            const skipBtns = box.querySelectorAll('.skip-btn');
 
             if(!audio || !playBtn) return;
 
-            // Icons
             const iconPlay = playBtn.querySelector('.icon-play');
             const iconPause = playBtn.querySelector('.icon-pause');
 
@@ -244,6 +219,12 @@ class PhoenixDossier {
 
             playBtn.addEventListener('click', () => {
                 audio.paused ? audio.play() : audio.pause();
+            });
+            
+            skipBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    audio.currentTime += parseFloat(btn.dataset.skip);
+                });
             });
 
             audio.addEventListener('play', updateIcons);
@@ -322,14 +303,12 @@ class PhoenixDossier {
         sections.forEach(s => observer.observe(s));
     }
 
-    // --- SIMULATION ---
     setupSimulation() {
         this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         this.resizeSimulation();
         window.addEventListener('resize', () => this.resizeSimulation());
 
         this.simState.particles = Array.from({length: 600}, () => new Particle(this.simState.width, this.simState.height));
-        // Wähle 30 zufällige für Sortition Highlight
         const subset = new Set();
         while(subset.size < 30) subset.add(Math.floor(Math.random() * 600));
         subset.forEach(i => this.simState.particles[i].selected = true);
@@ -354,7 +333,6 @@ class PhoenixDossier {
 
     loopSimulation() {
         if (!this.simState.ctx) return;
-        // Trail Effect für Neon Look
         this.simState.ctx.fillStyle = 'rgba(2, 6, 23, 0.2)'; 
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
@@ -374,13 +352,13 @@ class PhoenixDossier {
             this.DOM.simBtnElect.classList.add('active-mode');
             this.DOM.simBtnSort.classList.remove('active-mode');
             this.DOM.simAnalysisText.innerHTML = `Wahlsystem: <span style="color:var(--alert)">Polarisierung</span>. Gravitationszentren entstehen.`;
-            this.DOM.simEntropyMeter.textContent = "KRITISCH";
+            this.DOM.simEntropyMeter.textContent = "STATUS: POLARIZED";
             this.DOM.simEntropyMeter.style.color = "var(--alert)";
         } else {
             this.DOM.simBtnSort.classList.add('active-mode');
             this.DOM.simBtnElect.classList.remove('active-mode');
             this.DOM.simAnalysisText.innerHTML = `Isonomie: <span style="color:var(--logic)">Diversität</span>. Zufallsauswahl durchbricht Blasen.`;
-            this.DOM.simEntropyMeter.textContent = "STABIL";
+            this.DOM.simEntropyMeter.textContent = "STATUS: STABIL";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
         }
     }
