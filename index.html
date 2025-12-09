@@ -3,17 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#0d1117">
     <title>Mission Freiheit | Das Ultimative Dossier</title>
     
-    <meta name="description" content="Das ultimative interaktive Dossier zur Isonomie und Losdemokratie. Analyse der Demokratiekrise, interaktive Simulation und konkrete Lösungswege.">
-    <meta name="keywords" content="Isonomie, Losdemokratie, Mission Freiheit, Simulation, Web-Anwendung, Stasis, Tyrannei, UX, Performance, Architektur, Systemwandel, Demokratiekrise">
-    <link rel="canonical" href="https://deusexlumen.github.io/losdemokratie/">
-    
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://deusexlumen.github.io/losdemokratie/">
-    <meta property="og:title" content="Mission Freiheit | Das Ultimative Dossier">
-    <meta property="og:description" content="Ein interaktives Dossier, das die Demokratiekrise analysiert, eine Simulation von Wahl vs. Los bietet und mit der Losdemokratie einen konkreten Lösungsweg aufzeigt.">
+    <meta name="description" content="Isonomie und Losdemokratie: Eine interaktive Analyse und Simulation zur Überwindung der Demokratiekrise.">
     
     <meta http-equiv="Content-Security-Policy" content="
         default-src 'self';
@@ -28,309 +20,202 @@
         form-action 'self';
     ">
     
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2245%22 fill=%22%2322d3ee%22/></svg>">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=JetBrains+Mono:wght@300;500&display=swap" rel="stylesheet">
-    <noscript>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Source+Sans+Pro:ital,wght@0,200..900;1,200..900&display=swap">
-    </noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="ambient-background">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
+    
     <div id="preloader" class="preloader">
         <div class="spinner"></div>
-        <p class="loading-text">Dossier wird geladen...</p>
+        <p style="margin-top: 1rem; color: var(--text-muted); letter-spacing: 0.2em; font-size: 0.8rem;">INITIALISIERE SYSTEM...</p>
     </div>
 
-    <a href="#main-content" class="skip-link">Zum Inhalt springen</a>
-    
     <div class="narrative-interface">
         
         <aside class="bento-nav-container">
             <nav class="bento-nav">
-                <div class="bento-header">
-                    <span class="logo">M.F. V1.0</span>
-                    <h1 class="nav-title">Mission Freiheit</h1>
-                    <p class="nav-subtitle">Das Ultimative Dossier</p>
+                <div style="margin-bottom: 2rem; border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem;">
+                    <span class="logo">M.F. PROTOKOLL V2.0</span>
+                    <h1 style="font-size: 1.8rem; margin: 0; background: none; -webkit-text-fill-color: #fff;">Mission<br>Freiheit</h1>
                 </div>
-                <a href="#part0" class="nav-item"><span class="nav-icon">🔬</span><span class="nav-text">0. Die Simulation</span></a>
-                <a href="#part1" class="nav-item"><span class="nav-icon">🚨</span><span class="nav-text">1. Der Ursprung</span></a>
-                <a href="#part2" class="nav-item"><span class="nav-icon">🩺</span><span class="nav-text">2. Die Diagnose</span></a>
-                <a href="#part3" class="nav-item"><span class="nav-icon">💊</span><span class="nav-text">3. Die Therapie</span></a>
-                <a href="#part4" class="nav-item"><span class="nav-icon">❤️‍🩹</span><span class="nav-text">4. Die Heilung</span></a>
-                <a href="#part5" class="nav-item"><span class="nav-icon">🚧</span><span class="nav-text">5. Die Hürden</span></a>
-                <a href="#part6" class="nav-item"><span class="nav-icon">🔭</span><span class="nav-text">6. Der Ausblick</span></a>
+                <a href="#part0" class="nav-item"><span class="nav-icon">◈</span><span class="nav-text">00. Simulation</span></a>
+                <a href="#part1" class="nav-item"><span class="nav-icon">01</span><span class="nav-text">Der Ursprung</span></a>
+                <a href="#part2" class="nav-item"><span class="nav-icon">02</span><span class="nav-text">Die Diagnose</span></a>
+                <a href="#part3" class="nav-item"><span class="nav-icon">03</span><span class="nav-text">Die Therapie</span></a>
+                <a href="#part4" class="nav-item"><span class="nav-icon">04</span><span class="nav-text">Die Heilung</span></a>
+                <a href="#part5" class="nav-item"><span class="nav-icon">05</span><span class="nav-text">Die Hürden</span></a>
+                <a href="#part6" class="nav-item"><span class="nav-icon">06</span><span class="nav-text">Der Quantensprung</span></a>
             </nav>
         </aside>
 
         <main id="main-content" class="focus-pane" role="main">
             <div class="narrative-thread-container">
                 <svg class="narrative-thread" viewBox="0 0 40 1000" preserveAspectRatio="none">
-                    <path class="narrative-thread-path" d="M 20 0 C 10 250, 30 500, 20 750 S 30 900, 20 1000" stroke-width="2" fill="none"/>
+                    <path class="narrative-thread-path" d="M 20 0 C 10 250, 30 500, 20 750 S 30 900, 20 1000" fill="none"/>
                 </svg>
             </div>
 
             <header class="document-header">
                 <hgroup>
-                    <p class="subtitle" id="subtitle-split">Das ultimative Dossier zur Isonomie.</p>
+                    <p class="subtitle" id="subtitle-split">Statusbericht // Isonomie</p>
                     <h1 class="main-title" id="title-split">Mission Freiheit.</h1>
                 </hgroup>
                 <p class="abstract">
-                    Dieses Dossier analysiert die architektonischen Fehler der modernen Demokratie. Es kombiniert eine interaktive Simulation von <strong>Wahl vs. Los</strong> mit einer tiefgehenden Analyse der <strong>Isonomie</strong> als systemischen Lösungsansatz.
+                    Ein interaktives Dossier zur Überwindung der systemischen Stasis. Wir analysieren die Architektur der modernen Demokratie und simulieren die Auswirkungen von <strong>Wahl vs. Los</strong>.
                 </p>
-                 <div class="metadata">
-                    <p>Version: Mission Freiheit 1.1 (Deliberation Upgrade)</p>
-                    <p>Autor: Deus Ex Lumen</p>
-                    <p>Datum: 2025</p>
-                </div>
             </header>
             
             <article class="document-content">
 
-                <section id="part0" aria-labelledby="nav-part0" class="chapter-section simulation-section" data-takeaway="Die Simulation visualisiert den Kernkonflikt: Wahlen erzeugen Polarisierung, während das Losverfahren (Isonomie) Deliberation und Vernetzung fördert.">
-                    <h2 class="chapter-title"><span class="chapter-number">00.</span>Die Simulation: Wahl vs. Los</h2>
+                <section id="part0" class="chapter-section simulation-section" data-takeaway="Wahlen erzeugen Polarisierung. Isonomie (Losverfahren) erzeugt Diversität und Stabilität.">
+                    <h2 class="chapter-title"><span class="chapter-number">00</span>Wahl vs. Los</h2>
                     
-                    <div class="sim-controls audio-feature-box">
-                        <h4>Experiment-Einstellungen</h4>
-                        <p class="audio-description">Wähle einen Modus, um die gesellschaftliche Dynamik zu beobachten.</p>
+                    <div class="sim-controls">
+                        <div class="sim-analysis-header">
+                            <span>KONTROLLMODUL</span>
+                            <span id="entropy-meter">INITIALISIERT</span>
+                        </div>
                         
                         <div class="sim-buttons">
-                            <button id="btn-elect" class="sim-btn sim-btn-alert active-mode">
-                                Wahl (Status Quo)
-                            </button>
-                            <button id="btn-sort" class="sim-btn sim-btn-logic">
-                                Los (Isonomie)
-                            </button>
+                            <button id="btn-elect" class="sim-btn sim-btn-alert active-mode">Modus: Wahlkampf</button>
+                            <button id="btn-sort" class="sim-btn sim-btn-logic">Modus: Isonomie</button>
                         </div>
 
-                        <div class="sim-analysis">
-                            <div class="sim-analysis-header">
-                                <span>REAL-TIME ANALYSIS</span>
-                                <span id="entropy-meter">POLARIZED</span>
-                            </div>
-                            <p id="analysis-text">
-                                Das Wahlsystem erzeugt <span style="color: var(--alert);">Gravitationszentren</span> (Parteien). Die Gesellschaft polarisiert sich. Ränder verhärten.
-                            </p>
-                        </div>
+                        <p id="analysis-text" style="font-size: 1.1rem; color: var(--text-main);">
+                            Das System der <span style="color: var(--alert);">Wahl</span> erzwingt Parteibildung und Polarisierung. Gravitationszentren entstehen.
+                        </p>
                     </div>
 
                     <div id="canvas-wrapper"> 
-                        <canvas id="sim-canvas" width="750" height="500"></canvas>
-                        <div class="sim-overlay"></div>
+                        <canvas id="sim-canvas" width="800" height="500"></canvas>
                     </div>
                 </section>
 
-                <section id="part1" aria-labelledby="nav-part1" class="chapter-section" data-takeaway="Die Konzentration politischer Macht in den Händen Weniger (Aristokratie) ist das Kernproblem moderner Gesellschaften und führt zu systemischem Stillstand.">
-                    <h2 class="chapter-title"><span class="chapter-number">01.</span>Die Krise unserer Zeit</h2>
+                <section id="part1" class="chapter-section" data-takeaway="Faktische Aristokratie: Machtkonzentration bei Wenigen lähmt den Fortschritt.">
+                    <h2 class="chapter-title"><span class="chapter-number">01</span>Die Krise</h2>
                     <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 1: Ein System am Limit</h4>
-                        <p class="audio-description">Eine Analyse der Machtkonzentration, überforderter Idealisten und der lähmenden Konsequenzen unseres politischen Systems.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20EINS__Isonomie__Entlarvt_die_faktische_Aristokratie_und_die_Falle_der_Politik.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 1 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part1">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part1" hidden>
-                            <p data-start="0" data-end="7.9">Kennen Sie das auch? Dieses Gefühl der politischen Frustration, dass trotz aller Debatten irgendwie Stillstand herrscht?</p>
-                            <p data-start="8" data-end="8.9">Mhm.</p>
-                            <p data-start="9" data-end="15.9">So als würden die Piloten im Cockpit zwar, naja, hektisch an den Hebeln ziehen, das Flugzeug aber trotzdem nicht vom Fleck kommen?</p>
-                            <p data-start="16" data-end="43.9">Ja, dieses Bild trifft es eigentlich ganz gut. Wir schauen uns heute gemeinsam Ihre Quellen zu einem, ich würde sagen, ziemlich provokanten Thema an: Isonomie, die vergessene Kunst der wahren Demokratie. Genau. Und die Texte, die zeichnen ja ein Bild einer, ja, fundamentalen Krise unseres Systems. Unsere Aufgabe jetzt ist erstmal, diese Diagnose zu verstehen. Also, gehen wir dem mal auf den Grund. Fangen wir an.</p>
-                            <p data-start="44" data-end="52.9">Dieses Gefühl, dass oft nur eine kleine, irgendwie immer gleiche Gruppe die Entscheidungen trifft, egal, wer gerade gewählt wurde, das beschreiben Ihre Quellen ja sehr, sehr deutlich.</p>
-                            <p data-start="53" data-end="53.9">Mhm.</p>
-                            <p data-start="54" data-end="107.9">Aber wie benennen die das denn genau und warum bleibt diese Machtkonzentration scheinbar so stabil? Also, Ihre Quellen geben diesem Gefühl einen präzisen Namen: faktische Aristokratie.</p>
-                            <p data-start="108" data-end="122.9">Faktische Aristokratie. Okay. Nicht das Volk als Ganzes, sondern eine relativ kleine Elite, oft aus der Ober- und gehobenen Mittelschicht stammend, die hält die tatsächliche politische Macht in Händen.</p>
-                            <p data-start="123" data-end="123.9">Mhm.</p>
-                            <p data-start="124" data-end="133.9">Die Texte argumentieren zugespitzt, dass unsere heutigen Wahlen und Parteiensysteme oft nur inneraristokratische Machtkämpfe darstellen.</p>
-                            <p data-start="134" data-end="135.9">Also Kämpfe innerhalb dieser Gruppe.</p>
-                            <p data-start="136" data-end="151.9">Genau. Ein Ringen um Einfluss innerhalb dieser etablierten Gruppe, statt echter demokratischer Teilhabe für alle. Und die Schlussfolgerung der Quellen ist, naja, schon beunruhigend. Was wir erleben, sei demnach keine Demokratie im eigentlichen Sinne mehr. Puh.</p>
-                            <p data-start="152" data-end="167.9">Aber Moment mal, wie passt diese doch recht harte Diagnose der faktischen Aristokratie damit zusammen, dass wir ja durchaus Politiker sehen, die engagiert wirken, die sich wirklich aufreiben? Ist das dann nur Fassade oder übersehen die Quellen da vielleicht was?</p>
-                            <p data-start="168" data-end="177.9">Nein, das ist kein Widerspruch. Das ist eben Teil des Problems, wie es Ihre Quellen beschreiben. Sie nennen dieses Phänomen überforderte und betrogene Idealisten.</p>
-                            <p data-start="178" data-end="180.9">Überforderte und betrogene Idealisten.</p>
-                            <p data-start="181" data-end="198.9">Ja. Die Verantwortung für unsere komplexen Gesellschaften ist für die relativ wenigen Berufspolitiker schlicht, ja, absolut erdrückend. Selbst wenn jemand mit echten Idealen startet, so argumentieren die Quellen, zwingt das System sie oft dazu, Partikularinteressen zu dienen.</p>
-                            <p data-start="199" data-end="200.9">Also bestimmten Gruppeninteressen Vorrang zu geben.</p>
-                            <p data-start="201" data-end="213.9">Genau. Den Anliegen einzelner Lobbys oder Gruppen Vorrang vor dem Gemeinwohl zu geben. Sie werden quasi vom System selbst reingelegt oder korrumpiert, weniger durch bösen Willen.</p>
-                            <p data-start="214" data-end="218.9">Hm. Das ist interessant. Also nicht unbedingt die Person ist das Problem, sondern das System.</p>
-                            <p data-start="219" data-end="229.9">So legen es die Quellen nahe, ja. Und diese systemische Falle, die hat noch eine weitere Dimension: die sogenannte Professionalisierung der Politik.</p>
-                            <p data-start="230" data-end="230.9">Was meinen Sie damit genau?</p>
-                            <p data-start="231" data-end="241.9">Unbezahlte Care-Arbeit leistet, also Angehörige pflegt oder Kinder betreut, der kann sich so eine 24/7-Politikkarriere kaum leisten.</p>
-                            <p data-start="242" data-end="244.9">Verstehe. Und deren Perspektiven fehlen dann natürlich.</p>
-                            <p data-start="245" data-end="255.9">Ganz genau. Deren wichtige Perspektiven fehlen dann einfach im politischen Prozess. Es ist also eine strukturelle Überforderung und gleichzeitig eine strukturelle Exklusion, die das System laut Ihren Quellen kennzeichnet.</p>
+                        <h4 style="border-bottom: 1px solid var(--border-glass); padding-bottom: 1rem;">Audio-Log 01: System am Limit</h4>
+                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20EINS__Isonomie__Entlarvt_die_faktische_Aristokratie_und_die_Falle_der_Politik.m4a" crossorigin="anonymous"></audio>
+                        
+                        <div class="custom-audio-player">
+                            <button class="play-pause-btn" aria-label="Abspielen">
+                                <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
+                                <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
+                            </button>
+                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
+                            <div class="audio-time"><span class="current-time">00:00</span> / <span class="total-time">00:00</span></div>
+                        </div>
+                        
+                        <button class="transcript-toggle-btn">Transkript öffnen</button>
+                        <div class="transcript-container" hidden>
+                            <p data-start="0" data-end="7.9">Kennen Sie das auch? Dieses Gefühl der politischen Frustration...</p>
+                            <p data-start="8" data-end="15.9">So als würden die Piloten im Cockpit zwar hektisch an den Hebeln ziehen...</p>
+                             <p data-start="16" data-end="43.9">Wir schauen uns heute Isonomie an, die vergessene Kunst der wahren Demokratie.</p>
                         </div>
                     </div>
-                    <p>Alles beginnt mit einem Gefühl. Einem leisen, aber nagenden Zweifel an der Art und Weise, wie wir als Gesellschaft Entscheidungen treffen. Polarisierung, Stillstand, Skandale – die Symptome sind allgegenwärtig.</p>
-                    <p>Dieses Dossier ist die Antwort auf die Frage: "Muss das so sein?" Wir nehmen Sie mit auf eine Reise von dieser anfänglichen Überforderung hin zu einer klaren Analyse und einem radikal neuen, aber historisch bewährten Lösungsansatz.</p>
-                    <h4>Das Problem der Machtkonzentration</h4>
-                    <p>Moderne Gesellschaften sind faktisch <strong>Aristokratien</strong>, in denen die politische Macht in den Händen Weniger liegt. Die Rolle von Wahlen und Parteien fungiert dabei oft als bloßer inneraristokratischer Machtkampf, der keine echte Demokratisierung bewirkt.</p>
+                    <p>Alles beginnt mit einem Gefühl der Stagnation. Unsere Analyse zeigt: Moderne Gesellschaften sind faktisch <strong>Aristokratien</strong>.</p>
                 </section>
-                
-                <section id="part2" aria-labelledby="nav-part2" class="chapter-section" data-takeaway="Stasis (permanenter Parteienkampf) und die daraus resultierende Handlungsunfähigkeit erzeugen den Ruf nach Tyrannei (dem 'starken Mann') als vermeintliche Lösung.">
-                    <h2 class="chapter-title"><span class="chapter-number">02.</span>Diagnose: Stasis &amp; Tyrannei</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 2: Die düstere Abwärtsspirale</h4>
-                        <p class="audio-description">Wie der ewige Parteienkampf (Stasis) den Ruf nach dem "starken Mann" (Tyrannei) erzeugt und unsere Gesellschaft lähmt.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20ZWEI__Stasis%2C_Tyrannis%2C_Idiotie__Die_d%C3%BCstere_Abw%C3%A4rtsspirale_der_Demokratie.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 2 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part2">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part2" hidden>
-                            <p data-start="0" data-end="31.9">Nachdem wir uns letztes Mal diese Struktur genauer angesehen haben, diese faktische Aristokratie und auch die Überforderung der Leute darin, wollen wir heute tiefer bohren: Was sind die wirklichen, vielleicht auch düsteren Konsequenzen? Wir knüpfen an unsere Untersuchung an, im Rahmen von Isonomie, die vergessene Kunst der wahren Demokratie, und schauen uns diese Abwärtsspirale an. Es fühlt sich ein bisschen an wie nach der Diagnose jetzt die Prognose, und was da in deinen Unterlagen steht, klingt schon beunruhigend.</p>
-                            <p data-start="32" data-end="49.9">Gefährliche Kettenreaktion. Erst kommt diese politische Lähmung, dann oft der Ruf nach einer autoritären Führung und am Ende steht eine Gesellschaft, die sich immer mehr aus der Politik zurückzieht. Das ist wohl kein Zufall, sondern scheint fast schon gesetzmäßig aus dieser Struktur zu folgen.</p>
-                            <p data-start="50" data-end="68.9">Fangen wir mit dieser Lähmung an. In den Quellen steht der Begriff Stasis. Das klingt erstmal ziemlich abstrakt. Es erinnert mich aber an eine Maschine, bei der die Zahnräder blockieren. Alles steht still, obwohl der Motor läuft. Man spürt förmlich diese Frustration, dass nichts vorangeht, auch wenn es brennt.</p>
-                            <p data-start="69" data-end="80.9">Genau das beschreibt Stasis, ja. Ein unproduktiver Streit. Parteien, Interessensgruppen, die blockieren sich gegenseitig. Das führt dann zu Stillstand, zur Handlungsunfähigkeit.</p>
-                            <p data-start="81" data-end="82.9">Und wichtige Entscheidungen bleiben liegen.</p>
-                            <p data-start="83" data-end="96.9">Ja, genau. Probleme wachsen sich aus. Man könnte es fast eine Art systemische Prokrastination nennen. Das Interessante ist, wie die Quellen das betonen: Es ist nicht nur ineffizient, sondern es höhlt das System von innen aus.</p>
-                            <p data-start="97" data-end="110.9">Aber so ein Zustand, eine komplette Blockade, das kann nicht ewig gutgehen. Was passiert, wenn dieser Stillstand, diese Stasis, für die Leute unerträglich wird? Hier wird der Ton in den Texten wirklich beklemmend.</p>
-                            <p data-start="111" data-end="122.9">Das wird er. Sie beschreiben, wie aus dieser Verzweiflung, dieser Handlungsunfähigkeit heraus, oft der Wunsch nach dem starken Mann oder der starken Frau aufkommt. Das ist ein gefährlicher Kurzschluss, oder?</p>
-                            <p data-start="123" data-end="138.9">Absolut. Es ist aber psychologisch nachvollziehbar, so wird es beschrieben, wenn auch fatal. Diese tiefe Frustration über die Stasis lässt dann eine autoritäre Lösung, die Tyrannei, als den vermeintlichen Ausweg erscheinen.</p>
-                            <p data-start="139" data-end="140.9">Und das ist keine Laune der Geschichte.</p>
-                            <p data-start="141" data-end="157.9">Nein. Die Unterlagen stellen das als fast logische Konsequenz dar, was mich besonders erschreckt. Es wird ein Pendeln beschrieben, ein Hin und Her zwischen diesen beiden Zuständen, also zwischen der lähmenden Stasis und der autoritären Tyrannei. Ein echter Teufelskreis, aus dem man scheinbar nicht herauskommt.</p>
-                            <p data-start="158" data-end="169.9">Das ist ein düsteres Bild. Und was macht das dann mit den einzelnen Bürgern, mit dir, mit mir in so einem System? Ich kann mir vorstellen, viele sagen dann, ohne mich.</p>
-                            <p data-start="170" data-end="184.9">Genau diese Resignation wird beschrieben. Die Texte legen nahe, Politik wird dann so etwas Fernes wie ein Schauspiel. Man schaut zu, aber man macht nicht mehr mit. Man gibt sozusagen die Verantwortung ab.</p>
-                            <p data-start="184" data-end="185.9">Man zieht sich zurück.</p>
-                            <p data-start="185" data-end="201.9">Dieses sich Zurückziehen ins Private nannten die alten Griechen Idiotie. Und ganz wichtig hier: Das meinte damals nicht Dummheit.</p>
-                            <p data-start="202" data-end="202.9">Sondern?</p>
-                            <p data-start="203" data-end="211.9">Sondern es bezeichnete den Bürger, der sich bewusst aus den öffentlichen Angelegenheiten, aus der Polis, heraushält. Der nur noch die eigenen privaten Interessen verfolgt. Privatismus ist da auch ein Begriff aus den Quellen.</p>
-                            <p data-start="212" data-end="212.9">Eine Art verweigerte Teilnahme.</p>
-                            <p data-start="213" data-end="214.9">Genau, verweigerte Teilnahme und Verantwortung.</p>
-                            <p data-start="215" data-end="233.9">Das heißt aber, man wird dann zum Konsumenten von Politik, oder? Man regt sich vielleicht auf, man hat Meinungen, aber man gestaltet nicht mehr aktiv mit. Das klingt paradox. Man flieht vor der frustrierenden Politik und stärkt damit genau das System, das diese Frustration erst erzeugt.</p>
-                            <p data-start="234" data-end="251.9">Exakt, dieser Punkt wird gemacht. Der Rückzug ins Private untergräbt die Basis jeder funktionierenden politischen Gemeinschaft. Wenn die Bürger sich nicht mehr als Gestalter sehen, sondern nur noch als Zuschauer oder Konsumenten, dann fehlt dem System die Korrekturfähigkeit und auch die Legitimation.</p>
-                            <p data-start="252" data-end="256.9">Das heißt, diese Idiotie, dieser Privatismus, ist keine Lösung.</p>
-                            <p data-start="257" data-end="267.9">Nein, laut den Analysen ist das Teil des Problems. Es stabilisiert diese Abwärtsspirale, anstatt sie zu durchbrechen. Es mag für den Einzelnen verständlich erscheinen, aber es verschlimmert die Gesamtsituation.</p>
 
-                            <p data-start="268" data-end="292.9">Fassen wir das kurz zusammen. Wir sehen also: Ein System, das sich im internen Kampf selbst blockiert, das ist die Stasis. Das provoziert dann den Ruf nach einer autoritären Abkürzung, der Tyrannis, und währenddessen ziehen sich die Bürger enttäuscht ins Private zurück – Idiotie oder Privatismus – und nehmen dem System damit die Kraft zur Erneuerung. Eine sich selbst verstärkende Spirale nach unten.</p>
-                            <p data-start="293" data-end="315.9">Absolut. Die Analyse in den Unterlagen zeichnet das Bild einer tiefgreifenden systemischen Krankheit. Stasis, Tyrannis, Privatismus sind demnach keine isolierten Phänomene. Sie sind Symptome und gleichzeitig Verstärker desselben Grundproblems. Der Rückzug, so menschlich verständlich er sein mag, zementiert diesen Zustand nur.</p>
-                            <p data-start="316" data-end="326.9">Das lässt einen nachdenklich zurück und es wirft eine ziemlich drängende Frage auf, die du vielleicht auch mitnehmen möchtest: Welchen Preis zahlen wir am Ende wirklich für diese schleichende Entpolitisierung, für diesen Rückzug aus der gemeinsamen Verantwortung?</p>
+                <section id="part2" class="chapter-section" data-takeaway="Stasis (Stillstand) führt unausweichlich zum Ruf nach Tyrannei.">
+                    <h2 class="chapter-title"><span class="chapter-number">02</span>Stasis & Tyrannei</h2>
+                     <div class="audio-feature-box">
+                        <h4>Audio-Log 02: Die Abwärtsspirale</h4>
+                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20ZWEI__Stasis%2C_Tyrannis%2C_Idiotie__Die_d%C3%BCstere_Abw%C3%A4rtsspirale_der_Demokratie.m4a" crossorigin="anonymous"></audio>
+                        <div class="custom-audio-player">
+                            <button class="play-pause-btn"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button>
+                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
+                            <div class="audio-time"><span class="current-time">00:00</span> / <span class="total-time">00:00</span></div>
+                        </div>
+                        <button class="transcript-toggle-btn">Transkript öffnen</button>
+                        <div class="transcript-container" hidden>
+                            <p data-start="0" data-end="31.9">Was sind die wirklichen, düsteren Konsequenzen? Stasis und Tyrannei.</p>
+                            <p data-start="32" data-end="49.9">Gefährliche Kettenreaktion: Politische Lähmung führt zum Autoritarismus.</p>
                         </div>
                     </div>
-                    <p>Die repräsentative Demokratie, wie wir sie kennen, leidet unter chronischen Krankheiten. Der Wahlkampfzirkus zwingt Politiker zu kurzfristigem Denken und Populismus. Ein zentrales Problem ist die fehlende Deliberation, die zu <strong>massiver Handlungsunfähigkeit</strong> führt.</p>
-                    <figure>
-                        <blockquote class="pull-quote" cite="David Van Reybrouck">
+                    
+                    <div class="highlight-box">
+                        <blockquote style="font-size: 1.4rem; font-style: italic; border: none; color: #fff;">
                             „Die moderne Demokratie ist kein Ideal, sondern eine Technologie. Und diese Technologie ist veraltet.“
                         </blockquote>
-                        <figcaption>— David Van Reybrouck, Historiker und Verfechter der Losdemokratie.</figcaption>
-                    </figure>
-                    
-                    <h4>Das Problem der ungleichen Machtverteilung</h4>
-                    <p>Sobald Sesshaftigkeit und Eigentum entstehen, bilden sich Gesellschaften tendenziell als <strong>Aristokratien</strong> aus. Dies führt zu <strong>beständigen Parteikämpfen</strong> (Stasis), die systemisch unproduktiv sind und zu gesellschaftlicher Lähmung führen.</p>
+                        <figcaption style="margin-top: 1rem; color: var(--text-muted);">— David Van Reybrouck</figcaption>
+                    </div>
                 </section>
 
-                <section id="part3" aria-labelledby="nav-part3" class="chapter-section" data-takeaway="Die Therapie ist die Isonomie (Gleichheit vor dem Gesetz), die durch das Losverfahren von Bürgerräten erreicht wird, um politische Privilegien aufzulösen.">
-                    <h2 class="chapter-title"><span class="chapter-number">03.</span>Therapie: Die vergessene Lösung</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 3: Die vergessene Lösung</h4>
-                        <p class="audio-description">Was Isonomie wirklich ist und warum das Losverfahren der Schlüssel zur Auflösung politischer Privilegien und zur Herstellung echter Gleichheit ist.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20DREI__Isonomie_%26_Losverfahren__Die_vergessene_L%C3%B6sung_f%C3%BCr_politische_Gleichheit_.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 3 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part3">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part3" hidden>
-                            <p data-start="0" data-end="13.9">Okay, wir stecken anscheinend fest. So richtig. Gefangen zwischen diesem politischen Stillstand, dieser Lähmung, Stasis, nennen es die Quellen ja, und auf der anderen Seite die ständige Gefahr, dass alles in Richtung Autoritarismus kippt, Tyrannis.</p>
-                            </div>
-                    </div>
-                    <p>Die Losdemokratie, auch Sortition oder <strong>Isonomie</strong> genannt, ist eine kraftvolle Behandlungsmethode. Sie ergänzt Wahlen durch <strong>geloste Bürgerräte</strong>, die repräsentativ durch Zufallsauswahl besetzt sind und nach intensiver Beratung Empfehlungen erarbeiten.</p>
+                <section id="part3" class="chapter-section" data-takeaway="Isonomie ist die strukturelle Lösung: Gleichheit bei der Gesetzgebung.">
+                    <h2 class="chapter-title"><span class="chapter-number">03</span>Die Therapie</h2>
+                    <p>Die Antwort liegt in der Antike verborgen. <strong>Isonomie</strong> bedeutet nicht Gleichmacherei, sondern gleiche politische Rechte durch Zufallsauswahl.</p>
                 </section>
 
-                <section id="part4" aria-labelledby="nav-part4" class="chapter-section" data-takeaway="Isonomie heilt die Gesellschaft, indem sie einen herrschaftsfreien Raum für Deliberation schafft, Vertrauen wiederherstellt und kollektive Handlungsfähigkeit ermöglicht.">
-                    <h2 class="chapter-title"><span class="chapter-number">04.</span>Heilung: Isonomie in Aktion</h2>
+                <section id="part4" class="chapter-section" data-takeaway="Isonomie schafft einen herrschaftsfreien Raum für echte Kooperation.">
+                    <h2 class="chapter-title"><span class="chapter-number">04</span>Die Heilung</h2>
                     <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 4: Eine Heilung für Gesellschaft und Psyche</h4>
-                        <p class="audio-description">Wie Isonomie die Gesellschaft heilt, indem sie Stasis auflöst, Vertrauen schafft und den Einzelnen vom Druck der Selbstoptimierung entlastet.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20VIER__Isonomie_durch_Losverfahren__Eine_Heilung_f%C3%BCr_Gesellschaft_und_Psyche_.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 4 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part4">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part4" hidden>
-                            <p data-start="0" data-end="26.9">Stell dir eine Gesellschaft vor, die nicht von diesen ständigen Blockaden und diesem Misstrauen gelähmt ist. Das Material, das wir uns heute anschauen, entwirft ein Bild davon, wie Isonomie, also diese echte politische Gleichheit, durch Losverfahren eine tiefgreifende, man könnte fast sagen, heilende Transformation anstoßen könnte. Lass uns da mal gemeinsam drauf schauen, wie das konkret aussehen würde.</p>
-                             </div>
+                        <h4>Audio-Log 04: Gesellschaftliche Heilung</h4>
+                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20VIER__Isonomie_durch_Losverfahren__Eine_Heilung_f%C3%BCr_Gesellschaft_und_Psyche_.m4a" crossorigin="anonymous"></audio>
+                        <div class="custom-audio-player">
+                             <button class="play-pause-btn"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button>
+                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
+                            <div class="audio-time"><span class="current-time">00:00</span> / <span class="total-time">00:00</span></div>
+                        </div>
+                         <button class="transcript-toggle-btn">Transkript öffnen</button>
+                        <div class="transcript-container" hidden>
+                            <p data-start="0" data-end="26.9">Stell dir eine Gesellschaft vor, die nicht von Blockaden gelähmt ist.</p>
+                        </div>
                     </div>
-                    <p>Isonomie beendet die unproduktiven Parteienkämpfe und schafft einen <strong>herrschaftsfreien Raum</strong> (Anarchie, aber nicht Anomie). Dadurch wird die kollektive Handlungsfähigkeit wiederhergestellt.</p>
                 </section>
-                
-                <section id="part5" aria-labelledby="nav-part5" class="chapter-section" data-takeaway="Die größten Hürden sind falsche Feindbilder und die aristokratische Illusion, dass eine breite politische Beteiligung der Bürger zwangsläufig zu Chaos führt.">
-                    <h2 class="chapter-title"><span class="chapter-number">05.</span>Die Hürden: Falsche Feindbilder</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 5: Risiken & Missverständnisse</h4>
-                        <p class="audio-description">Warum wir die Antike vergaßen, die Angst vor dem "Rule of the Mob" eine Illusion ist und welche Bürgerpflichten mit echter Freiheit einhergehen.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20F%C3%9CNF__Isonomie__Warum_wir_politische_Gleichheit_durch_Losverfahren_vergessen_haben_%E2%80%93_Risiken%2C_Missverst%C3%A4nd.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 5 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part5">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part5" hidden>
-                           <p data-start="0" data-end="9.9">Hallo und willkommen zurück. Wir haben uns ja jetzt intensiv mit der Isonomie beschäftigt, also dieser faszinierenden Idee politischer Gleichheit durch Losverfahren.</p>
-                            </div>
+
+                <section id="part5" class="chapter-section" data-takeaway="Die Angst vor dem 'Pöbel' ist eine aristokratische Illusion.">
+                    <h2 class="chapter-title"><span class="chapter-number">05</span>Die Hürden</h2>
+                    <p>Wir verwechseln oft Anarchie (Herrschaftsfreiheit) mit Anomie (Gesetzlosigkeit). Isonomie ist Ordnung ohne Herrscher.</p>
+                </section>
+
+                <section id="part6" class="chapter-section" data-takeaway="Politik wird zur Bürgerpflicht für alle - Last und Lust werden geteilt.">
+                    <h2 class="chapter-title"><span class="chapter-number">06</span>Der Quantensprung</h2>
+                    <p>Sind wir bereit, die Verantwortung zu teilen? Der Schritt zur politischen Mündigkeit erfordert Mut.</p>
+                </section>
+
+                <section id="knowledge-distillate" class="chapter-section">
+                    <h2 class="chapter-title"><span class="chapter-number">07</span>Destillat</h2>
+                    <div class="highlight-box" style="border-left-color: var(--primary-glow);">
+                        <ul style="list-style: none; padding: 0;">
+                            </ul>
                     </div>
-                    <p>Die moderne Zeit verwechselt oft Anarchie (Herrschaftsfreiheit) mit Anomie (Gesetzlosigkeit) und fürchtet, dass allgemeine politische Beteiligung zu Chaos führt. Dies ist eine <strong>aristokratische Illusion</strong>, die den Weg zur Isonomie versperrt.</p>
                 </section>
                 
-                <section id="part6" aria-labelledby="nav-part6" class="chapter-section" data-takeaway="Der Quantensprung zur politischen Mündigkeit gelingt, indem die Last und die Lust der Politik durch das Losverfahren gerecht auf alle verteilt und so für jeden tragbar wird.">
-                    <h2 class="chapter-title"><span class="chapter-number">06.</span>Der Quantensprung</h2>
-                    <div class="audio-feature-box">
-                        <h4>Audio-Essay Teil 6: Der Quantensprung zur Mündigkeit</h4>
-                        <p class="audio-description">Eine Vision für eine wahrhaft politische, stabile und freie Gesellschaft, die die Last und Lust der Politik gerecht auf alle verteilt.</p>
-                        <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20SECHS__Isonomie_und_Losverfahren__Der_Quantensprung_zur_politischen_M%C3%BCndigkeit.m4a" playsinline crossorigin="anonymous"></audio>
-                        <div class="custom-audio-player"><button class="skip-btn" data-skip="-15" aria-label="15 Sekunden zurückspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.5 6.07V4.58c0-.85-.88-1.33-1.61-.87l-7.79 4.44c-.6.34-.6.99 0 1.33l7.79 4.44c.73.46 1.61-.02 1.61-.87v-1.49c4.81.4 8.21 3.25 9.5 7.5-.6-2.5-2.79-4.5-5.5-5.52-2.31-.87-4.62-.87-7-1.07z"></path></svg></button><button class="play-pause-btn" aria-label="Audio-Essay Teil 6 abspielen"><svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg><svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg></button><button class="skip-btn" data-skip="15" aria-label="15 Sekunden vorspringen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.5 6.07V4.58c0-.85.88-1.33 1.61-.87l7.79 4.44c.6.34.6.99 0 1.33l-7.79 4.44c-.73.46-1.61-.02-1.61-.87v-1.49c-4.81.4-8.21 3.25-9.5 7.5.6-2.5 2.79-4.5 5.5-5.52-2.31-.87 4.62-.87 7-1.07z"></path></svg></button><div class="audio-progress-container"><div class="audio-progress-bar"></div></div><canvas class="audio-visualizer" width="100" height="40" aria-hidden="true"></canvas><div class="audio-time"><span class="current-time">00:00</span>&nbsp;/&nbsp;<span class="total-time">00:00</span></div><button class="speed-btn" aria-label="Wiedergabegeschwindigkeit ändern">1x</button></div>
-                        <button class="transcript-toggle-btn" aria-expanded="false" aria-controls="transcript-part6">Transkript anzeigen</button>
-                        <div class="transcript-container" id="transcript-part6" hidden>
-                            <p data-start="0" data-end="4.9">Okay, dann lassen Sie uns jetzt mal zum Kern der Sache kommen, zum Fazit unserer gemeinsamen Erkundung.</p>
-                            </div>
-                    </div>
-                    <p>Die Isonomie, basierend auf dem Losverfahren, ist der einzige Weg, die Probleme der Machtkonzentration dauerhaft zu lösen. Sie verteilt die <strong>Last und Lust des Politischen</strong> gerecht auf alle erwachsenen Mitglieder der Gesellschaft, wodurch die Verantwortung <em>sehr gut tragbar</em> wird.</p>
-                </section>
-                
-                <section id="knowledge-distillate" aria-labelledby="distillate-title" class="chapter-section">
-                    <h2 id="distillate-title" class="chapter-title"><span class="chapter-number">07.</span>Ihr Wissens-Destillat</h2>
-                    <p>Sie haben das Dossier gemeistert. Hier sind die Kernargumente auf einen Blick:</p>
-                    <ul></ul>
-                </section>
-                
-                <section id="final-actions" class="chapter-section final-actions">
-                    <h2 id="final-cta" class="chapter-title"><span class="chapter-number">08.</span>Werden Sie zum Systemwandler</h2>
+                <section id="final-actions" class="chapter-section">
+                    <h2 class="chapter-title"><span class="chapter-number">08</span>Systemzugriff</h2>
                     <div class="final-actions-grid">
                         <div class="action-card">
-                            <h3 class="card-title">Ihre Mission</h3>
-                            <p>Wissen ist der erste Schritt, Handeln der nächste. Hier sind Ihre ersten Missionen:</p>
-                            <ul>
-                                <li><strong>Teilen:</strong> Senden Sie dieses Dossier an eine Person, die politikverdrossen, aber offen für neue Ideen ist.</li>
-                                <li><strong>Fragen:</strong> Kontaktieren Sie Ihren lokalen Abgeordneten und fragen Sie, wie er oder sie zur Einrichtung von Bürgerräten steht.</li>
-                                <li><strong>Vertiefen:</strong> Nutzen Sie die Ressourcen, um sich eine fundierte Meinung zu bilden.</li>
-                            </ul>
-                            <a href="https://losdemokratie.de/antrag" target="_blank" rel="noopener noreferrer" class="cta-button">Teil der Bewegung werden</a>
-                            <div class="share-buttons">
-                                <a href="#" id="share-email" class="share-btn" role="button" aria-label="Dieses Dossier per E-Mail teilen" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"></path></svg><span>E-Mail</span></a>
-                                <a href="#" id="share-x" class="share-btn" role="button" aria-label="Dieses Dossier auf X/Twitter teilen" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></svg><span>X/Twitter</span></a>
-                                <a href="#" id="share-facebook" class="share-btn" role="button" aria-label="Dieses Dossier auf Facebook teilen" target="_blank" rel="noopener noreferrer"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"></path></svg><span>Facebook</span></a>
-                            </div>
+                            <h3 class="subtitle">Mission Parameters</h3>
+                            <p>Wissen ist nur der Anfang.</p>
+                            <a href="https://losdemokratie.de/antrag" target="_blank" class="cta-button">INITIATIVE BEITRETEN</a>
                         </div>
                         <div class="action-card">
-                            <h3 class="card-title">Ihre Werkzeugkiste</h3>
-                            <p>Hier finden Sie eine Auswahl an Ressourcen, um tiefer in die Welt der Losdemokratie einzutauchen:</p>
-                            <ul>
-                                <li><strong>Webseite:</strong> <a href="https://losdemokratie.de/" target="_blank" rel="noopener noreferrer">Losdemokratie.de</a> – Die zentrale Anlaufstelle.</li>
-                                <li><strong>Buch:</strong> <a href="https://www.wallstein-verlag.de/9783835318717-david-van-reybrouck-gegen-wahlen.html" target="_blank" rel="noopener noreferrer">"Gegen Wahlen"</a> von David Van Reybrouck.</li>
-                                <li><strong>Artikel:</strong> <a href="https://www.zeit.de/2017/04/rechtspopulismus-demokratie-wahlen-buergerversammlungen-politisches-system-griechenland/komplettansicht" target="_blank" rel="noopener noreferrer">"Demokratie ohne Wahlen?"</a> (Zeit Online).</li>
-                                <li><strong>Video-Kanal:</strong> <a href="https://youtube.com/@nuttlos6347" target="_blank" rel="noopener noreferrer">Nutt-Los auf YouTube</a>.</li>
+                            <h3 class="subtitle">Data Uplink</h3>
+                            <ul style="list-style: none; padding: 0; color: var(--text-muted);">
+                                <li style="margin-bottom: 0.5rem;">Running: <a href="https://losdemokratie.de/">Losdemokratie Core</a></li>
+                                <li>Source: <a href="#">David Van Reybrouck Protocol</a></li>
                             </ul>
                         </div>
                     </div>
                 </section>
+
             </article>
         </main>
         
-        <footer class="page-footer">
-            <p>created by <a href="https://youtube.com/@deusexlumen" target="_blank" rel="noopener noreferrer">deus.ex.lumen</a> 2025</p>
+        <footer class="page-footer" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); opacity: 0.5; margin-top: 4rem;">
+            <p>SYSTEM ARCHITECT: DEUS.EX.LUMEN // 2025</p>
         </footer>
-        
+
         <div class="ui-controls-container">
-            <button id="perf-toggle" class="perf-toggle-button" title="Animationen an-/ausschalten" aria-pressed="false">✨ Animationen an</button>
+            <button id="perf-toggle" class="perf-toggle-button">✨ ANIMATIONEN: ON</button>
         </div>
     </div>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
     <script type="module" src="main.js"></script>
-    <script type="module" src="main.js" defer></script>
 </body>
 </html>
