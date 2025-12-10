@@ -3,285 +3,154 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission Freiheit | The Ultimate Dossier</title>
+    <title>Mission Freiheit | System Override</title>
     <meta name="description" content="Eine interaktive Reise in die Zukunft der Demokratie. Isonomie vs. Aristokratie.">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,600;1,400&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     
+    <div class="ambient-glow"></div>
     <div class="noise-overlay"></div>
 
-    <div id="preloader" class="preloader">
-        <p style="color: #fff; font-family: 'Inter'; font-size: 0.8rem; letter-spacing: 0.3em; margin-bottom: 1rem;">INITIALIZING CORE</p>
-        <div class="loader-bar"></div>
+    <div id="preloader" class="preloader" style="position:fixed; inset:0; background:#000; z-index:9999; display:flex; place-items:center; justify-content:center; transition:opacity 0.5s;">
+        <div style="width:50px; height:50px; border:2px solid #333; border-top-color:#fff; border-radius:50%; animation:spin 1s infinite linear;"></div>
+        <style>@keyframes spin {to{transform:rotate(360deg)}}</style>
     </div>
 
-    <div class="narrative-interface">
+    <div class="layout-grid">
         
-        <aside class="bento-nav-container">
-            <nav class="bento-nav">
-                <div style="margin-bottom: 3rem;">
-                    <span class="logo">M.F. PROTOCOL V3.1</span>
-                    <h2 style="font-size: 1.8rem; margin: 0; line-height:1.2;">Mission<br><span style="color: var(--neon-cyan);">Freiheit</span></h2>
+        <aside class="nav-sidebar">
+            <div class="nav-card">
+                <div style="margin-bottom: 2rem;">
+                    <span class="subtitle">PROTOCOL V3.2</span>
+                    <h2 style="font-size: 1.8rem; margin: 0; line-height:1;">Mission<br><span style="color: var(--primary);">Freiheit</span></h2>
                 </div>
-                
-                <a href="#part0" class="nav-item"><span class="nav-icon">00</span>Simulation Core</a>
-                <a href="#part1" class="nav-item"><span class="nav-icon">01</span>Der Ursprung</a>
-                <a href="#part2" class="nav-item"><span class="nav-icon">02</span>Die Diagnose</a>
-                <a href="#part3" class="nav-item"><span class="nav-icon">03</span>Die Therapie</a>
-                <a href="#part4" class="nav-item"><span class="nav-icon">04</span>Die Heilung</a>
-                <a href="#part5" class="nav-item"><span class="nav-icon">05</span>Hürden</a>
-                <a href="#part6" class="nav-item"><span class="nav-icon">06</span>Quantensprung</a>
-            </nav>
+                <nav class="nav-links">
+                    <a href="#part0" class="nav-item"><span>00</span> Simulation</a>
+                    <a href="#part1" class="nav-item"><span>01</span> Die Krise</a>
+                    <a href="#part2" class="nav-item"><span>02</span> Stasis</a>
+                    <a href="#part3" class="nav-item"><span>03</span> Therapie</a>
+                    <a href="#part4" class="nav-item"><span>04</span> Heilung</a>
+                    <a href="#part5" class="nav-item"><span>05</span> Hürden</a>
+                    <a href="#part6" class="nav-item"><span>06</span> Mündigkeit</a>
+                </nav>
+                <div style="margin-top: 2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1); font-size:0.7rem; color:var(--text-muted);">
+                    ARCHITECT: DEUS.EX.LUMEN
+                </div>
+            </div>
         </aside>
 
-        <main class="focus-pane" id="main-content">
+        <main class="main-stage">
             
-            <header class="document-header">
-                <span class="subtitle" id="subtitle-anim">Statusbericht // Isonomie</span>
-                <h1 id="title-split">Mission Freiheit.</h1>
-                <p class="abstract">
-                    Ein interaktives Dossier zur Überwindung der systemischen Stasis. Wir analysieren die Architektur der modernen Demokratie und simulieren die Auswirkungen von <strong>Wahl vs. Los</strong>.
+            <header style="margin: 4rem 0 6rem 0;">
+                <span class="subtitle" id="subtitle-anim">Status: Critical</span>
+                <h1 id="title-split">System<br>Override.</h1>
+                <p style="font-size:1.4rem; color: #fff;">
+                    Das Betriebssystem der Demokratie ist abgestürzt. Wir starten neu.
                 </p>
             </header>
 
-            <section id="part0" class="chapter-section" data-takeaway="Wahlen erzeugen Polarisierung. Isonomie erzeugt Stabilität.">
-                <div class="chapter-title">
-                    <span class="chapter-number">00</span>
-                    <h2>Wahl vs. Los</h2>
-                </div>
+            <section id="part0">
+                <span class="chapter-number">00</span>
+                <h2>Wahl vs. Los</h2>
                 
-                <div class="tilt-card sim-container">
-                    <div class="sim-controls">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span class="subtitle" style="margin:0">Kontrollmodul</span>
-                            <span id="entropy-meter" class="entropy-display">INITIALIZED</span>
+                <div class="glass-panel tilt-card">
+                    <div class="sim-ui-overlay">
+                        <div>
+                            <span class="subtitle" style="margin:0">Experiment</span>
+                            <div id="entropy-meter" style="font-size:0.9rem; margin-top:0.2rem; color:var(--alert);">INITIALIZING...</div>
                         </div>
-                        
-                        <div class="sim-buttons">
-                            <button id="btn-elect" class="sim-btn sim-btn-alert active-mode">Wahlkampf</button>
-                            <button id="btn-sort" class="sim-btn sim-btn-logic">Isonomie</button>
+                        <div class="btn-group">
+                            <button id="btn-elect" class="btn-mode active">Wahlkampf</button>
+                            <button id="btn-sort" class="btn-mode">Isonomie</button>
                         </div>
-                        
-                        <p id="analysis-text" style="font-size:0.95rem; margin:0; color:#fff;">
-                            Simulation aktiv: Gravitationszentren bilden sich.
-                        </p>
                     </div>
                     
-                    <div id="canvas-wrapper">
-                        <canvas id="sim-canvas" width="800" height="550"></canvas>
+                    <div class="sim-wrapper">
+                        <canvas id="sim-canvas" width="800" height="500"></canvas>
                     </div>
+                    <p style="margin-top:1.5rem; font-size:0.9rem; margin-bottom:0;">
+                        Beobachte: <strong>Wahlen</strong> (Rot) erzeugen künstliche Lager. <strong>Isonomie</strong> (Cyan/Rotierend) verteilt Macht dynamisch.
+                    </p>
                 </div>
             </section>
 
-            <section id="part1" class="chapter-section" data-takeaway="Faktische Aristokratie: Machtkonzentration bei Wenigen.">
-                <div class="chapter-title">
-                    <span class="chapter-number">01</span>
-                    <h2>Die Krise</h2>
-                </div>
-
-                <div class="tilt-card audio-feature-box">
-                    <div style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:1rem; margin-bottom:1.5rem;">
-                        <h4>Audio-Log 01</h4>
-                        <span style="font-family:'Inter'; font-size:0.8rem; color:var(--neon-purple);">SYSTEM AM LIMIT</span>
+            <section id="part1">
+                <span class="chapter-number">01</span>
+                <h2>Die Aristokratie</h2>
+                
+                <div class="glass-panel tilt-card audio-feature-box">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1.5rem;">
+                        <h3>Audio-Log 01</h3>
+                        <span style="font-family:monospace; color:var(--alert);">ERROR: OLIGARCHY DETECTED</span>
                     </div>
-                    
+
                     <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20EINS__Isonomie__Entlarvt_die_faktische_Aristokratie_und_die_Falle_der_Politik.m4a" crossorigin="anonymous"></audio>
                     
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-meta">
-                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                            <div style="display:flex; justify-content:space-between; font-family:'Inter'; font-size:0.8rem; color:var(--text-dim);">
-                                <span class="current-time">00:00</span>
-                                <div style="display:flex; gap:1rem;">
-                                    <button class="skip-btn" data-skip="-15">-15s</button>
-                                    <button class="skip-btn" data-skip="15">+15s</button>
+                    <div class="audio-card">
+                        <div class="player-core">
+                            <button class="play-fab play-pause-btn">
+                                <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <div class="track-info">
+                                <div class="progress-track audio-progress-container"><div class="progress-fill audio-progress-bar"></div></div>
+                                <div class="time-stamp">
+                                    <span class="current-time">00:00</span>
+                                    <span class="total-time">--:--</span>
                                 </div>
-                                <span class="total-time">00:00</span>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="transcript-container" hidden>
-                        <p data-start="0" data-end="7.9">Kennen Sie das auch? Dieses Gefühl der politischen Frustration...</p>
-                        <p data-start="8" data-end="15.9">So als würden die Piloten im Cockpit hektisch an den Hebeln ziehen...</p>
-                        <p data-start="16" data-end="43.9">Wir schauen uns heute Isonomie an, die vergessene Kunst der wahren Demokratie.</p>
-                        </div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-
-                <div class="highlight-box">
-                    <p>Moderne Gesellschaften sind faktisch <strong>Aristokratien</strong>. Wahlen fungieren oft als inneraristokratischer Machtkampf ohne echte Teilhabe.</p>
-                </div>
-            </section>
-
-            <section id="part2" class="chapter-section" data-takeaway="Stasis führt zur Tyrannei.">
-                <div class="chapter-title">
-                    <span class="chapter-number">02</span>
-                    <h2>Stasis & Tyrannei</h2>
-                </div>
-                
-                <div class="tilt-card audio-feature-box">
-                    <h4>Audio-Log 02: Abwärtsspirale</h4>
-                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20ZWEI__Stasis%2C_Tyrannis%2C_Idiotie__Die_d%C3%BCstere_Abw%C3%A4rtsspirale_der_Demokratie.m4a" crossorigin="anonymous"></audio>
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-meta">
-                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                            <div style="display:flex; justify-content:space-between; font-family:'Inter'; font-size:0.8rem; color:var(--text-dim);">
-                                <span class="current-time">00:00</span>
-                                <span class="total-time">00:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="transcript-container" hidden><p data-start="0">Transkript Platzhalter...</p></div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-
-                <div class="highlight-box">
-                    <blockquote class="pull-quote">
-                        „Die moderne Demokratie ist kein Ideal, sondern eine Technologie. Und diese Technologie ist veraltet.“
-                    </blockquote>
-                </div>
-            </section>
-
-            <section id="part3" class="chapter-section" data-takeaway="Isonomie ist die strukturelle Lösung.">
-                <div class="chapter-title"><span class="chapter-number">03</span><h2>Die Therapie</h2></div>
-                <div class="tilt-card audio-feature-box">
-                    <h4>Audio-Log 03: Die Lösung</h4>
-                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20DREI__Isonomie_%26_Losverfahren__Die_vergessene_L%C3%B6sung_f%C3%BCr_politische_Gleichheit_.m4a" crossorigin="anonymous"></audio>
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-meta">
-                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                            <span class="current-time">00:00</span>
-                        </div>
-                    </div>
-                    <div class="transcript-container" hidden><p data-start="0">Transkript Platzhalter...</p></div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-            </section>
-
-            <section id="part4" class="chapter-section" data-takeaway="Herrschaftsfreier Raum für echte Kooperation.">
-                <div class="chapter-title"><span class="chapter-number">04</span><h2>Die Heilung</h2></div>
-                <div class="tilt-card audio-feature-box">
-                    <h4>Audio-Log 04: Heilung</h4>
-                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20VIER__Isonomie_durch_Losverfahren__Eine_Heilung_f%C3%BCr_Gesellschaft_und_Psyche_.m4a" crossorigin="anonymous"></audio>
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-meta">
-                            <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                            <span class="current-time">00:00</span>
-                        </div>
-                    </div>
-                    <div class="transcript-container" hidden><p data-start="0">Transkript Platzhalter...</p></div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-            </section>
-
-            <section id="part5" class="chapter-section" data-takeaway="Angst vor dem Chaos ist unbegründet.">
-                <div class="chapter-title"><span class="chapter-number">05</span><h2>Hürden</h2></div>
-                <div class="tilt-card audio-feature-box">
-                    <h4>Audio-Log 05: Illusionen</h4>
-                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20F%C3%9CNF__Isonomie__Warum_wir_politische_Gleichheit_durch_Losverfahren_vergessen_haben_%E2%80%93_Risiken%2C_Missverst%C3%A4nd.m4a" crossorigin="anonymous"></audio>
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                    </div>
-                    <div class="transcript-container" hidden><p data-start="0">...</p></div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-            </section>
-
-            <section id="part6" class="chapter-section" data-takeaway="Politik als Bürgerpflicht.">
-                <div class="chapter-title"><span class="chapter-number">06</span><h2>Quantensprung</h2></div>
-                <div class="tilt-card audio-feature-box">
-                    <h4>Audio-Log 06: Mündigkeit</h4>
-                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20SECHS__Isonomie_und_Losverfahren__Der_Quantensprung_zur_politischen_M%C3%BCndigkeit.m4a" crossorigin="anonymous"></audio>
-                    <div class="custom-audio-player">
-                        <button class="play-pause-btn">
-                            <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>
-                            <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"></path></svg>
-                        </button>
-                        <div class="audio-progress-container"><div class="audio-progress-bar"></div></div>
-                    </div>
-                    <div class="transcript-container" hidden><p data-start="0">...</p></div>
-                    <button class="transcript-toggle-btn">TRANSKRIPT ÖFFNEN</button>
-                </div>
-            </section>
-
-            <section id="knowledge-distillate" class="chapter-section">
-                <div class="chapter-title"><span class="chapter-number">07</span><h2>Destillat</h2></div>
-                <div class="highlight-box">
-                    <p style="margin-bottom:1rem; color:var(--text-muted);">Kernargumente:</p>
-                    <ul style="list-style: none; padding: 0;"></ul>
-                </div>
-            </section>
-
-            <section id="final-actions" class="chapter-section">
-                <div class="chapter-title"><span class="chapter-number">08</span><h2>Systemzugriff</h2></div>
-                <div class="final-actions-grid">
-                    <div class="tilt-card">
-                        <h3 class="subtitle">Mission Parameters</h3>
-                        <p>Wissen ist der erste Schritt.</p>
-                        <a href="https://losdemokratie.de/antrag" target="_blank" class="cta-button">INITIATIVE BEITRETEN</a>
                         
-                        <div style="margin-top:2rem; padding-top:1rem; border-top:1px solid rgba(255,255,255,0.1);">
-                            <span class="subtitle">TEILEN</span>
-                            <div>
-                                <a href="#" id="share-email" class="share-btn" target="_blank">EMAIL</a>
-                                <a href="#" id="share-x" class="share-btn" target="_blank">X</a>
-                                <a href="#" id="share-facebook" class="share-btn" target="_blank">FACEBOOK</a>
+                        <div class="transcript-box hidden" style="display:none;">
+                             <div class="transcript-container">
+                                <p data-start="0" data-end="7.9">Kennen Sie das auch? Dieses Gefühl der politischen Frustration...</p>
+                                <p data-start="8" data-end="15.9">So als würden die Piloten im Cockpit hektisch an den Hebeln ziehen...</p>
+                                <p data-start="16" data-end="43.9">Wir schauen uns heute Isonomie an, die vergessene Kunst der wahren Demokratie.</p>
                             </div>
                         </div>
+                        <button class="subtitle" style="background:transparent; border:none; cursor:pointer; text-align:left; padding:0; color:var(--primary);" class="transcript-toggle-btn">
+                            [ + ] TRANSKRIPT DATENBANK
+                        </button>
                     </div>
-                    <div class="tilt-card">
-                        <h3 class="subtitle">Data Uplink</h3>
-                        <ul style="list-style:none; padding:0; color:var(--text-dim);">
-                            <li style="margin-bottom:1rem;">ACCESS: <a href="https://losdemokratie.de/" style="color:var(--text-bright);">Losdemokratie Core</a></li>
-                            <li>SOURCE: <a href="#" style="color:var(--text-bright);">David Van Reybrouck Protocol</a></li>
-                        </ul>
+                </div>
+            </section>
+
+            <section id="part2">
+                <span class="chapter-number">02</span>
+                <h2>Stasis & Tyrannei</h2>
+                <div class="glass-panel tilt-card audio-feature-box">
+                    <h3>Audio-Log 02</h3>
+                    <audio class="audio-player-hidden" preload="metadata" src="https://cdn.jsdelivr.net/gh/deusexlumen/losdemokratie@main/TEIL%20ZWEI__Stasis%2C_Tyrannis%2C_Idiotie__Die_d%C3%BCstere_Abw%C3%A4rtsspirale_der_Demokratie.m4a"></audio>
+                    <div class="audio-card">
+                         <div class="player-core">
+                            <button class="play-fab play-pause-btn"><svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg><svg class="icon-pause" viewBox="0 0 24 24" style="display:none;"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg></button>
+                            <div class="track-info"><div class="progress-track audio-progress-container"><div class="progress-fill audio-progress-bar"></div></div></div>
+                        </div>
                     </div>
+                </div>
+            </section>
+
+             <section id="final-actions">
+                <span class="chapter-number">0X</span>
+                <h2>System Reboot</h2>
+                <div class="glass-panel tilt-card">
+                    <p style="text-align:center; font-size:1.2rem; color:#fff;">Bist du bereit, das Protokoll neu zu schreiben?</p>
+                    <a href="https://losdemokratie.de/antrag" target="_blank" class="btn-primary">INITIATIVE STARTEN</a>
                 </div>
             </section>
 
         </main>
-        
-        <footer style="grid-column: 1/-1; text-align: center; color: var(--text-dim); margin-top: 6rem; opacity: 0.5; font-size: 0.8rem; letter-spacing: 0.2em;">
-            SYSTEM ARCHITECT: DEUS.EX.LUMEN // 2025
-        </footer>
-
-        <div class="ui-controls-container">
-            <button id="perf-toggle" class="perf-toggle-button">FX: ON</button>
-        </div>
     </div>
 
-    <nav class="mobile-nav">
-        <a href="#part0" class="mobile-nav-item"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg></a>
-        <a href="#part1" class="mobile-nav-item"><span style="font-weight:900;">01</span></a>
-        <a href="#part3" class="mobile-nav-item"><span style="font-weight:900;">03</span></a>
-        <a href="#final-actions" class="mobile-nav-item"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14h-2v-4H8v-2h4V7h2v4h4v2h-4v4z"/></svg></a>
+    <nav class="mobile-dock">
+        <a href="#part0" class="dock-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg></a>
+        <a href="#part1" class="dock-item" style="font-weight:900;">01</a>
+        <a href="#part3" class="dock-item" style="font-weight:900;">03</a>
+        <a href="#final-actions" class="dock-item"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/></svg></a>
     </nav>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
