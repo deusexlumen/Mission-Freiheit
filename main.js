@@ -1,8 +1,59 @@
-// VALIDIERTE VERSION: Mission Freiheit v2.2 (Dynamic Power Rotation)
+// MISSION FREIHEIT V2.3 (High Gloss & Interactive)
+
+/**
+ * 3D Tilt Effect Controller
+ * Verleiht Karten einen hochwertigen, interaktiven 3D-Effekt bei Mausbewegung.
+ * Läuft ohne externe Libraries.
+ */
+class TiltController {
+    constructor() {
+        this.cards = document.querySelectorAll('.tilt-card');
+        this.init();
+    }
+
+    init() {
+        this.cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => this.handleMove(e, card));
+            card.addEventListener('mouseleave', () => this.handleLeave(card));
+        });
+    }
+
+    handleMove(e, card) {
+        const rect = card.getBoundingClientRect();
+        // Berechne Mausposition relativ zur Kartenmitte
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Berechne Rotation (max 5 Grad für subtilen Effekt)
+        const rotateX = ((y - centerY) / centerY) * -3; 
+        const rotateY = ((x - centerX) / centerX) * 3;
+
+        // Anwenden der Transformation
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        
+        // Dynamischer Lichteffekt (Spotlight)
+        // Wir nutzen background-image, um einen radialen Gradienten zu verschieben
+        card.style.backgroundImage = `
+            radial-gradient(
+                circle at ${x}px ${y}px, 
+                rgba(255, 255, 255, 0.07) 0%, 
+                rgba(255, 255, 255, 0) 80%
+            )
+        `;
+    }
+
+    handleLeave(card) {
+        // Reset Position & Licht
+        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
+        card.style.backgroundImage = 'none';
+    }
+}
 
 /**
  * TranscriptSynchronizer
- * Verbindet Audio mit Text.
  */
 class TranscriptSynchronizer {
     constructor(box) {
@@ -14,9 +65,7 @@ class TranscriptSynchronizer {
         this.toggleBtn = box.querySelector('.transcript-toggle-btn');
         this.cues = Array.from(this.transcriptContainer.querySelectorAll('p[data-start]'));
 
-        if (this.toggleBtn) {
-            this.toggleBtn.addEventListener('click', () => this.toggle());
-        }
+        if (this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggle());
         this.audio.addEventListener('timeupdate', () => this.sync());
         
         this.cues.forEach(cue => {
@@ -30,12 +79,8 @@ class TranscriptSynchronizer {
     toggle() {
         const isHidden = this.transcriptContainer.hidden;
         this.transcriptContainer.hidden = !isHidden;
-        this.toggleBtn.textContent = isHidden ? 'Transkript schließen' : 'Transkript öffnen';
-        if(isHidden) {
-             setTimeout(() => {
-                this.transcriptContainer.scrollIntoView({behavior: "smooth", block: "center"});
-             }, 100);
-        }
+        this.toggleBtn.textContent = isHidden ? 'Transkript anzeigen' : 'Transkript schließen';
+        if(isHidden) setTimeout(() => this.transcriptContainer.scrollIntoView({behavior: "smooth", block: "center"}), 100);
     }
 
     sync() {
@@ -51,16 +96,12 @@ class TranscriptSynchronizer {
             if (isActive) activeCue = cue;
         });
 
-        if (activeCue) {
-            activeCue.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
+        if (activeCue) activeCue.scrollIntoView({ behavior: "smooth", block: "center" });
     }
 }
 
 /**
- * Particle
- * Repräsentiert einen Bürger. 
- * Jetzt mit Interpolation für smoothe Machtwechsel-Animationen.
+ * Particle Simulation
  */
 class Particle {
     constructor(width, height) {
@@ -71,18 +112,15 @@ class Particle {
         this.vx = (Math.random() - 0.5) * 0.5;
         this.vy = (Math.random() - 0.5) * 0.5;
         
-        // Rendering Properties
         this.currentSize = 1;
         this.targetSize = 1;
         this.currentColor = 'rgba(241, 245, 249, 0.3)';
-        this.preference = Math.random(); // Politische Neigung (0.0 - 1.0)
-        this.selected = false; // Ist aktuell im Bürgerrat?
+        this.preference = Math.random(); 
+        this.selected = false; 
     }
     
     update(mode, centers) {
-        // --- PHYSIK & BEWEGUNG ---
         if (mode === 'election') {
-            // WAHL-MODUS: Anziehung zu den Polen (Parteien)
             let target = this.preference < 0.5 ? centers[0] : centers[1];
             let dx = target.x - this.x;
             let dy = target.y - this.y;
@@ -92,45 +130,40 @@ class Particle {
                 this.vx += (dx / dist) * 0.05;
                 this.vy += (dy / dist) * 0.05;
             }
-            this.vx *= 0.95; // Dämpfung
+            // Vortex
+            let angle = Math.atan2(dy, dx);
+            this.vx += Math.cos(angle + Math.PI/2) * 0.02;
+            this.vy += Math.sin(angle + Math.PI/2) * 0.02;
+
+            this.vx *= 0.95;
             this.vy *= 0.95;
             
-            // Farben basierend auf Lager (Rot vs Grün)
             this.currentColor = this.preference < 0.5 ? '#fb7185' : '#4ade80'; 
             this.targetSize = 2;
-
         } else { 
-            // LOS-MODUS: Freie Bewegung & Diffusion
             this.vx += (Math.random() - 0.5) * 0.2;
             this.vy += (Math.random() - 0.5) * 0.2;
             
-            // Speed Limit
             const speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
             if(speed > 2) {
                 this.vx = (this.vx/speed)*2;
                 this.vy = (this.vy/speed)*2;
             }
 
-            // Visualisierung der Macht-Rotation
             if (this.selected) {
-                this.currentColor = '#22d3ee'; // Neon Cyan (Im Amt)
-                this.targetSize = 5; // Groß und sichtbar
+                this.currentColor = '#22d3ee'; 
+                this.targetSize = 5; 
             } else {
-                this.currentColor = 'rgba(241, 245, 249, 0.2)'; // Neutral (Bürger)
+                this.currentColor = 'rgba(241, 245, 249, 0.2)'; 
                 this.targetSize = 1;
             }
         }
         
-        // Position Update
         this.x += this.vx;
         this.y += this.vy;
-        
-        // Wände
         if (this.x < 0 || this.x > this.width) this.vx *= -1;
         if (this.y < 0 || this.y > this.height) this.vy *= -1;
 
-        // --- ANIMATION INTERPOLATION ---
-        // Smoother Übergang der Größe für den "Aufleucht"-Effekt beim Machtwechsel
         this.currentSize += (this.targetSize - this.currentSize) * 0.1;
     }
 
@@ -138,24 +171,19 @@ class Particle {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.currentSize, 0, Math.PI * 2);
         ctx.fillStyle = this.currentColor;
-        
-        // Glow nur für ausgewählte Partikel im Los-Modus
         if(this.selected && this.currentSize > 2) {
             ctx.shadowBlur = 15;
             ctx.shadowColor = this.currentColor;
         } else {
             ctx.shadowBlur = 0;
         }
-        
         ctx.fill();
-        ctx.shadowBlur = 0; // Reset
+        ctx.shadowBlur = 0;
     }
 }
 
-
 /**
- * PhoenixDossier
- * Hauptsteuerung.
+ * PhoenixDossier Controller
  */
 class PhoenixDossier {
     constructor() {
@@ -175,8 +203,7 @@ class PhoenixDossier {
             ctx: null, width: 0, height: 0,
             particles: [], centers: [], 
             mode: 'election', 
-            lastRotation: 0, // Zeitstempel für letzten Machtwechsel
-            rotationInterval: 2500, // Alle 2.5 Sekunden rotiert die Macht
+            lastRotation: 0, rotationInterval: 2500,
             animationFrame: null
         };
 
@@ -188,23 +215,18 @@ class PhoenixDossier {
         this.setupAudioPlayers();
         this.setupShareButtons();
         
-        if (this.DOM.simCanvas && this.DOM.simWrapper) {
-            this.setupSimulation();
-        }
+        if (this.DOM.simCanvas && this.DOM.simWrapper) this.setupSimulation();
         
-        if (!this.state.isLowPerfMode && window.gsap && window.ScrollTrigger) {
-            this.setupGSAP();
-        }
+        // Tilt Effect initialisieren (wenn nicht low perf)
+        if(!this.state.isLowPerfMode) new TiltController();
+
+        if (!this.state.isLowPerfMode && window.gsap && window.ScrollTrigger) this.setupGSAP();
         
         this.generateTakeaways();
         this.setupScrollSpy();
         
         const preloader = document.getElementById('preloader');
-        if(preloader) {
-            setTimeout(() => {
-                preloader.classList.add('hidden');
-            }, 800);
-        }
+        if(preloader) setTimeout(() => preloader.classList.add('hidden'), 800);
     }
 
     manualSplitText(element) {
@@ -235,10 +257,14 @@ class PhoenixDossier {
         }
         
         document.querySelectorAll('.chapter-section').forEach(section => {
-            gsap.from(section, {
-                opacity: 0, y: 50, duration: 1,
-                scrollTrigger: { trigger: section, start: "top 80%", toggleActions: "play none none reverse" }
-            });
+            // Animiert Elemente innerhalb der Sektion gestaffelt
+            const elements = section.querySelectorAll('h2, .audio-feature-box, p, .highlight-box');
+            if(elements.length > 0) {
+                gsap.from(elements, {
+                    y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out",
+                    scrollTrigger: { trigger: section, start: "top 80%", toggleActions: "play none none reverse" }
+                });
+            }
         });
     }
 
@@ -311,7 +337,7 @@ class PhoenixDossier {
         this.state.isLowPerfMode = isLowPerf;
         
         const updateBtn = () => {
-            this.DOM.perfToggle.textContent = this.state.isLowPerfMode ? '💤 ANIMATIONEN: OFF' : '✨ ANIMATIONEN: ON';
+            this.DOM.perfToggle.textContent = this.state.isLowPerfMode ? '💤 FX: OFF' : '✨ FX: ON';
             document.body.classList.toggle('low-perf-mode', this.state.isLowPerfMode);
         };
         updateBtn();
@@ -330,6 +356,8 @@ class PhoenixDossier {
             const li = document.createElement('li');
             li.style.marginBottom = '1rem';
             li.style.color = 'var(--text-main)';
+            li.style.borderBottom = '1px solid var(--border-subtle)';
+            li.style.paddingBottom = '0.5rem';
             const num = sec.querySelector('.chapter-number')?.textContent || '•';
             li.innerHTML = `<strong style="color:var(--primary-glow); margin-right:10px;">${num}</strong> ${sec.dataset.takeaway}`;
             list.appendChild(li);
@@ -352,7 +380,6 @@ class PhoenixDossier {
         sections.forEach(s => observer.observe(s));
     }
 
-    // --- SIMULATION CORE ---
     setupSimulation() {
         this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         this.resizeSimulation();
@@ -360,13 +387,11 @@ class PhoenixDossier {
 
         this.simState.particles = Array.from({length: 600}, () => new Particle(this.simState.width, this.simState.height));
         
-        // Initial Selection
         this.rotateSortitionPower(); 
 
         this.DOM.simBtnElect.addEventListener('click', () => this.setSimMode('election'));
         this.DOM.simBtnSort.addEventListener('click', () => this.setSimMode('sortition'));
 
-        // Start Loop mit Timestamp
         requestAnimationFrame((t) => this.loopSimulation(t));
     }
 
@@ -385,15 +410,11 @@ class PhoenixDossier {
     loopSimulation(timestamp) {
         if (!this.simState.ctx) return;
         
-        // Hintergrund mit Trail-Effekt
         this.simState.ctx.fillStyle = 'rgba(2, 6, 23, 0.2)'; 
         this.simState.ctx.fillRect(0, 0, this.simState.width, this.simState.height);
 
-        // --- MACHT-ROTATION LOGIK ---
         if (this.simState.mode === 'sortition') {
             if (!this.simState.lastRotation) this.simState.lastRotation = timestamp;
-            
-            // Check ob Zeit für Amtswechsel ist
             if (timestamp - this.simState.lastRotation > this.simState.rotationInterval) {
                 this.rotateSortitionPower();
                 this.simState.lastRotation = timestamp;
@@ -408,24 +429,12 @@ class PhoenixDossier {
         requestAnimationFrame((t) => this.loopSimulation(t));
     }
 
-    /**
-     * Wählt eine neue zufällige Gruppe von Bürgern aus (Sortition)
-     */
     rotateSortitionPower() {
-        // Alle abwählen
         this.simState.particles.forEach(p => p.selected = false);
-        
-        // Neue Gruppe auslosen (ca. 40 Partikel)
         const subsetSize = 40; 
         const indices = new Set();
-        while(indices.size < subsetSize) {
-            indices.add(Math.floor(Math.random() * this.simState.particles.length));
-        }
-        
-        // Status aktualisieren
-        indices.forEach(i => {
-            this.simState.particles[i].selected = true;
-        });
+        while(indices.size < subsetSize) indices.add(Math.floor(Math.random() * this.simState.particles.length));
+        indices.forEach(i => this.simState.particles[i].selected = true);
     }
 
     setSimMode(mode) {
@@ -444,13 +453,9 @@ class PhoenixDossier {
             this.DOM.simAnalysisText.innerHTML = `Isonomie: <span style="color:var(--logic)">Diversität</span>. Repräsentanten rotieren periodisch.`;
             this.DOM.simEntropyMeter.textContent = "STATUS: ROTATING";
             this.DOM.simEntropyMeter.style.color = "var(--logic)";
-            
-            // Sofortige Rotation bei Moduswechsel triggern
             this.rotateSortitionPower();
         }
     }
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    window.dossier = new PhoenixDossier();
-});
+window.addEventListener('DOMContentLoaded', () => { window.dossier = new PhoenixDossier(); });
