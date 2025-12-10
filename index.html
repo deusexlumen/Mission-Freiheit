@@ -27,6 +27,12 @@
 </head>
 <body>
     
+    <div class="ambient-bg">
+        <div class="ambient-orb orb-1"></div>
+        <div class="ambient-orb orb-2"></div>
+        <div class="ambient-orb orb-3"></div>
+    </div>
+
     <div id="preloader" class="preloader">
         <div class="spinner"></div>
         <p style="color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.2em; margin-top: 1rem;">SYSTEM INITIALISIERUNG</p>
@@ -36,8 +42,8 @@
         
         <aside class="bento-nav-container">
             <nav class="bento-nav">
-                <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-glass);">
-                    <span class="subtitle">M.F. PROTOCOL V2.1</span>
+                <div style="margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-subtle);">
+                    <span class="subtitle">M.F. PROTOCOL V2.3</span>
                     <h2 style="margin:0; font-size:1.4rem; color:#fff;">Mission<br>Freiheit</h2>
                 </div>
                 <a href="#part0" class="nav-item"><span class="nav-icon">⬡</span>00. Simulation</a>
@@ -68,8 +74,8 @@
                     <h2>Die Simulation: Wahl vs. Los</h2>
                 </div>
                 
-                <div class="sim-controls">
-                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--border-glass); padding-bottom:0.5rem;">
+                <div class="sim-controls tilt-card">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:1rem; border-bottom:1px solid var(--border-subtle); padding-bottom:0.5rem;">
                         <span class="subtitle" style="margin:0;">KONTROLLMODUL</span>
                         <span id="entropy-meter" style="font-weight:bold; color:var(--alert); font-size:0.9rem;">STATUS: POLARIZED</span>
                     </div>
@@ -95,7 +101,7 @@
                     <h2>Die Krise unserer Zeit</h2>
                 </div>
 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 01: Ein System am Limit</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Eine Analyse der Machtkonzentration, überforderter Idealisten und der lähmenden Konsequenzen unseres politischen Systems.</p>
                     
@@ -153,7 +159,7 @@
                     <h2>Diagnose: Stasis & Tyrannei</h2>
                 </div>
                 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 02: Die düstere Abwärtsspirale</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Wie der ewige Parteienkampf (Stasis) den Ruf nach dem "starken Mann" (Tyrannei) erzeugt und unsere Gesellschaft lähmt.</p>
                     
@@ -219,7 +225,7 @@
                     <h2>Therapie: Die vergessene Lösung</h2>
                 </div>
                 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 03: Die vergessene Lösung</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Was Isonomie wirklich ist und warum das Losverfahren der Schlüssel zur Auflösung politischer Privilegien und zur Herstellung echter Gleichheit ist.</p>
                     
@@ -299,7 +305,7 @@
                     <h2>Heilung: Isonomie in Aktion</h2>
                 </div>
                 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 04: Eine Heilung für Gesellschaft und Psyche</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Wie Isonomie die Gesellschaft heilt, indem sie Stasis auflöst, Vertrauen schafft und den Einzelnen vom Druck der Selbstoptimierung entlastet.</p>
                     
@@ -353,7 +359,7 @@
                     <h2>Die Hürden: Falsche Feindbilder</h2>
                 </div>
 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 05: Risiken & Missverständnisse</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Warum wir die Antike vergaßen, die Angst vor dem "Rule of the Mob" eine Illusion ist und welche Bürgerpflichten mit echter Freiheit einhergehen.</p>
                     
@@ -426,7 +432,7 @@
                     <h2>Der Quantensprung</h2>
                 </div>
 
-                <div class="audio-feature-box">
+                <div class="audio-feature-box tilt-card">
                     <h4>Audio-Log 06: Der Quantensprung zur Mündigkeit</h4>
                     <p style="color:var(--text-muted); margin-bottom:1rem;">Eine Vision für eine wahrhaft politische, stabile und freie Gesellschaft, die die Last und Lust der Politik gerecht auf alle verteilt.</p>
                     
@@ -515,12 +521,12 @@
                     <h2>Systemzugriff</h2>
                 </div>
                 <div class="final-actions-grid">
-                    <div class="action-card">
+                    <div class="action-card tilt-card">
                         <h3 class="subtitle">Mission Parameters</h3>
                         <p>Wissen ist der erste Schritt.</p>
                         <a href="https://losdemokratie.de/antrag" target="_blank" class="cta-button">INITIATIVE BEITRETEN</a>
                         
-                        <div class="share-buttons" style="margin-top:2rem; padding-top:1rem; border-top:1px solid var(--border-glass);">
+                        <div class="share-buttons">
                             <span class="subtitle" style="display:block; margin-bottom:1rem;">Dossier teilen</span>
                             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                                 <a href="#" id="share-email" class="share-btn" target="_blank">
@@ -539,7 +545,7 @@
                         </div>
                     </div>
                     
-                    <div class="action-card">
+                    <div class="action-card tilt-card">
                         <h3 class="subtitle">Data Uplink</h3>
                         <ul style="list-style: none; padding: 0; color: var(--text-muted);">
                             <li style="margin-bottom: 0.5rem;">Access: <a href="https://losdemokratie.de/">Losdemokratie Core</a></li>
@@ -556,7 +562,7 @@
         </footer>
 
         <div class="ui-controls-container">
-            <button id="perf-toggle" class="perf-toggle-button">✨ ANIMATIONEN: ON</button>
+            <button id="perf-toggle" class="perf-toggle-button">✨ FX: ON</button>
         </div>
     </div>
 
