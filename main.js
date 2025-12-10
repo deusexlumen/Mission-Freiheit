@@ -1,6 +1,6 @@
-// MISSION FREIHEIT V3.0 (ULTIMATE)
+// MISSION FREIHEIT V3.1 (STABLE)
 
-/** TILT EFFECT FOR CARDS (Vanilla JS for Performance) */
+/** TILT EFFECT (Optimized with RAF) */
 class TiltEffect {
     constructor() {
         this.cards = document.querySelectorAll('.tilt-card');
@@ -8,33 +8,43 @@ class TiltEffect {
     }
     init() {
         this.cards.forEach(card => {
+            let ticking = false;
             card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                const rotateX = ((y - centerY) / centerY) * -2; // Subtle tilt
-                const rotateY = ((x - centerX) / centerX) * 2;
-
-                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                
-                // Dynamic Spotlight Gradient inside the CSS var or direct style
-                card.style.backgroundImage = `
-                    radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.05) 0%, transparent 80%),
-                    linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)
-                `;
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        this.updateTilt(e, card);
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
             });
-            card.addEventListener('mouseleave', () => {
-                card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
-                card.style.backgroundImage = `linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)`;
-            });
+            card.addEventListener('mouseleave', () => this.resetTilt(card));
         });
+    }
+    updateTilt(e, card) {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        // Limit rotation to +/- 2 degrees
+        const rotateX = ((y - centerY) / centerY) * -2; 
+        const rotateY = ((x - centerX) / centerX) * 2;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        card.style.backgroundImage = `
+            radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.06) 0%, transparent 80%),
+            linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)
+        `;
+    }
+    resetTilt(card) {
+        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
+        card.style.backgroundImage = `linear-gradient(160deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)`;
     }
 }
 
-/** AUDIO SYNC & TRANSCRIPT */
+/** AUDIO SYNC & PLAYER LOGIC */
 class TranscriptSynchronizer {
     constructor(box) {
         this.box = box;
@@ -77,7 +87,7 @@ class TranscriptSynchronizer {
     }
 }
 
-/** PARTICLE SIMULATION (With Vortex & Rotation) */
+/** PARTICLE SIMULATION */
 class Particle {
     constructor(w, h) {
         this.w = w; this.h = h;
@@ -101,7 +111,7 @@ class Particle {
             this.vy += Math.sin(angle + Math.PI/2) * 0.03;
             
             this.vx *= 0.94; this.vy *= 0.94;
-            this.color = this.pref < 0.5 ? '#ff2a6d' : '#05f874'; // Cyber Pink/Green
+            this.color = this.pref < 0.5 ? '#ff2a6d' : '#05f874'; // Pink/Green
             this.targetSize = 2;
         } else {
             this.vx += (Math.random()-0.5)*0.3; this.vy += (Math.random()-0.5)*0.3;
@@ -131,7 +141,6 @@ class Particle {
 class PhoenixDossier {
     constructor() {
         this.DOM = {
-            body: document.body,
             simCanvas: document.getElementById('sim-canvas'),
             simWrapper: document.getElementById('canvas-wrapper'),
             btnElect: document.getElementById('btn-elect'),
@@ -150,21 +159,16 @@ class PhoenixDossier {
         });
         new TiltEffect();
         this.setupGSAP();
+        this.setupShare();
         
         // Remove Preloader
         setTimeout(() => document.getElementById('preloader').classList.add('hidden'), 1500);
-        
-        // Share Logic
-        this.setupShare();
     }
     
     setupGSAP() {
         if(!window.gsap) return;
         gsap.registerPlugin(ScrollTrigger);
-        
-        // Massive Title Entrance
         gsap.from("#title-split", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out", delay: 0.5 });
-        
         document.querySelectorAll('.chapter-section').forEach(sec => {
             gsap.from(sec.querySelectorAll('h2, .tilt-card, p'), {
                 scrollTrigger: { trigger: sec, start: "top 80%" },
@@ -197,7 +201,6 @@ class PhoenixDossier {
         ctx.fillStyle = 'rgba(0,0,0,0.2)'; // Trail
         ctx.fillRect(0,0,this.simState.w, this.simState.h);
         
-        // Rotation Logic
         if(this.simState.mode === 'sortition' && t - this.simState.lastRot > this.simState.rotInt) {
             this.rotatePower();
             this.simState.lastRot = t;
@@ -223,21 +226,37 @@ class PhoenixDossier {
         this.DOM.btnSort.className = !isElect ? 'sim-btn sim-btn-logic active-mode' : 'sim-btn';
         this.DOM.entropy.textContent = isElect ? 'POLARIZED' : 'ROTATING';
         this.DOM.entropy.style.color = isElect ? 'var(--signal-alert)' : 'var(--signal-success)';
-        this.DOM.desc.textContent = isElect ? 'Wahlkampf: Gravitationszentren bilden sich.' : 'Isonomie: Ständige Rotation der Verantwortung.';
         if(!isElect) this.rotatePower();
     }
 
     setupAudio(box) {
         const audio = box.querySelector('audio');
         const btn = box.querySelector('.play-pause-btn');
+        const iconPlay = btn.querySelector('.icon-play');
+        const iconPause = btn.querySelector('.icon-pause');
         const bar = box.querySelector('.audio-progress-bar');
         const time = box.querySelector('.current-time');
+        const total = box.querySelector('.total-time');
         
+        const toggleIcons = () => {
+            const isPaused = audio.paused;
+            iconPlay.style.display = isPaused ? 'block' : 'none';
+            iconPause.style.display = isPaused ? 'none' : 'block';
+        };
+
         btn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
+        audio.addEventListener('play', toggleIcons);
+        audio.addEventListener('pause', toggleIcons);
+        
         audio.addEventListener('timeupdate', () => {
             if(bar) bar.style.width = (audio.currentTime/audio.duration)*100 + '%';
             if(time) time.textContent = this.fmt(audio.currentTime);
         });
+        
+        audio.addEventListener('loadedmetadata', () => {
+            if(total) total.textContent = this.fmt(audio.duration);
+        });
+
         box.querySelectorAll('.skip-btn').forEach(b => 
             b.addEventListener('click', () => audio.currentTime += parseFloat(b.dataset.skip)));
     }
@@ -251,12 +270,12 @@ class PhoenixDossier {
             'FACEBOOK': `https://www.facebook.com/sharer/sharer.php?u=${url}`
         };
         document.querySelectorAll('.share-btn').forEach(btn => {
-            const k = btn.textContent.trim().split(' ')[0].toUpperCase();
+            const k = btn.id.split('-')[1].toUpperCase();
             if(map[k]) btn.href = map[k];
         });
     }
 
-    fmt(s) { return new Date(s * 1000).toISOString().substr(14, 5); }
+    fmt(s) { if(!s) return "00:00"; return new Date(s * 1000).toISOString().substr(14, 5); }
 }
 
 window.addEventListener('DOMContentLoaded', () => new PhoenixDossier());
