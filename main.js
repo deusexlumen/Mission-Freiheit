@@ -1,6 +1,6 @@
-// MISSION FREIHEIT V3.2 (REFACTORED)
+// MISSION FREIHEIT V4.0 (ULTIMATE ENGINE)
 
-/** TILT EFFECT (Physics smoothed) */
+/** TILT EFFECT */
 class TiltEffect {
     constructor() {
         this.cards = document.querySelectorAll('.tilt-card');
@@ -8,203 +8,292 @@ class TiltEffect {
     }
     init() {
         this.cards.forEach(card => {
-            card.addEventListener('mousemove', (e) => this.handleMove(e, card));
-            card.addEventListener('mouseleave', () => this.reset(card));
+            let ticking = false;
+            card.addEventListener('mousemove', (e) => {
+                if (!ticking) {
+                    window.requestAnimationFrame(() => {
+                        this.updateTilt(e, card);
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            card.addEventListener('mouseleave', () => this.resetTilt(card));
         });
     }
-    handleMove(e, card) {
-        requestAnimationFrame(() => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Subtle Rotation
-            const rotateX = ((y - rect.height/2) / rect.height) * -3;
-            const rotateY = ((x - rect.width/2) / rect.width) * 3;
+    updateTilt(e, card) {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * -2;
+        const rotateY = ((x - centerX) / centerX) * 2;
 
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-            
-            // Dynamic Light Source
-            card.style.background = `
-                radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.08) 0%, transparent 60%),
-                linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%)
-            `;
-        });
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        card.style.backgroundImage = `
+            radial-gradient(circle at ${x}px ${y}px, rgba(255,255,255,0.06) 0%, transparent 80%),
+            linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)
+        `;
     }
-    reset(card) {
+    resetTilt(card) {
         card.style.transform = `perspective(1000px) rotateX(0) rotateY(0)`;
-        card.style.background = `linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.005) 100%)`;
+        card.style.backgroundImage = `linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)`;
     }
 }
 
-/** PARTICLE SIMULATION (Refined Colors) */
-class ParticleSystem {
+/** AUDIO LOGIC */
+class TranscriptSynchronizer {
+    constructor(box) {
+        this.box = box;
+        this.audio = box.querySelector('audio');
+        this.transcriptContainer = box.querySelector('.transcript-container');
+        this.toggleBtn = box.querySelector('.transcript-toggle-btn');
+        if (!this.audio || !this.transcriptContainer) return;
+
+        this.cues = Array.from(this.transcriptContainer.querySelectorAll('p[data-start]'));
+        if(this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggle());
+        this.audio.addEventListener('timeupdate', () => this.sync());
+        
+        this.cues.forEach(cue => {
+            cue.addEventListener('click', () => {
+                this.audio.currentTime = parseFloat(cue.dataset.start);
+                if (this.audio.paused) this.audio.play();
+            });
+        });
+    }
+    toggle() {
+        const isHidden = this.transcriptContainer.hidden;
+        this.transcriptContainer.hidden = !isHidden;
+        this.toggleBtn.textContent = isHidden ? 'TRANSKRIPT ÖFFNEN' : 'TRANSKRIPT SCHLIESSEN';
+        if(isHidden) setTimeout(() => this.transcriptContainer.scrollIntoView({behavior:"smooth", block:"center"}), 100);
+    }
+    sync() {
+        if(this.transcriptContainer.hidden || this.audio.paused) return;
+        const time = this.audio.currentTime;
+        let activeCue = null;
+        this.cues.forEach(cue => {
+            const start = parseFloat(cue.dataset.start);
+            const end = parseFloat(cue.dataset.end || Infinity);
+            if (time >= start && time < end) {
+                cue.classList.add('active-cue');
+                activeCue = cue;
+            } else {
+                cue.classList.remove('active-cue');
+            }
+        });
+        if(activeCue) activeCue.scrollIntoView({behavior:"smooth", block:"center"});
+    }
+}
+
+/** SIMULATION LOGIC */
+class Particle {
+    constructor(w, h) {
+        this.w = w; this.h = h;
+        this.x = Math.random() * w; this.y = Math.random() * h;
+        this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = 1; this.targetSize = 1;
+        this.color = 'rgba(255,255,255,0.2)';
+        this.selected = false;
+        this.pref = Math.random();
+    }
+    update(mode, centers) {
+        if(mode === 'election') {
+            let target = this.pref < 0.5 ? centers[0] : centers[1];
+            let dx = target.x - this.x; let dy = target.y - this.y;
+            let dist = Math.sqrt(dx*dx + dy*dy);
+            if(dist > 10) { this.vx += (dx/dist)*0.06; this.vy += (dy/dist)*0.06; }
+            
+            // Vortex Effect
+            let angle = Math.atan2(dy, dx);
+            this.vx += Math.cos(angle + Math.PI/2) * 0.03;
+            this.vy += Math.sin(angle + Math.PI/2) * 0.03;
+            
+            this.vx *= 0.94; this.vy *= 0.94;
+            this.color = this.pref < 0.5 ? '#ff003c' : '#00ff9f';
+            this.targetSize = 2;
+        } else {
+            this.vx += (Math.random()-0.5)*0.3; this.vy += (Math.random()-0.5)*0.3;
+            let speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+            if(speed > 2.5) { this.vx = (this.vx/speed)*2.5; this.vy = (this.vy/speed)*2.5; }
+            
+            if(this.selected) { this.color = '#00f0ff'; this.targetSize = 4; }
+            else { this.color = 'rgba(255,255,255,0.15)'; this.targetSize = 1; }
+        }
+        this.x += this.vx; this.y += this.vy;
+        if(this.x < 0 || this.x > this.w) this.vx *= -1;
+        if(this.y < 0 || this.y > this.h) this.vy *= -1;
+        this.size += (this.targetSize - this.size) * 0.1;
+    }
+    draw(ctx) {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+        ctx.fillStyle = this.color;
+        if(this.selected && this.size > 2) {
+            ctx.shadowBlur = 15; ctx.shadowColor = this.color;
+        } else { ctx.shadowBlur = 0; }
+        ctx.fill(); ctx.shadowBlur = 0;
+    }
+}
+
+/** CONTROLLER */
+class PhoenixDossier {
     constructor() {
-        this.canvas = document.getElementById('sim-canvas');
-        if(!this.canvas) return;
-        this.ctx = this.canvas.getContext('2d');
-        this.particles = [];
-        this.mode = 'election'; // or 'sortition'
+        this.DOM = {
+            simCanvas: document.getElementById('sim-canvas'),
+            simWrapper: document.getElementById('canvas-wrapper'),
+            btnElect: document.getElementById('btn-elect'),
+            btnSort: document.getElementById('btn-sort'),
+            entropy: document.getElementById('entropy-meter'),
+            desc: document.getElementById('analysis-text')
+        };
+        this.simState = { ctx: null, w: 0, h: 0, particles: [], mode: 'election', lastRot: 0, rotInt: 2500 };
+        this.init();
+    }
+    init() {
+        if(this.DOM.simCanvas) this.setupSim();
+        document.querySelectorAll('.audio-feature-box').forEach(box => {
+            new TranscriptSynchronizer(box);
+            this.setupAudio(box);
+        });
+        new TiltEffect();
+        this.setupGSAP();
+        this.setupShare();
+        setTimeout(() => document.getElementById('preloader').classList.add('hidden'), 1200);
+    }
+    
+    setupGSAP() {
+        if(!window.gsap) return;
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.from("#title-split", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out", delay: 0.5 });
+        
+        document.querySelectorAll('.chapter-section').forEach(sec => {
+            gsap.from(sec.querySelectorAll('h2, .tilt-card, p'), {
+                scrollTrigger: { trigger: sec, start: "top 85%" },
+                y: 50, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power2.out"
+            });
+        });
+    }
+
+    setupSim() {
+        this.simState.ctx = this.DOM.simCanvas.getContext('2d');
         this.resize();
         window.addEventListener('resize', () => this.resize());
-        this.initParticles();
-        this.setupControls();
-        this.loop();
+        this.simState.particles = Array.from({length:600}, () => new Particle(this.simState.w, this.simState.h));
+        
+        this.DOM.btnElect.addEventListener('click', () => this.setMode('election'));
+        this.DOM.btnSort.addEventListener('click', () => this.setMode('sortition'));
+        
+        requestAnimationFrame((t) => this.loop(t));
     }
     
     resize() {
-        this.w = this.canvas.parentElement.offsetWidth;
-        this.h = this.canvas.parentElement.offsetHeight;
-        this.canvas.width = this.w;
-        this.canvas.height = this.h;
-    }
-
-    initParticles() {
-        this.particles = Array.from({length: 400}, () => ({
-            x: Math.random() * this.w,
-            y: Math.random() * this.h,
-            vx: (Math.random()-0.5), vy: (Math.random()-0.5),
-            pref: Math.random(),
-            color: '#fff',
-            size: Math.random() * 2
-        }));
-    }
-
-    setupControls() {
-        const btnElect = document.getElementById('btn-elect');
-        const btnSort = document.getElementById('btn-sort');
-        const entropy = document.getElementById('entropy-meter');
-
-        btnElect.addEventListener('click', () => {
-            this.mode = 'election';
-            btnElect.classList.add('active'); btnSort.classList.remove('active');
-            entropy.textContent = "POLARISATION AKTIV";
-            entropy.style.color = "var(--alert)";
-        });
-
-        btnSort.addEventListener('click', () => {
-            this.mode = 'sortition';
-            btnSort.classList.add('active'); btnElect.classList.remove('active');
-            entropy.textContent = "DYNAMISCHE BALANCE";
-            entropy.style.color = "var(--success)";
-        });
-    }
-
-    loop() {
-        this.ctx.fillStyle = 'rgba(5, 5, 7, 0.2)'; // Trail effect linked to bg color
-        this.ctx.fillRect(0, 0, this.w, this.h);
-
-        const centers = [{x: this.w*0.25, y: this.h*0.5}, {x: this.w*0.75, y: this.h*0.5}];
-
-        this.particles.forEach(p => {
-            if(this.mode === 'election') {
-                // Gravitation towards poles
-                const target = p.pref < 0.5 ? centers[0] : centers[1];
-                const dx = target.x - p.x;
-                const dy = target.y - p.y;
-                p.vx += dx * 0.0005;
-                p.vy += dy * 0.0005;
-                p.color = p.pref < 0.5 ? '#ff2a6d' : '#00f3ff'; // Red vs Cyan
-            } else {
-                // Brownian Motion (Sortition)
-                p.vx += (Math.random()-0.5) * 0.2;
-                p.vy += (Math.random()-0.5) * 0.2;
-                p.color = 'rgba(255,255,255,0.5)';
-            }
-            
-            // Physics
-            p.vx *= 0.96; p.vy *= 0.96; // Friction
-            p.x += p.vx; p.y += p.vy;
-
-            // Bounds
-            if(p.x < 0 || p.x > this.w) p.vx *= -1;
-            if(p.y < 0 || p.y > this.h) p.vy *= -1;
-
-            // Draw
-            this.ctx.beginPath();
-            this.ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-            this.ctx.fillStyle = p.color;
-            this.ctx.fill();
-        });
-
-        requestAnimationFrame(() => this.loop());
-    }
-}
-
-/** AUDIO PLAYER LOGIC */
-class AudioController {
-    constructor(wrapper) {
-        this.wrapper = wrapper;
-        this.audio = wrapper.querySelector('audio');
-        this.btn = wrapper.querySelector('.play-pause-btn');
-        this.bar = wrapper.querySelector('.audio-progress-bar');
-        this.barContainer = wrapper.querySelector('.audio-progress-container');
-        this.timeDisplay = wrapper.querySelector('.current-time');
-        
-        // Transcript
-        this.transBtn = wrapper.querySelector('.transcript-toggle-btn');
-        this.transBox = wrapper.querySelector('.transcript-box');
-
-        if(this.btn) this.btn.addEventListener('click', () => this.togglePlay());
-        if(this.audio) {
-            this.audio.addEventListener('timeupdate', () => this.updateProgress());
-            this.audio.addEventListener('ended', () => this.reset());
-        }
-        if(this.barContainer) {
-            this.barContainer.addEventListener('click', (e) => {
-                const rect = this.barContainer.getBoundingClientRect();
-                const pos = (e.clientX - rect.left) / rect.width;
-                this.audio.currentTime = pos * this.audio.duration;
-            });
-        }
-        if(this.transBtn) {
-            this.transBtn.addEventListener('click', () => {
-                const isHidden = this.transBox.style.display === 'none';
-                this.transBox.style.display = isHidden ? 'block' : 'none';
-            });
-        }
-    }
-
-    togglePlay() {
-        const iconPlay = this.btn.querySelector('.icon-play');
-        const iconPause = this.btn.querySelector('.icon-pause');
-        if(this.audio.paused) {
-            this.audio.play();
-            iconPlay.style.display = 'none';
-            iconPause.style.display = 'block';
-        } else {
-            this.audio.pause();
-            iconPlay.style.display = 'block';
-            iconPause.style.display = 'none';
-        }
-    }
-
-    updateProgress() {
-        const pct = (this.audio.currentTime / this.audio.duration) * 100;
-        this.bar.style.width = `${pct}%`;
-        this.timeDisplay.textContent = new Date(this.audio.currentTime * 1000).toISOString().substr(14, 5);
+        this.simState.w = this.DOM.simWrapper.offsetWidth;
+        this.simState.h = this.DOM.simWrapper.offsetHeight;
+        this.DOM.simCanvas.width = this.simState.w;
+        this.DOM.simCanvas.height = this.simState.h;
     }
     
-    reset() {
-        this.btn.querySelector('.icon-play').style.display = 'block';
-        this.btn.querySelector('.icon-pause').style.display = 'none';
-        this.bar.style.width = '0%';
+    loop(t) {
+        const ctx = this.simState.ctx;
+        ctx.fillStyle = 'rgba(0,0,0,0.2)'; 
+        ctx.fillRect(0,0,this.simState.w, this.simState.h);
+        
+        if(this.simState.mode === 'sortition' && t - this.simState.lastRot > this.simState.rotInt) {
+            this.rotatePower();
+            this.simState.lastRot = t;
+        }
+        
+        const centers = [{x:this.simState.w*0.25, y:this.simState.h*0.5}, {x:this.simState.w*0.75, y:this.simState.h*0.5}];
+        this.simState.particles.forEach(p => { p.update(this.simState.mode, centers); p.draw(ctx); });
+        
+        requestAnimationFrame((t) => this.loop(t));
     }
+    
+    rotatePower() {
+        this.simState.particles.forEach(p => p.selected = false);
+        const set = new Set();
+        while(set.size < 40) set.add(Math.floor(Math.random()*this.simState.particles.length));
+        set.forEach(i => this.simState.particles[i].selected = true);
+    }
+    
+    setMode(m) {
+        this.simState.mode = m;
+        const isElect = m === 'election';
+        this.DOM.btnElect.className = isElect ? 'sim-btn sim-btn-alert active-mode' : 'sim-btn';
+        this.DOM.btnSort.className = !isElect ? 'sim-btn sim-btn-logic active-mode' : 'sim-btn';
+        this.DOM.entropy.textContent = isElect ? 'POLARIZED' : 'ROTATING';
+        this.DOM.entropy.style.color = isElect ? 'var(--signal-alert)' : 'var(--signal-success)';
+        if(!isElect) this.rotatePower();
+    }
+
+    setupAudio(box) {
+        const audio = box.querySelector('audio');
+        const btn = box.querySelector('.play-pause-btn');
+        const iconPlay = btn.querySelector('.icon-play');
+        const iconPause = btn.querySelector('.icon-pause');
+        const bar = box.querySelector('.audio-progress-bar');
+        const time = box.querySelector('.current-time');
+        const total = box.querySelector('.total-time');
+        
+        const toggleIcons = () => {
+            const isPaused = audio.paused;
+            iconPlay.style.display = isPaused ? 'block' : 'none';
+            iconPause.style.display = isPaused ? 'none' : 'block';
+        };
+
+        btn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
+        audio.addEventListener('play', toggleIcons);
+        audio.addEventListener('pause', toggleIcons);
+        
+        audio.addEventListener('timeupdate', () => {
+            if(bar) bar.style.width = (audio.currentTime/audio.duration)*100 + '%';
+            if(time) time.textContent = this.fmt(audio.currentTime);
+        });
+        
+        audio.addEventListener('loadedmetadata', () => {
+            if(total) total.textContent = this.fmt(audio.duration);
+        });
+
+        box.querySelectorAll('.skip-btn').forEach(b => 
+            b.addEventListener('click', () => audio.currentTime += parseFloat(b.dataset.skip)));
+    }
+    
+    setupShare() {
+        const url = encodeURIComponent(location.href);
+        const txt = encodeURIComponent(document.title);
+        const map = {
+            'EMAIL': `mailto:?body=${url}`,
+            'X': `https://twitter.com/intent/tweet?url=${url}&text=${txt}`,
+            'FACEBOOK': `https://www.facebook.com/sharer/sharer.php?u=${url}`
+        };
+        document.querySelectorAll('.share-btn').forEach(btn => {
+            const k = btn.id.split('-')[1].toUpperCase();
+            if(map[k]) btn.href = map[k];
+        });
+    }
+    
+    setupPerfToggle() {
+        const btn = document.getElementById('perf-toggle');
+        if(btn) btn.addEventListener('click', () => location.reload());
+    }
+
+    generateTakeaways() {
+        const list = document.querySelector('#knowledge-distillate ul');
+        if (!list) return;
+        document.querySelectorAll('section[data-takeaway]').forEach(sec => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '1rem'; li.style.color = 'var(--text-body)';
+            li.style.borderBottom = '1px solid var(--glass-border)'; li.style.paddingBottom = '0.5rem';
+            const num = sec.querySelector('.chapter-number')?.textContent || '•';
+            li.innerHTML = `<strong style="color:var(--neon-cyan); margin-right:10px;">${num}</strong> ${sec.dataset.takeaway}`;
+            list.appendChild(li);
+        });
+    }
+
+    fmt(s) { if(!s) return "00:00"; return new Date(s * 1000).toISOString().substr(14, 5); }
 }
 
-// BOOTSTRAP
-window.addEventListener('DOMContentLoaded', () => {
-    // Hide Preloader
-    setTimeout(() => document.getElementById('preloader').style.opacity = '0', 800);
-    setTimeout(() => document.getElementById('preloader').remove(), 1300);
-
-    new TiltEffect();
-    new ParticleSystem();
-    document.querySelectorAll('.audio-feature-box').forEach(box => new AudioController(box));
-
-    // Simple GSAP entrance
-    if(window.gsap) {
-        gsap.from(".nav-card", {x: -50, opacity: 0, duration: 1, delay: 0.5});
-        gsap.from("#title-split", {y: 50, opacity: 0, duration: 1, delay: 0.2});
-    }
-});
+window.addEventListener('DOMContentLoaded', () => new PhoenixDossier());
