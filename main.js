@@ -242,6 +242,7 @@ class PhoenixDossier {
             const isPaused = audio.paused;
             iconPlay.style.display = isPaused ? 'block' : 'none';
             iconPause.style.display = isPaused ? 'none' : 'block';
+            btn.setAttribute('aria-label', isPaused ? 'Abspielen' : 'Pausieren');
         };
 
         btn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
