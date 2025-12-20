@@ -27,7 +27,7 @@ class TiltEffect {
         const y = e.clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        
+
         const rotateX = ((y - centerY) / centerY) * -2;
         const rotateY = ((x - centerX) / centerX) * 2;
 
@@ -53,9 +53,18 @@ class TranscriptSynchronizer {
         if (!this.audio || !this.transcriptContainer) return;
 
         this.cues = Array.from(this.transcriptContainer.querySelectorAll('p[data-start]'));
+
+        // ⚡ Bolt Optimization: Cache cue times to avoid DOM reads/parsing in loop
+        this.cachedCues = this.cues.map(cue => ({
+            element: cue,
+            start: parseFloat(cue.dataset.start),
+            end: parseFloat(cue.dataset.end || Infinity)
+        }));
+        this.currentActiveCue = null;
+
         if(this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggle());
         this.audio.addEventListener('timeupdate', () => this.sync());
-        
+
         this.cues.forEach(cue => {
             cue.addEventListener('click', () => {
                 this.audio.currentTime = parseFloat(cue.dataset.start);
@@ -73,17 +82,22 @@ class TranscriptSynchronizer {
         if(this.transcriptContainer.hidden || this.audio.paused) return;
         const time = this.audio.currentTime;
         let activeCue = null;
-        this.cues.forEach(cue => {
-            const start = parseFloat(cue.dataset.start);
-            const end = parseFloat(cue.dataset.end || Infinity);
-            if (time >= start && time < end) {
-                cue.classList.add('active-cue');
-                activeCue = cue;
+
+        // ⚡ Bolt Optimization: Use cached values
+        this.cachedCues.forEach(item => {
+            if (time >= item.start && time < item.end) {
+                item.element.classList.add('active-cue');
+                activeCue = item.element;
             } else {
-                cue.classList.remove('active-cue');
+                item.element.classList.remove('active-cue');
             }
         });
-        if(activeCue) activeCue.scrollIntoView({behavior:"smooth", block:"center"});
+
+        // ⚡ Bolt Optimization: Only scroll if active cue changed
+        if(activeCue && activeCue !== this.currentActiveCue) {
+            this.currentActiveCue = activeCue;
+            activeCue.scrollIntoView({behavior:"smooth", block:"center"});
+        }
     }
 }
 
@@ -104,12 +118,12 @@ class Particle {
             let dx = target.x - this.x; let dy = target.y - this.y;
             let dist = Math.sqrt(dx*dx + dy*dy);
             if(dist > 10) { this.vx += (dx/dist)*0.06; this.vy += (dy/dist)*0.06; }
-            
+
             // Vortex Effect
             let angle = Math.atan2(dy, dx);
             this.vx += Math.cos(angle + Math.PI/2) * 0.03;
             this.vy += Math.sin(angle + Math.PI/2) * 0.03;
-            
+
             this.vx *= 0.94; this.vy *= 0.94;
             this.color = this.pref < 0.5 ? '#ff003c' : '#00ff9f';
             this.targetSize = 2;
@@ -117,7 +131,7 @@ class Particle {
             this.vx += (Math.random()-0.5)*0.3; this.vy += (Math.random()-0.5)*0.3;
             let speed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
             if(speed > 2.5) { this.vx = (this.vx/speed)*2.5; this.vy = (this.vy/speed)*2.5; }
-            
+
             if(this.selected) { this.color = '#00f0ff'; this.targetSize = 4; }
             else { this.color = 'rgba(255,255,255,0.15)'; this.targetSize = 1; }
         }
@@ -162,13 +176,13 @@ class PhoenixDossier {
         this.setupShare();
         setTimeout(() => document.getElementById('preloader').classList.add('hidden'), 1200);
     }
-    
+
     setupGSAP() {
         if(!window.gsap) return;
         gsap.registerPlugin(ScrollTrigger);
-        
+
         gsap.from("#title-split", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out", delay: 0.5 });
-        
+
         document.querySelectorAll('.chapter-section').forEach(sec => {
             gsap.from(sec.querySelectorAll('h2, .tilt-card, p'), {
                 scrollTrigger: { trigger: sec, start: "top 85%" },
@@ -182,43 +196,43 @@ class PhoenixDossier {
         this.resize();
         window.addEventListener('resize', () => this.resize());
         this.simState.particles = Array.from({length:600}, () => new Particle(this.simState.w, this.simState.h));
-        
+
         this.DOM.btnElect.addEventListener('click', () => this.setMode('election'));
         this.DOM.btnSort.addEventListener('click', () => this.setMode('sortition'));
-        
+
         requestAnimationFrame((t) => this.loop(t));
     }
-    
+
     resize() {
         this.simState.w = this.DOM.simWrapper.offsetWidth;
         this.simState.h = this.DOM.simWrapper.offsetHeight;
         this.DOM.simCanvas.width = this.simState.w;
         this.DOM.simCanvas.height = this.simState.h;
     }
-    
+
     loop(t) {
         const ctx = this.simState.ctx;
-        ctx.fillStyle = 'rgba(0,0,0,0.2)'; 
+        ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fillRect(0,0,this.simState.w, this.simState.h);
-        
+
         if(this.simState.mode === 'sortition' && t - this.simState.lastRot > this.simState.rotInt) {
             this.rotatePower();
             this.simState.lastRot = t;
         }
-        
+
         const centers = [{x:this.simState.w*0.25, y:this.simState.h*0.5}, {x:this.simState.w*0.75, y:this.simState.h*0.5}];
         this.simState.particles.forEach(p => { p.update(this.simState.mode, centers); p.draw(ctx); });
-        
+
         requestAnimationFrame((t) => this.loop(t));
     }
-    
+
     rotatePower() {
         this.simState.particles.forEach(p => p.selected = false);
         const set = new Set();
         while(set.size < 40) set.add(Math.floor(Math.random()*this.simState.particles.length));
         set.forEach(i => this.simState.particles[i].selected = true);
     }
-    
+
     setMode(m) {
         this.simState.mode = m;
         const isElect = m === 'election';
@@ -237,7 +251,7 @@ class PhoenixDossier {
         const bar = box.querySelector('.audio-progress-bar');
         const time = box.querySelector('.current-time');
         const total = box.querySelector('.total-time');
-        
+
         const toggleIcons = () => {
             const isPaused = audio.paused;
             iconPlay.style.display = isPaused ? 'block' : 'none';
@@ -247,20 +261,20 @@ class PhoenixDossier {
         btn.addEventListener('click', () => audio.paused ? audio.play() : audio.pause());
         audio.addEventListener('play', toggleIcons);
         audio.addEventListener('pause', toggleIcons);
-        
+
         audio.addEventListener('timeupdate', () => {
             if(bar) bar.style.width = (audio.currentTime/audio.duration)*100 + '%';
             if(time) time.textContent = this.fmt(audio.currentTime);
         });
-        
+
         audio.addEventListener('loadedmetadata', () => {
             if(total) total.textContent = this.fmt(audio.duration);
         });
 
-        box.querySelectorAll('.skip-btn').forEach(b => 
+        box.querySelectorAll('.skip-btn').forEach(b =>
             b.addEventListener('click', () => audio.currentTime += parseFloat(b.dataset.skip)));
     }
-    
+
     setupShare() {
         const url = encodeURIComponent(location.href);
         const txt = encodeURIComponent(document.title);
@@ -274,7 +288,7 @@ class PhoenixDossier {
             if(map[k]) btn.href = map[k];
         });
     }
-    
+
     setupPerfToggle() {
         const btn = document.getElementById('perf-toggle');
         if(btn) btn.addEventListener('click', () => location.reload());
